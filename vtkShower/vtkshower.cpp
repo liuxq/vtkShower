@@ -89,18 +89,47 @@ vtkShower::vtkShower(QWidget *parent)
 
 	ui.setupUi(this);
 
-	m_showType = Solid;
-
-	m_kReader.read("mesh0.02.k");
-
 	m_pRenderder = vtkSmartPointer< vtkRenderer >::New();
 	m_pRenWin = vtkSmartPointer<vtkRenderWindow>::New();
 	m_pRenWin->AddRenderer(m_pRenderder);
-	vtkRenderWindowInteractor* iren = vtkRenderWindowInteractor::New();
+	iren = vtkRenderWindowInteractor::New();
 	iren->SetRenderWindow(m_pRenWin);
 	vtkSmartPointer<customMouseInteractorStyle> style = vtkSmartPointer<customMouseInteractorStyle>::New();
 	iren->SetInteractorStyle(style);
 
+	connect(ui.comboBox, SIGNAL(activated(int)), this, SLOT(ComboChange(int)));
+	connect(ui.radioButton_solid, SIGNAL(clicked()), this, SLOT(onRadioClickSolid()));
+	connect(ui.radioButton_wareline, SIGNAL(clicked()), this, SLOT(onRadioClickWareline()));
+	connect(ui.radioButton_setnode, SIGNAL(clicked()), this, SLOT(onRadioClickSetNode()));
+	connect(ui.radioButton_setSeg, SIGNAL(clicked()), this, SLOT(onRadioClickSetSeg()));
+	connect(ui.action, SIGNAL(triggered()), this, SLOT(OnMenuOpenKFile()));
+	
+}
+void vtkShower::Clear()
+{
+	m_pRenderder->Clear();
+	for (int i = 0; i < m_partActors.size(); i++)
+		m_partActors[i]->ReleaseGraphicsResources();
+	m_partActors.clear();
+
+	for (int i = 0; i < m_setNodeActors.size(); i++)
+		m_setNodeActors[i].Clear();
+	m_setNodeActors.clear();
+
+	for (int i = 0; i < m_setSegActors.size(); i++)
+		m_setSegActors[i].Clear();
+	m_setSegActors.clear();
+
+	m_textActor->clear();
+
+	vtkTextActor* m_textActor;
+	map<int, vector<vtkActor*> > m_setSegArrowActors;
+}
+void vtkShower::LoadKFile(QString file)
+{
+	
+	m_showType = Solid;
+	m_kReader.read(file.toStdString());
 	//体
 	ColorMapping cm(m_kReader.GetParts().size() - 1, 0);
 	for (int i = 0; i < m_kReader.GetParts().size(); i++)
@@ -110,7 +139,7 @@ vtkShower::vtkShower(QWidget *parent)
 
 		vtkActor* partActor = vtkActor::New();
 		partActor->SetMapper(geoMapper);
-		
+
 		Color c(cm.GetColor(i));
 		partActor->GetProperty()->SetColor(c.r / 255.0, c.g / 255.0, c.b / 255.0);
 		partActor->GetProperty()->EdgeVisibilityOn();
@@ -186,7 +215,7 @@ vtkShower::vtkShower(QWidget *parent)
 			m_setSegArrowActors[i].push_back(actor);
 		}
 	}
-	
+
 	//坐标系
 
 	vtkAxesActor* axes = vtkAxesActor::New();
@@ -209,7 +238,7 @@ vtkShower::vtkShower(QWidget *parent)
 	m_pRenderder->AddActor2D(m_textActor);
 	m_coordinate = vtkCoordinate::New();
 	m_coordinate->SetCoordinateSystemToWorld();
-	
+
 	m_pRenderder->SetBackground(0.2, 0.2, 0.2);
 
 	m_pRenderder->ResetCamera();
@@ -217,23 +246,13 @@ vtkShower::vtkShower(QWidget *parent)
 	ui.qvtkWidget->SetRenderWindow(m_pRenWin);
 	ui.qvtkWidget->GetRenderWindow()->Render();
 
-	/*QString filter;
-	filter = "JPEG image file (*.jpg *.jpeg)";
-	QDir dir;
-	QString fileName = QFileDialog::getOpenFileName(this, QString(tr("打开图像")), dir.absolutePath(), filter);
-	if (fileName.isEmpty() == true) return;*/
+
 
 	// init UI
 	for (int i = 0; i < m_kReader.GetParts().size(); i++)
 	{
 		ui.comboBox->addItem(QString::number(m_kReader.GetParts()[i]));
 	}
-
-	connect(ui.comboBox, SIGNAL(activated(int)), this, SLOT(ComboChange(int)));
-	connect(ui.radioButton_solid, SIGNAL(clicked()), this, SLOT(onRadioClickSolid()));
-	connect(ui.radioButton_wareline, SIGNAL(clicked()), this, SLOT(onRadioClickWareline()));
-	connect(ui.radioButton_setnode, SIGNAL(clicked()), this, SLOT(onRadioClickSetNode()));
-	connect(ui.radioButton_setSeg, SIGNAL(clicked()), this, SLOT(onRadioClickSetSeg()));
 }
 
 void vtkShower::UpdateTextActorPos()
@@ -276,6 +295,10 @@ void vtkShower::ComboChange(int index)
 	}
 	else if (SetSeg == m_showType)
 	{
+		if (m_setSegActors.empty())
+		{
+			return;
+		}
 		for (int i = 0; i < m_setSegActors.size(); i++)
 		{
 			if (i == index)
@@ -419,9 +442,15 @@ void vtkShower::resizeEvent(QResizeEvent * event) {
 	ui.horizontalLayoutWidget->resize(this->size());
 }
 
-void vtkShower::mouseMoveEvent(QMouseEvent *event)
+void vtkShower::OnMenuOpenKFile()
 {
-	
+	QString filter;
+	filter = "k file (*.k)";
+	QDir dir;
+	QString fileName = QFileDialog::getOpenFileName(this, QString(tr("打开k文件")), dir.absolutePath(), filter);
+	if (fileName.isEmpty() == true) return;
+
+	LoadKFile(fileName);
 }
 
 vtkShower::~vtkShower()

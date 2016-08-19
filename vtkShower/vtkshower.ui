@@ -159,8 +159,9 @@
    </property>
    <widget class="QMenu" name="menu">
     <property name="title">
-     <string/>
+     <string>文件</string>
     </property>
+    <addaction name="action"/>
    </widget>
    <addaction name="menu"/>
   </widget>
@@ -173,7 +174,7 @@
    </attribute>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
-  <action name="action_k">
+  <action name="action">
    <property name="text">
     <string>打开k文件</string>
    </property>

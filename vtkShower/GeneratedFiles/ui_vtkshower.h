@@ -32,7 +32,7 @@ QT_BEGIN_NAMESPACE
 class Ui_vtkShowerClass
 {
 public:
-    QAction *action_k;
+    QAction *action;
     QWidget *centralWidget;
     QWidget *horizontalLayoutWidget;
     QHBoxLayout *horizontalLayout;
@@ -56,8 +56,8 @@ public:
         if (vtkShowerClass->objectName().isEmpty())
             vtkShowerClass->setObjectName(QStringLiteral("vtkShowerClass"));
         vtkShowerClass->resize(650, 515);
-        action_k = new QAction(vtkShowerClass);
-        action_k->setObjectName(QStringLiteral("action_k"));
+        action = new QAction(vtkShowerClass);
+        action->setObjectName(QStringLiteral("action"));
         centralWidget = new QWidget(vtkShowerClass);
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
         horizontalLayoutWidget = new QWidget(centralWidget);
@@ -159,6 +159,7 @@ public:
         vtkShowerClass->setStatusBar(statusBar);
 
         menuBar->addAction(menu->menuAction());
+        menu->addAction(action);
 
         retranslateUi(vtkShowerClass);
 
@@ -168,13 +169,13 @@ public:
     void retranslateUi(QMainWindow *vtkShowerClass)
     {
         vtkShowerClass->setWindowTitle(QApplication::translate("vtkShowerClass", "vtkShower", 0));
-        action_k->setText(QApplication::translate("vtkShowerClass", "\346\211\223\345\274\200k\346\226\207\344\273\266", 0));
+        action->setText(QApplication::translate("vtkShowerClass", "\346\211\223\345\274\200k\346\226\207\344\273\266", 0));
         radioButton_solid->setText(QApplication::translate("vtkShowerClass", "\345\256\236\344\275\223\345\215\225\345\205\203", 0));
         radioButton_wareline->setText(QApplication::translate("vtkShowerClass", "\347\272\277\346\241\206\345\215\225\345\205\203", 0));
         radioButton_setnode->setText(QApplication::translate("vtkShowerClass", "\350\212\202\347\202\271\351\233\206\345\220\210", 0));
         radioButton_setSeg->setText(QApplication::translate("vtkShowerClass", "\350\212\202\347\202\271\351\235\242\351\233\206\345\220\210", 0));
         label_doc->setText(QApplication::translate("vtkShowerClass", "\344\275\223\347\274\226\345\217\267\357\274\232", 0));
-        menu->setTitle(QString());
+        menu->setTitle(QApplication::translate("vtkShowerClass", "\346\226\207\344\273\266", 0));
     } // retranslateUi
 
 };

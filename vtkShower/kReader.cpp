@@ -20,7 +20,6 @@ vtkPoints* kReader::GetVtkPoints()
 	{
 		m_points = vtkPoints::New();
 		m_points->SetNumberOfPoints(m_nodes.size());
-		//m_points->SetPoint(0, 0, 0, 0);//必须设置一个0位置
 		for (vector<Node>::iterator it = m_nodes.begin(); it != m_nodes.end(); it++)
 		{
 			int id = (*it).id;
@@ -64,6 +63,14 @@ vtkDataSet* kReader::GetElementByIndex(int index)
 				{
 					ug->InsertNextCell(VTK_HEXAHEDRON, 8, ids);
 				}
+			}
+			else if (it->type == ELEMENT_SHELL)
+			{
+				ug->InsertNextCell(VTK_TETRA, 4, ids);
+			}
+			else if (it->type == ELEMENT_BEAM)
+			{
+				ug->InsertNextCell(VTK_TRIANGLE, 3, ids);
 			}
 			
 		}
@@ -241,6 +248,18 @@ void kReader::read(string file)
 			else if (_readType == ELEMENT_SHELL)
 			{
 				ele.type = ELEMENT_SHELL;
+				ss >> ele.eid >> ele.pid;
+				partId[ele.pid] = true;
+				int arg, i = 0;
+				while (ss >> arg)
+				{
+					ele.nids[i++] = arg;
+				}
+				m_eles.push_back(ele);
+			}
+			else if (_readType == ELEMENT_BEAM)
+			{
+				ele.type = ELEMENT_BEAM;
 				ss >> ele.eid >> ele.pid;
 				partId[ele.pid] = true;
 				int arg, i = 0;

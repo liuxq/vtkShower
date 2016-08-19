@@ -41,7 +41,8 @@ protected:
 	void resizeEvent(QResizeEvent * event);
 	void SetAllPartWireLine(bool);
 	void SetAllSetSegVisible(bool bVisible);
-	void mouseMoveEvent(QMouseEvent *event);
+	void LoadKFile(QString);
+	void Clear();
 
 private:
 	Ui::vtkShowerClass ui;
@@ -50,6 +51,7 @@ private:
 	vtkSmartPointer< vtkImageViewer2 >          m_pImageViewer;
 	vtkSmartPointer< vtkRenderer >              m_pRenderder;
 	vtkSmartPointer<vtkRenderWindow>			m_pRenWin;
+	vtkRenderWindowInteractor* iren;
 	kReader m_kReader;
 
 	vector<vtkActor*> m_partActors;
@@ -69,6 +71,7 @@ public slots:
 	void onRadioClickWareline();
 	void onRadioClickSetNode();
 	void onRadioClickSetSeg();
+	void OnMenuOpenKFile();
 };
 
 #endif // VTKSHOWER_H
