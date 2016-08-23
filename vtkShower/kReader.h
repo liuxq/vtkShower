@@ -3,6 +3,7 @@
 #include <map>
 
 #include "vec3.h"
+#include "vtktype.h"
 
 using namespace std;
 
@@ -36,7 +37,7 @@ struct Element
 	int eid;
 	int pid;
 	int nids[8];
-	void GetOffsetNid(int* outnids, int offset)
+	void GetOffsetNid(vtkIdType* outnids, int offset)
 	{
 		for (int i = 0; i < 8; i++)
 		{
@@ -48,7 +49,7 @@ struct Element
 struct Segment
 {
 	int nids[4];
-	void GetOffsetNid(int* outnids, int offset)
+	void GetOffsetNid(vtkIdType* outnids, int offset)
 	{
 		for (int i = 0; i < 4; i++)
 		{
@@ -60,7 +61,7 @@ struct Segment
 struct NodeList
 {
 	int nids[8];
-	void GetOffsetNid(int* outnids, int offset)
+	void GetOffsetNid(vtkIdType* outnids, int offset)
 	{
 		for (int i = 0; i < 8; i++)
 		{
@@ -80,6 +81,7 @@ public:
 	vtkPoints* GetVtkPoints();
 	vtkDataSet* GetElementByIndex(int index);
 	int GetSetSegArrow(int index, vector<Vec3d>& startPos, vector<Vec3d>& endPos);
+	void Clear();
 	vector<int>& GetParts()
 	{
 		return m_partIndexs;

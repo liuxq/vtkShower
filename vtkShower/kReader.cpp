@@ -82,7 +82,7 @@ vtkDataSet* kReader::GetSetNodeList(int index)
 	vtkUnstructuredGrid * ug = vtkUnstructuredGrid::New();
 	ug->SetPoints(GetVtkPoints());
 
-	int nids[8];
+	vtkIdType nids[8];
 	for (map<int, vector<NodeList> >::iterator it = m_setNodeList.begin(); it != m_setNodeList.end(); it++)
 	{
 		if (it->first == index)
@@ -103,7 +103,7 @@ vtkDataSet* kReader::GetSetSeg(int index)
 	vtkUnstructuredGrid * ug = vtkUnstructuredGrid::New();
 	ug->SetPoints(GetVtkPoints());
 
-	int nids[8];
+	vtkIdType nids[8];
 	for (map<int, vector<Segment> >::iterator it = m_setSegment.begin(); it != m_setSegment.end(); it++)
 	{
 		if (it->first == index)
@@ -148,7 +148,7 @@ vtkDataSet* kReader::GetAllElement()
 	vtkUnstructuredGrid * ug = vtkUnstructuredGrid::New();
 	ug->SetPoints(GetVtkPoints());
 
-	int nids[8];
+	vtkIdType nids[8];
 	for (vector<Element>::iterator it = m_eles.begin(); it != m_eles.end(); it++)
 	{
 		it->GetOffsetNid(nids, m_nodeOffset);
@@ -167,7 +167,24 @@ vtkDataSet* kReader::GetAllElement()
 	return ug;
 }
 
+void kReader::Clear()
+{
+	m_nodes.clear();
+	m_eles.clear();
 
+	m_setNodeList.clear();
+	m_setSegment.clear();
+
+	m_partIndexs.clear();
+	m_setNodeIndexs.clear();
+	m_setSegIndexs.clear();
+	if (m_points)
+	{
+		m_points->Delete();
+		m_points = nullptr;
+	}
+	
+}
 
 void kReader::read(string file)
 {

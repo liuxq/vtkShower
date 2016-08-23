@@ -87,6 +87,7 @@ vtkShower::vtkShower(QWidget *parent)
 	if (instance == NULL)
 		instance = this;
 
+	m_textActor = NULL;
 	ui.setupUi(this);
 
 	m_pRenderder = vtkSmartPointer< vtkRenderer >::New();
@@ -96,6 +97,57 @@ vtkShower::vtkShower(QWidget *parent)
 	iren->SetRenderWindow(m_pRenWin);
 	vtkSmartPointer<customMouseInteractorStyle> style = vtkSmartPointer<customMouseInteractorStyle>::New();
 	iren->SetInteractorStyle(style);
+	m_pRenderder->SetBackground(0.2, 0.2, 0.2);
+	ui.qvtkWidget->SetRenderWindow(m_pRenWin);
+	ui.qvtkWidget->GetRenderWindow()->Render();
+
+
+	//vtkNew<vtkLSDynaReader> rdr;
+	//rdr->SetDatabaseDirectory("D:/big");
+	//rdr->Update();
+
+	//ofstream lxq3("lxqq.txt");
+	//vtkIndent lxq4;
+	//rdr->PrintSelf(lxq3, lxq4);
+	//bool findFlag = false;
+	//vtkUnstructuredGrid* shell = (vtkUnstructuredGrid*)0;
+	//vtkMultiBlockDataSet* mbds = vtkMultiBlockDataSet::SafeDownCast(rdr->GetOutput());
+	//for (int k = 0; k < mbds->GetNumberOfBlocks(); ++k)
+	//{
+	//	if (findFlag)
+	//		break;
+	//	int type1 = mbds->GetBlock(k)->GetDataObjectType();
+
+	//	if (type1 == VTK_UNSTRUCTURED_GRID)
+	//	{
+	//		shell = vtkUnstructuredGrid::SafeDownCast(mbds->GetBlock(k));
+
+	//		vtkCellArray *cellArray = shell ? shell->GetCells() : NULL;
+	//		vtkPoints *points = shell ? shell->GetPoints() : NULL;
+
+	//		if (shell->GetNumberOfCells() > 0)
+	//		{
+	//			vtkCompositeDataGeometryFilter* geom1 = vtkCompositeDataGeometryFilter::New();
+	//			geom1->SetInputConnection(0, rdr->GetOutputPort(0));
+	//			vtkPolyDataMapper* geoMapper = vtkPolyDataMapper::New();
+	//			geoMapper->SetInputConnection(geom1->GetOutputPort());
+	//			//geoMapper->SetScalarModeToUsePointFieldData();
+	//			geoMapper->SetScalarModeToUsePointData();
+	//			vtkActor* lxq1 = vtkActor::New();
+	//			lxq1->SetMapper(geoMapper);
+	//			lxq1->GetProperty()->SetColor(1, 1, 1);
+	//			m_pRenderder->AddActor(lxq1);
+	//			findFlag = true;
+	//			break;
+	//		}
+	//		else
+	//			shell = (vtkUnstructuredGrid*)0;
+	//	}
+	//}
+
+	m_pRenderder->ResetCamera();
+	m_pRenderder->GetActiveCamera()->Zoom(1.5);
+
 
 	connect(ui.comboBox, SIGNAL(activated(int)), this, SLOT(ComboChange(int)));
 	connect(ui.radioButton_solid, SIGNAL(clicked()), this, SLOT(onRadioClickSolid()));
@@ -107,27 +159,50 @@ vtkShower::vtkShower(QWidget *parent)
 }
 void vtkShower::Clear()
 {
+	m_kReader.Clear();
 	m_pRenderder->Clear();
 	for (int i = 0; i < m_partActors.size(); i++)
-		m_partActors[i]->ReleaseGraphicsResources();
+	{
+		m_pRenderder->RemoveActor(m_partActors[i]);
+		m_partActors[i]->Delete();
+	}
 	m_partActors.clear();
 
 	for (int i = 0; i < m_setNodeActors.size(); i++)
-		m_setNodeActors[i].Clear();
+	{
+		m_pRenderder->RemoveActor(m_setNodeActors[i]);
+		m_setNodeActors[i]->Delete();
+	}
 	m_setNodeActors.clear();
 
 	for (int i = 0; i < m_setSegActors.size(); i++)
-		m_setSegActors[i].Clear();
+	{
+		m_pRenderder->RemoveActor(m_setSegActors[i]);
+		m_setSegActors[i]->Delete();
+	}
 	m_setSegActors.clear();
+	
+	if (m_textActor)
+	{
+		m_pRenderder->RemoveActor2D(m_textActor);
+		m_textActor->Delete();
+		m_textActor = NULL;
+	}
 
-	m_textActor->clear();
-
-	vtkTextActor* m_textActor;
-	map<int, vector<vtkActor*> > m_setSegArrowActors;
+	for (int i = 0; i < m_setSegArrowActors.size(); i++)
+	{
+		for (int j = 0; j < m_setSegArrowActors[i].size(); j++)
+		{
+			m_pRenderder->RemoveActor(m_setSegArrowActors[i][j]);
+			m_setSegArrowActors[i][j]->Delete();
+		}
+		m_setSegArrowActors[i].clear();
+	}
+	m_setSegArrowActors.clear();
 }
 void vtkShower::LoadKFile(QString file)
 {
-	
+	Clear();
 	m_showType = Solid;
 	m_kReader.read(file.toStdString());
 	//体
@@ -146,6 +221,7 @@ void vtkShower::LoadKFile(QString file)
 		m_pRenderder->AddActor(partActor);
 		m_partActors.push_back(partActor);
 	}
+
 	//节点集合
 	for (int i = 0; i < m_kReader.GetSetNode().size(); i++)
 	{
@@ -239,14 +315,9 @@ void vtkShower::LoadKFile(QString file)
 	m_coordinate = vtkCoordinate::New();
 	m_coordinate->SetCoordinateSystemToWorld();
 
-	m_pRenderder->SetBackground(0.2, 0.2, 0.2);
-
+	
 	m_pRenderder->ResetCamera();
 	m_pRenderder->GetActiveCamera()->Zoom(1.5);
-	ui.qvtkWidget->SetRenderWindow(m_pRenWin);
-	ui.qvtkWidget->GetRenderWindow()->Render();
-
-
 
 	// init UI
 	for (int i = 0; i < m_kReader.GetParts().size(); i++)

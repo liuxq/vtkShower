@@ -56,7 +56,7 @@
       <OutputFile>$(OutDir)\$(ProjectName).exe</OutputFile>
       <AdditionalLibraryDirectories>$(QTDIR)\lib;C:\Program Files (x86)\VTK\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>qtmaind.lib;Qt5Cored.lib;Qt5Guid.lib;Qt5Widgetsd.lib;vtkCommonCore-7.0.lib;vtkCommonMath-7.0.lib;vtkCommonTransforms-7.0.lib;vtkCommonDataModel-7.0.lib;vtkCommonExecutionModel-7.0.lib;vtkRenderingQt-7.0.lib;vtkRenderingOpenGL-7.0.lib;vtkRenderingCore-7.0.lib;vtkRenderingFreeType-7.0.lib;vtkInteractionStyle-7.0.lib;vtkalglib-7.0.lib;vtkFiltersSources-7.0.lib;vtkGUISupportQt-7.0.lib;vtkInteractionImage-7.0.lib;vtkIOImage-7.0.lib;vtkIOLSDyna-7.0.lib;vtkFiltersGeometry-7.0.lib;vtkRenderingAnnotation-7.0.lib;vtkInteractionWidgets-7.0.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>qtmaind.lib;Qt5Cored.lib;Qt5Guid.lib;Qt5Widgetsd.lib;vtkCommonCore-7.0.lib;vtkCommonMath-7.0.lib;vtkCommonTransforms-7.0.lib;vtkCommonDataModel-7.0.lib;vtkCommonExecutionModel-7.0.lib;vtkRenderingQt-7.0.lib;vtkRenderingOpenGL-7.0.lib;vtkRenderingCore-7.0.lib;vtkRenderingFreeType-7.0.lib;vtkInteractionStyle-7.0.lib;vtkalglib-7.0.lib;vtkFiltersSources-7.0.lib;vtkGUISupportQt-7.0.lib;vtkInteractionImage-7.0.lib;vtkIOImage-7.0.lib;vtkFiltersGeometry-7.0.lib;vtkRenderingAnnotation-7.0.lib;vtkInteractionWidgets-7.0.lib;vtksys-7.0.lib;vtkIOXMLParser-7.0.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -89,7 +89,13 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="kReader.cpp" />
+    <ClCompile Include="LSDynaFamily.cxx" />
+    <ClCompile Include="LSDynaMetaData.cxx" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="vtkLSDynaPart.cxx" />
+    <ClCompile Include="vtkLSDynaPartCollection.cxx" />
+    <ClCompile Include="vtkLSDynaReader.cxx" />
+    <ClCompile Include="vtkLSDynaSummaryParser.cxx" />
     <ClCompile Include="vtkshower.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -97,7 +103,7 @@
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Moc%27ing vtkshower.h...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DWIN64 -DQT_DLL -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB  "-I.\GeneratedFiles" "-I." "-I$(QTDIR)\include" "-I.\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtWidgets" "-IC:\Program Files (x86)\VTK\include"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DWIN64 -DQT_DLL -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB  "-I.\GeneratedFiles" "-I." "-I$(QTDIR)\include" "-I.\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtWidgets" "-IC:\Program Files (x86)\VTK\include\vtk-7.0"</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Moc%27ing vtkshower.h...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
@@ -120,7 +126,13 @@
     <ClInclude Include="ColorMapping.h" />
     <ClInclude Include="GeneratedFiles\ui_vtkshower.h" />
     <ClInclude Include="kReader.h" />
+    <ClInclude Include="LSDynaFamily.h" />
+    <ClInclude Include="LSDynaMetaData.h" />
     <ClInclude Include="vec3.h" />
+    <ClInclude Include="vtkLSDynaPart.h" />
+    <ClInclude Include="vtkLSDynaPartCollection.h" />
+    <ClInclude Include="vtkLSDynaReader.h" />
+    <ClInclude Include="vtkLSDynaSummaryParser.h" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="vtkshower.qrc">
