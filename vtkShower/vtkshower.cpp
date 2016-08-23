@@ -102,48 +102,48 @@ vtkShower::vtkShower(QWidget *parent)
 	ui.qvtkWidget->GetRenderWindow()->Render();
 
 
-	//vtkNew<vtkLSDynaReader> rdr;
-	//rdr->SetDatabaseDirectory("D:/big");
-	//rdr->Update();
+	vtkNew<vtkLSDynaReader> rdr;
+	rdr->SetDatabaseDirectory("E:/projects/result_demo");
+	rdr->Update();
 
-	//ofstream lxq3("lxqq.txt");
-	//vtkIndent lxq4;
-	//rdr->PrintSelf(lxq3, lxq4);
-	//bool findFlag = false;
-	//vtkUnstructuredGrid* shell = (vtkUnstructuredGrid*)0;
-	//vtkMultiBlockDataSet* mbds = vtkMultiBlockDataSet::SafeDownCast(rdr->GetOutput());
-	//for (int k = 0; k < mbds->GetNumberOfBlocks(); ++k)
-	//{
-	//	if (findFlag)
-	//		break;
-	//	int type1 = mbds->GetBlock(k)->GetDataObjectType();
+	ofstream lxq3("lxqq.txt");
+	vtkIndent lxq4;
+	rdr->PrintSelf(lxq3, lxq4);
+	bool findFlag = false;
+	vtkUnstructuredGrid* shell = (vtkUnstructuredGrid*)0;
+	vtkMultiBlockDataSet* mbds = vtkMultiBlockDataSet::SafeDownCast(rdr->GetOutput());
+	for (int k = 0; k < mbds->GetNumberOfBlocks(); ++k)
+	{
+		if (findFlag)
+			break;
+		int type1 = mbds->GetBlock(k)->GetDataObjectType();
 
-	//	if (type1 == VTK_UNSTRUCTURED_GRID)
-	//	{
-	//		shell = vtkUnstructuredGrid::SafeDownCast(mbds->GetBlock(k));
+		if (type1 == VTK_UNSTRUCTURED_GRID)
+		{
+			shell = vtkUnstructuredGrid::SafeDownCast(mbds->GetBlock(k));
 
-	//		vtkCellArray *cellArray = shell ? shell->GetCells() : NULL;
-	//		vtkPoints *points = shell ? shell->GetPoints() : NULL;
+			vtkCellArray *cellArray = shell ? shell->GetCells() : NULL;
+			vtkPoints *points = shell ? shell->GetPoints() : NULL;
 
-	//		if (shell->GetNumberOfCells() > 0)
-	//		{
-	//			vtkCompositeDataGeometryFilter* geom1 = vtkCompositeDataGeometryFilter::New();
-	//			geom1->SetInputConnection(0, rdr->GetOutputPort(0));
-	//			vtkPolyDataMapper* geoMapper = vtkPolyDataMapper::New();
-	//			geoMapper->SetInputConnection(geom1->GetOutputPort());
-	//			//geoMapper->SetScalarModeToUsePointFieldData();
-	//			geoMapper->SetScalarModeToUsePointData();
-	//			vtkActor* lxq1 = vtkActor::New();
-	//			lxq1->SetMapper(geoMapper);
-	//			lxq1->GetProperty()->SetColor(1, 1, 1);
-	//			m_pRenderder->AddActor(lxq1);
-	//			findFlag = true;
-	//			break;
-	//		}
-	//		else
-	//			shell = (vtkUnstructuredGrid*)0;
-	//	}
-	//}
+			if (shell->GetNumberOfCells() > 0)
+			{
+				vtkCompositeDataGeometryFilter* geom1 = vtkCompositeDataGeometryFilter::New();
+				geom1->SetInputConnection(0, rdr->GetOutputPort(0));
+				vtkPolyDataMapper* geoMapper = vtkPolyDataMapper::New();
+				geoMapper->SetInputConnection(geom1->GetOutputPort());
+				//geoMapper->SetScalarModeToUsePointFieldData();
+				geoMapper->SetScalarModeToUsePointData();
+				vtkActor* lxq1 = vtkActor::New();
+				lxq1->SetMapper(geoMapper);
+				lxq1->GetProperty()->SetColor(1, 1, 1);
+				m_pRenderder->AddActor(lxq1);
+				findFlag = true;
+				break;
+			}
+			else
+				shell = (vtkUnstructuredGrid*)0;
+		}
+	}
 
 	m_pRenderder->ResetCamera();
 	m_pRenderder->GetActiveCamera()->Zoom(1.5);
