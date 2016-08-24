@@ -1740,7 +1740,7 @@ int vtkLSDynaReader::ReadHeaderInformation( int curAdapt )
   int mdlopt;
   int intpts2;
   mdlopt = p->Dict["MAXINT"];//lxq
-  mdlopt = 3;
+  //mdlopt = 3;
   if ( mdlopt >= 0 && mdlopt <= 10000)
     {
     intpts2 = mdlopt;
@@ -3496,114 +3496,114 @@ int vtkLSDynaReader::RequestData(
   vtkInformationVector** vtkNotUsed(iinfo),
   vtkInformationVector* oinfo )
 {
-  LSDynaMetaData* p = this->P;
+	LSDynaMetaData* p = this->P;
 
-  if ( ! p->FileIsValid )
-    {
-    // This should have been set in RequestInformation()
-    return 0;
-    }
-  p->Fam.ClearBuffer();
-  p->Fam.OpenFileHandles();
+	if (!p->FileIsValid)
+	{
+		// This should have been set in RequestInformation()
+		return 0;
+	}
+	p->Fam.ClearBuffer();
+	p->Fam.OpenFileHandles();
 
-  vtkMultiBlockDataSet* mbds = 0;
-  vtkInformation* oi = oinfo->GetInformationObject(0);
-  if ( ! oi )
-    {
-    return 0;
-    }
+	vtkMultiBlockDataSet* mbds = 0;
+	vtkInformation* oi = oinfo->GetInformationObject(0);
+	if (!oi)
+	{
+		return 0;
+	}
 
-  if ( oi->Has( vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP() ) )
-    {
-    // Only return single time steps for now.
-    double requestedTimeStep = oi->Get( vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
-    int timeStepLen = oi->Length( vtkStreamingDemandDrivenPipeline::TIME_STEPS() );
-    double* timeSteps = oi->Get( vtkStreamingDemandDrivenPipeline::TIME_STEPS() );
+	if (oi->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP()))
+	{
+		// Only return single time steps for now.
+		double requestedTimeStep = oi->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
+		int timeStepLen = oi->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+		double* timeSteps = oi->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
 
-    int cnt = 0;
-    while ( cnt < timeStepLen - 1 && timeSteps[cnt] < requestedTimeStep )
-      {
-      ++cnt;
-      }
-    this->SetTimeStep( cnt );
+		int cnt = 0;
+		while (cnt < timeStepLen - 1 && timeSteps[cnt] < requestedTimeStep)
+		{
+			++cnt;
+		}
+		this->SetTimeStep(cnt);
 
-    oi->Set( vtkDataObject::DATA_TIME_STEP(), p->TimeValues[ p->CurrentState ] );
-    }
+		oi->Set(vtkDataObject::DATA_TIME_STEP(), p->TimeValues[p->CurrentState]);
+	}
 
-  mbds = vtkMultiBlockDataSet::SafeDownCast( oi->Get(vtkDataObject::DATA_OBJECT()) );
-  if ( ! mbds )
-    {
-    return 0;
-    }
-  this->UpdateProgress( 0.01 );
+	mbds = vtkMultiBlockDataSet::SafeDownCast(oi->Get(vtkDataObject::DATA_OBJECT()));
+	if (!mbds)
+	{
+		return 0;
+	}
+	this->UpdateProgress(0.01);
 
-  if ( p->Dict["MATTYP"] )
-    {
-    // Do something with material type data
-    }
-  this->UpdateProgress( 0.05 );
+	if (p->Dict["MATTYP"])
+	{
+		// Do something with material type data
+	}
+	this->UpdateProgress(0.05);
 
-  if ( p->Dict["IALEMAT"] )
-    {
-    // Do something with fluid material ID data
-    }
-  this->UpdateProgress( 0.10 );
+	if (p->Dict["IALEMAT"])
+	{
+		// Do something with fluid material ID data
+	}
+	this->UpdateProgress(0.10);
 
-  if ( p->Dict["NMSPH"] )
-    {
-    // Do something with smooth partical hydrodynamics element data
-    }
-  this->UpdateProgress( 0.15 );
+	if (p->Dict["NMSPH"])
+	{
+		// Do something with smooth partical hydrodynamics element data
+	}
+	this->UpdateProgress(0.15);
 
-  //Read in the topology information for caching
-  this->ReadTopology();
+	//Read in the topology information for caching
+	this->ReadTopology();
 
-  // Adapted element parent list
-  // This isn't even implemented by LS-Dyna yet
+	// Adapted element parent list
+	// This isn't even implemented by LS-Dyna yet
 
-  // Smooth Particle Hydrodynamics Node and Material List are handled in ReadConnectivityAndMaterial()
+	// Smooth Particle Hydrodynamics Node and Material List are handled in ReadConnectivityAndMaterial()
 
-  // Start of state data ===================
-  // I. Node and Cell State
-  this->UpdateProgress( 0.6 );
-  if ( this->ReadState( p->CurrentState ) )
-    {
-    vtkErrorMacro( "Problem reading state data for time step " << p->CurrentState );
-    return 1;
-    }
+	// Start of state data ===================
+	// I. Node and Cell State
+	this->UpdateProgress(0.6);
+	if (this->ReadState(p->CurrentState))
+	{
+		vtkErrorMacro("Problem reading state data for time step " << p->CurrentState);
+		return 1;
+	}
 
-  // III. SPH Node State
-  this->UpdateProgress( 0.7 );
-  if ( this->GetNumberOfParticleCells() )
-    {
-    if ( this->ReadSPHState( p->CurrentState ) )
-      {
-      vtkErrorMacro( "Problem reading smooth particle hydrodynamics state." );
-      return 1;
-      }
-    }
+	// III. SPH Node State
+	this->UpdateProgress(0.7);
+	if (this->GetNumberOfParticleCells())
+	{
+		if (this->ReadSPHState(p->CurrentState))
+		{
+			vtkErrorMacro("Problem reading smooth particle hydrodynamics state.");
+			return 1;
+		}
+	}
 
-  this->UpdateProgress( 0.8 );
-  //add all the parts as child blocks to the output
-  int size = this->Parts->GetNumberOfParts();
-  for(int i=0; i < size;++i)
-    {
-    if (this->Parts->IsActivePart(i))
-      {
-      vtkUnstructuredGrid *ug = this->Parts->GetGridForPart(i);
-      mbds->SetBlock(i,ug);
-      mbds->GetMetaData(i)->Set(vtkCompositeDataSet::NAME(),
-        this->P->PartNames[i].c_str());
-      }
-    else
-      {
-      mbds->SetBlock(i,NULL);
-      }
-    }
+	this->UpdateProgress(0.8);
+	//add all the parts as child blocks to the output
+	int size = this->Parts->GetNumberOfParts();
+	for (int i = 0; i < size; ++i)
+	{
+		if (this->Parts->IsActivePart(i))
+		{
+			vtkUnstructuredGrid *ug = this->Parts->GetGridForPart(i);
+			mbds->SetBlock(i, ug);
+			mbds->GetMetaData(i)->Set(vtkCompositeDataSet::NAME(),
+				this->P->PartNames[i].c_str());
+		}
+		else
+		{
+			mbds->SetBlock(i, NULL);
+		}
+	}
 
-  this->P->Fam.ClearBuffer();
-  this->UpdateProgress( 1.0 );
-  return 1;
+	this->P->Fam.ClearBuffer();
+	this->UpdateProgress(1.0);
+	return 1;
 }
 
 //-----------------------------------------------------------------------------

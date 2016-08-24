@@ -32,6 +32,7 @@
 #include "vtkTextActor3D.h"
 #include "vtkCallbackCommand.h"
 #include "vtkObjectFactory.h"
+#include "vtkLookupTable.h"
 
 
 #include <QFileDialog>
@@ -102,48 +103,57 @@ vtkShower::vtkShower(QWidget *parent)
 	ui.qvtkWidget->GetRenderWindow()->Render();
 
 
-	//vtkNew<vtkLSDynaReader> rdr;
-	//rdr->SetDatabaseDirectory("D:/big");
-	//rdr->Update();
+	vtkNew<vtkLSDynaReader> rdr;
+	rdr->SetDatabaseDirectory("D:/result_demo");
+	rdr->Update();
+	//rdr->SetTimeStep(29);
 
-	//ofstream lxq3("lxqq.txt");
-	//vtkIndent lxq4;
-	//rdr->PrintSelf(lxq3, lxq4);
-	//bool findFlag = false;
-	//vtkUnstructuredGrid* shell = (vtkUnstructuredGrid*)0;
-	//vtkMultiBlockDataSet* mbds = vtkMultiBlockDataSet::SafeDownCast(rdr->GetOutput());
-	//for (int k = 0; k < mbds->GetNumberOfBlocks(); ++k)
-	//{
-	//	if (findFlag)
-	//		break;
-	//	int type1 = mbds->GetBlock(k)->GetDataObjectType();
+	ofstream lxq3("lxqq.txt");
+	vtkIndent lxq4;
+	rdr->PrintSelf(lxq3, lxq4);
 
-	//	if (type1 == VTK_UNSTRUCTURED_GRID)
-	//	{
-	//		shell = vtkUnstructuredGrid::SafeDownCast(mbds->GetBlock(k));
+	vtkUnstructuredGrid* shell = (vtkUnstructuredGrid*)0;
+	vtkMultiBlockDataSet* mbds = vtkMultiBlockDataSet::SafeDownCast(rdr->GetOutput());
+	for (int k = 0; k < mbds->GetNumberOfBlocks(); ++k)
+	{
+		int type1 = mbds->GetBlock(k)->GetDataObjectType();
 
-	//		vtkCellArray *cellArray = shell ? shell->GetCells() : NULL;
-	//		vtkPoints *points = shell ? shell->GetPoints() : NULL;
+		if (type1 == VTK_UNSTRUCTURED_GRID)
+		{
+			shell = vtkUnstructuredGrid::SafeDownCast(mbds->GetBlock(k));
 
-	//		if (shell->GetNumberOfCells() > 0)
-	//		{
-	//			vtkCompositeDataGeometryFilter* geom1 = vtkCompositeDataGeometryFilter::New();
-	//			geom1->SetInputConnection(0, rdr->GetOutputPort(0));
-	//			vtkPolyDataMapper* geoMapper = vtkPolyDataMapper::New();
-	//			geoMapper->SetInputConnection(geom1->GetOutputPort());
-	//			//geoMapper->SetScalarModeToUsePointFieldData();
-	//			geoMapper->SetScalarModeToUsePointData();
-	//			vtkActor* lxq1 = vtkActor::New();
-	//			lxq1->SetMapper(geoMapper);
-	//			lxq1->GetProperty()->SetColor(1, 1, 1);
-	//			m_pRenderder->AddActor(lxq1);
-	//			findFlag = true;
-	//			break;
-	//		}
-	//		else
-	//			shell = (vtkUnstructuredGrid*)0;
-	//	}
-	//}
+			if (shell->GetNumberOfCells() > 0)
+			{
+				shell->GetCellData()->SetActiveScalars("Stress");
+				double rang[2];
+				shell->GetCellData()->GetScalars("Stress")->GetRange(rang);
+				vtkDataArray* lxq = shell->GetCellData()->GetScalars("Stress");
+				vtkDataSetMapper* unMapper = vtkDataSetMapper::New();
+				unMapper->SetInputData(shell);
+				unMapper->UseLookupTableScalarRangeOn();
+				unMapper->SetScalarModeToUseCellData();
+				
+				vtkLookupTable* lut = vtkLookupTable::New();
+				
+				lut->SetTableRange(-1, 0);
+				lut->SetHueRange(0, 0.67);
+				lut->SetSaturationRange(1,1);
+				lut->SetValueRange(1,1);
+				lut->SetAlphaRange(1,1);
+				lut->SetNumberOfColors(256);
+				lut->Build();
+
+				unMapper->SetLookupTable(lut);
+				
+				vtkActor* partActor = vtkActor::New();
+				partActor->SetMapper(unMapper);
+
+				m_pRenderder->AddActor(partActor);
+			}
+			else
+				shell = (vtkUnstructuredGrid*)0;
+		}
+	}
 
 	m_pRenderder->ResetCamera();
 	m_pRenderder->GetActiveCamera()->Zoom(1.5);
