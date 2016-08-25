@@ -13,6 +13,12 @@
 
 class vtkTextActor;
 class vtkCoordinate;
+class vtkMultiBlockDataSet;
+class vtkLSDynaReader;
+class vtkLookupTable;
+class vtkDataSetMapper;
+class vtkScalarBarActor;
+
 
 enum ShowType
 {
@@ -43,6 +49,9 @@ protected:
 	void SetAllSetSegVisible(bool bVisible);
 	void LoadKFile(QString);
 	void Clear();
+	void RemoveLsdActors();
+	void visPipeline();
+	void visColorBar();
 
 private:
 	Ui::vtkShowerClass ui;
@@ -59,11 +68,19 @@ private:
 	vector<vtkActor*> m_setSegActors;
 	vtkTextActor* m_textActor;
 	map<int, vector<vtkActor*> > m_setSegArrowActors;
+	vector<vtkMultiBlockDataSet*> m_vFrames;
+	vector<vtkActor*> m_lsdPartActors;
+
+	vtkDataSetMapper* unMapper;
+	vtkScalarBarActor* colorTableBar;
 
 	Vec3d m_textPos;
 	vtkCoordinate* m_coordinate;
+	vtkLSDynaReader* rdr;
+	vtkLookupTable* lut;
 
 	ShowType m_showType;
+	int m_iCurStep;
 
 public slots:
 	void ComboChange(int);
@@ -72,6 +89,7 @@ public slots:
 	void onRadioClickSetNode();
 	void onRadioClickSetSeg();
 	void OnMenuOpenKFile();
+	void OnButtonPlay();
 };
 
 #endif // VTKSHOWER_H

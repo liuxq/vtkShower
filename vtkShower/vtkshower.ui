@@ -25,7 +25,31 @@
     </property>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <widget class="QVTKWidget" name="qvtkWidget"/>
+      <layout class="QVBoxLayout" name="leftVerticalLayout">
+       <item>
+        <widget class="QVTKWidget" name="qvtkWidget"/>
+       </item>
+       <item>
+        <widget class="QWidget" name="playWidget" native="true">
+         <layout class="QHBoxLayout" name="horizontalLayout_3">
+          <item>
+           <widget class="QPushButton" name="pushButtonPlay">
+            <property name="text">
+             <string>播放</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pushButton_2">
+            <property name="text">
+             <string>停止</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
      </item>
      <item alignment="Qt::AlignTop">
       <widget class="QWidget" name="right_widget" native="true">

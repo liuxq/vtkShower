@@ -56,7 +56,7 @@
       <OutputFile>$(OutDir)\$(ProjectName).exe</OutputFile>
       <AdditionalLibraryDirectories>$(QTDIR)\lib;C:\Program Files (x86)\VTK\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>qtmaind.lib;Qt5Cored.lib;Qt5Guid.lib;Qt5Widgetsd.lib;vtkCommonCore-7.0.lib;vtkCommonMath-7.0.lib;vtkCommonTransforms-7.0.lib;vtkCommonDataModel-7.0.lib;vtkCommonExecutionModel-7.0.lib;vtkRenderingQt-7.0.lib;vtkRenderingOpenGL-7.0.lib;vtkRenderingCore-7.0.lib;vtkRenderingFreeType-7.0.lib;vtkInteractionStyle-7.0.lib;vtkalglib-7.0.lib;vtkFiltersSources-7.0.lib;vtkGUISupportQt-7.0.lib;vtkInteractionImage-7.0.lib;vtkIOImage-7.0.lib;vtkFiltersGeometry-7.0.lib;vtkRenderingAnnotation-7.0.lib;vtkInteractionWidgets-7.0.lib;vtksys-7.0.lib;vtkIOXMLParser-7.0.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>qtmaind.lib;Qt5Cored.lib;Qt5Guid.lib;Qt5Widgetsd.lib;vtkCommonCore-7.0.lib;vtkCommonMath-7.0.lib;vtkCommonTransforms-7.0.lib;vtkCommonDataModel-7.0.lib;vtkCommonExecutionModel-7.0.lib;vtkRenderingQt-7.0.lib;vtkRenderingOpenGL-7.0.lib;vtkRenderingCore-7.0.lib;vtkRenderingFreeType-7.0.lib;vtkInteractionStyle-7.0.lib;vtkalglib-7.0.lib;vtkFiltersSources-7.0.lib;vtkGUISupportQt-7.0.lib;vtkInteractionImage-7.0.lib;vtkIOImage-7.0.lib;vtkFiltersGeometry-7.0.lib;vtkRenderingAnnotation-7.0.lib;vtkInteractionWidgets-7.0.lib;vtksys-7.0.lib;vtkIOXMLParser-7.0.lib;vtkFiltersSelection-7.0.lib;vtkFiltersExtraction-7.0.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -76,6 +76,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="CustomMouseInteractorStyle.cpp" />
     <ClCompile Include="GeneratedFiles\Debug\moc_vtkshower.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClCompile>
@@ -124,6 +125,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ColorMapping.h" />
+    <ClInclude Include="CustomMouseInteractorStyle.h" />
     <ClInclude Include="GeneratedFiles\ui_vtkshower.h" />
     <ClInclude Include="kReader.h" />
     <ClInclude Include="LSDynaFamily.h" />
@@ -151,7 +153,7 @@
   </ImportGroup>
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties MocDir=".\GeneratedFiles\$(ConfigurationName)" UicDir=".\GeneratedFiles" RccDir=".\GeneratedFiles" lupdateOptions="" lupdateOnBuild="0" lreleaseOptions="" Qt5Version_x0020_Win32="qt5.7" MocOptions="" />
+      <UserProperties MocDir=".\GeneratedFiles\$(ConfigurationName)" UicDir=".\GeneratedFiles" RccDir=".\GeneratedFiles" lupdateOptions="" lupdateOnBuild="0" lreleaseOptions="" Qt5Version_x0020_Win32="qt5.7.0" MocOptions="" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>

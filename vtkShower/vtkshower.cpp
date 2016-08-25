@@ -33,6 +33,8 @@
 #include "vtkCallbackCommand.h"
 #include "vtkObjectFactory.h"
 #include "vtkLookupTable.h"
+#include "CustomMouseInteractorStyle.h"
+#include "vtkScalarBarActor.h"
 
 
 #include <QFileDialog>
@@ -42,43 +44,6 @@
 
 #include "ColorMapping.h"
 
-//鼠标交互事件
-class customMouseInteractorStyle : public vtkInteractorStyleTrackballCamera
-{
-public:
-	static customMouseInteractorStyle* New();
-	vtkTypeMacro(customMouseInteractorStyle, vtkInteractorStyleTrackballCamera);
-
-	virtual void OnMouseMove()
-	{
-		vtkInteractorStyleTrackballCamera::OnMouseMove();
-
-		if (vtkShower::instance->GetShowType() == ShowType::SetSeg)
-		{
-			vtkShower::instance->UpdateTextActorPos();
-		}
-	}
-	virtual void OnMouseWheelForward()
-	{
-		vtkInteractorStyleTrackballCamera::OnMouseWheelForward();
-
-		if (vtkShower::instance->GetShowType() == ShowType::SetSeg)
-		{
-			vtkShower::instance->UpdateTextActorPos();
-		}
-	}
-	virtual void OnMouseWheelBackward()
-	{
-		vtkInteractorStyleTrackballCamera::OnMouseWheelBackward();
-
-		if (vtkShower::instance->GetShowType() == ShowType::SetSeg)
-		{
-			vtkShower::instance->UpdateTextActorPos();
-		}
-	}
-};
-
-vtkStandardNewMacro(customMouseInteractorStyle);
 
 vtkShower* vtkShower::instance = NULL;
 
@@ -98,65 +63,30 @@ vtkShower::vtkShower(QWidget *parent)
 	iren->SetRenderWindow(m_pRenWin);
 	vtkSmartPointer<customMouseInteractorStyle> style = vtkSmartPointer<customMouseInteractorStyle>::New();
 	iren->SetInteractorStyle(style);
+	style->SetDefaultRenderer(m_pRenderder);
 	m_pRenderder->SetBackground(0.2, 0.2, 0.2);
 	ui.qvtkWidget->SetRenderWindow(m_pRenWin);
 	ui.qvtkWidget->GetRenderWindow()->Render();
 
 
-	vtkNew<vtkLSDynaReader> rdr;
+	rdr = vtkLSDynaReader::New();
 	rdr->SetDatabaseDirectory("D:/result_demo");
-	rdr->Update();
-	//rdr->SetTimeStep(29);
+	//rdr->Update();
 
-	ofstream lxq3("lxqq.txt");
-	vtkIndent lxq4;
-	rdr->PrintSelf(lxq3, lxq4);
+	//for (int i = 0; i < rdr->GetNumberOfTimeSteps()-20; i++)
+	//{
+	//	rdr->SetTimeStep(i);
+	//	//rdr->Update();
+	//	m_vFrames.push_back(vtkMultiBlockDataSet::SafeDownCast(rdr->GetOutput()));
+	//}
 
-	vtkUnstructuredGrid* shell = (vtkUnstructuredGrid*)0;
-	vtkMultiBlockDataSet* mbds = vtkMultiBlockDataSet::SafeDownCast(rdr->GetOutput());
-	for (int k = 0; k < mbds->GetNumberOfBlocks(); ++k)
-	{
-		int type1 = mbds->GetBlock(k)->GetDataObjectType();
+	//ofstream lxq3("lxqq.txt");
+	//vtkIndent lxq4;
+	//rdr->PrintSelf(lxq3, lxq4);
+	m_iCurStep = 0;
 
-		if (type1 == VTK_UNSTRUCTURED_GRID)
-		{
-			shell = vtkUnstructuredGrid::SafeDownCast(mbds->GetBlock(k));
-
-			if (shell->GetNumberOfCells() > 0)
-			{
-				shell->GetCellData()->SetActiveScalars("Stress");
-				double rang[2];
-				shell->GetCellData()->GetScalars("Stress")->GetRange(rang);
-				vtkDataArray* lxq = shell->GetCellData()->GetScalars("Stress");
-				vtkDataSetMapper* unMapper = vtkDataSetMapper::New();
-				unMapper->SetInputData(shell);
-				unMapper->UseLookupTableScalarRangeOn();
-				unMapper->SetScalarModeToUseCellData();
-				
-				vtkLookupTable* lut = vtkLookupTable::New();
-				
-				lut->SetTableRange(-1, 0);
-				lut->SetHueRange(0, 0.67);
-				lut->SetSaturationRange(1,1);
-				lut->SetValueRange(1,1);
-				lut->SetAlphaRange(1,1);
-				lut->SetNumberOfColors(256);
-				lut->Build();
-
-				unMapper->SetLookupTable(lut);
-				
-				vtkActor* partActor = vtkActor::New();
-				partActor->SetMapper(unMapper);
-
-				m_pRenderder->AddActor(partActor);
-			}
-			else
-				shell = (vtkUnstructuredGrid*)0;
-		}
-	}
-
-	m_pRenderder->ResetCamera();
-	m_pRenderder->GetActiveCamera()->Zoom(1.5);
+	lut = vtkLookupTable::New();
+	
 
 
 	connect(ui.comboBox, SIGNAL(activated(int)), this, SLOT(ComboChange(int)));
@@ -165,6 +95,8 @@ vtkShower::vtkShower(QWidget *parent)
 	connect(ui.radioButton_setnode, SIGNAL(clicked()), this, SLOT(onRadioClickSetNode()));
 	connect(ui.radioButton_setSeg, SIGNAL(clicked()), this, SLOT(onRadioClickSetSeg()));
 	connect(ui.action, SIGNAL(triggered()), this, SLOT(OnMenuOpenKFile()));
+
+	connect(ui.pushButtonPlay, SIGNAL(clicked()), this, SLOT(OnButtonPlay()));
 	
 }
 void vtkShower::Clear()
@@ -520,7 +452,7 @@ void vtkShower::onRadioClickSetSeg()
 }
 
 void vtkShower::resizeEvent(QResizeEvent * event) {
-	ui.horizontalLayoutWidget->resize(this->size());
+	ui.horizontalLayoutWidget->resize(this->size().width(), this->size().height() - 50);
 }
 
 void vtkShower::OnMenuOpenKFile()
@@ -532,6 +464,97 @@ void vtkShower::OnMenuOpenKFile()
 	if (fileName.isEmpty() == true) return;
 
 	LoadKFile(fileName);
+}
+void vtkShower::OnButtonPlay()
+{
+	visColorBar();
+	visPipeline();
+	m_iCurStep = (m_iCurStep + 1) % rdr->GetNumberOfTimeSteps();
+}
+
+void vtkShower::visColorBar()
+{
+	if (colorTableBar)
+	{
+		m_pRenderder->RemoveActor2D(colorTableBar);
+		colorTableBar->Delete();
+	}
+	
+	colorTableBar = vtkScalarBarActor::New();
+	colorTableBar->SetLookupTable(lut);
+	colorTableBar->SetTitle("stress");
+	colorTableBar->GetPositionCoordinate()->SetCoordinateSystemToNormalizedViewport();
+	colorTableBar->GetPositionCoordinate()->SetValue(0.9, 0.0);
+	colorTableBar->SetOrientationToVertical();
+	colorTableBar->SetWidth(0.07);
+	colorTableBar->SetHeight(1.0);
+	colorTableBar->SetNumberOfLabels(10);
+	colorTableBar->SetLabelFormat("%-#6.3g");/*( "%-#6.4f" );*/
+	m_pRenderder->AddActor2D(colorTableBar);
+}
+void vtkShower::visPipeline(void)
+{
+	RemoveLsdActors();
+	vtkUnstructuredGrid* shell = (vtkUnstructuredGrid*)0;
+	rdr->SetTimeStep(m_iCurStep);
+	rdr->Update();
+	vtkMultiBlockDataSet* mbds = vtkMultiBlockDataSet::SafeDownCast(rdr->GetOutput());
+
+	for (int k = 0; k < mbds->GetNumberOfBlocks(); ++k)
+	{
+		int type = mbds->GetBlock(k)->GetDataObjectType();
+
+		if (type == VTK_UNSTRUCTURED_GRID)
+		{
+			shell = vtkUnstructuredGrid::SafeDownCast(mbds->GetBlock(k));
+
+			if (shell->GetNumberOfCells() > 0)
+			{
+				shell->GetCellData()->SetActiveScalars("Stress");
+				double rang[2];
+				shell->GetCellData()->GetScalars("Stress")->GetRange(rang);
+				vtkDataArray* lxq = shell->GetCellData()->GetScalars("Stress");
+
+				unMapper = vtkDataSetMapper::New();
+				unMapper->SetInputData(shell);
+				unMapper->UseLookupTableScalarRangeOn();
+				unMapper->SetScalarModeToUseCellData();
+
+				lut->SetTableRange(-35000, 35000);
+				lut->SetHueRange(0, 0.67);
+				lut->SetSaturationRange(1, 1);
+				lut->SetValueRange(1, 1);
+				lut->SetAlphaRange(1, 1);
+				lut->SetNumberOfColors(256);
+				lut->Build();
+
+				unMapper->SetLookupTable(lut);
+
+				vtkActor* partActor = vtkActor::New();
+				partActor->SetMapper(unMapper);
+				partActor->GetProperty()->SetEdgeVisibility(true);
+
+				m_lsdPartActors.push_back(partActor);
+				m_pRenderder->AddActor(partActor);
+				unMapper->Delete();
+			}
+			else
+				shell = (vtkUnstructuredGrid*)0;
+		}
+	}
+	m_pRenderder->ResetCamera();
+	m_pRenderder->GetActiveCamera()->Zoom(1.5);
+	m_pRenWin->Render();
+}
+
+void vtkShower::RemoveLsdActors()
+{
+	for (int i = 0; i < m_lsdPartActors.size(); i++)
+	{
+		m_pRenderder->RemoveActor(m_lsdPartActors[i]);
+		m_lsdPartActors[i]->Delete();
+	}
+	m_lsdPartActors.clear();
 }
 
 vtkShower::~vtkShower()

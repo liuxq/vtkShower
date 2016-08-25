@@ -20,6 +20,7 @@
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/QMenu>
 #include <QtWidgets/QMenuBar>
+#include <QtWidgets/QPushButton>
 #include <QtWidgets/QRadioButton>
 #include <QtWidgets/QStatusBar>
 #include <QtWidgets/QToolBar>
@@ -36,7 +37,12 @@ public:
     QWidget *centralWidget;
     QWidget *horizontalLayoutWidget;
     QHBoxLayout *horizontalLayout;
+    QVBoxLayout *leftVerticalLayout;
     QVTKWidget *qvtkWidget;
+    QWidget *playWidget;
+    QHBoxLayout *horizontalLayout_3;
+    QPushButton *pushButtonPlay;
+    QPushButton *pushButton_2;
     QWidget *right_widget;
     QVBoxLayout *right;
     QRadioButton *radioButton_solid;
@@ -68,10 +74,35 @@ public:
         horizontalLayout->setContentsMargins(11, 11, 11, 11);
         horizontalLayout->setObjectName(QStringLiteral("horizontalLayout"));
         horizontalLayout->setContentsMargins(0, 0, 0, 0);
+        leftVerticalLayout = new QVBoxLayout();
+        leftVerticalLayout->setSpacing(6);
+        leftVerticalLayout->setObjectName(QStringLiteral("leftVerticalLayout"));
         qvtkWidget = new QVTKWidget(horizontalLayoutWidget);
         qvtkWidget->setObjectName(QStringLiteral("qvtkWidget"));
 
-        horizontalLayout->addWidget(qvtkWidget);
+        leftVerticalLayout->addWidget(qvtkWidget);
+
+        playWidget = new QWidget(horizontalLayoutWidget);
+        playWidget->setObjectName(QStringLiteral("playWidget"));
+        horizontalLayout_3 = new QHBoxLayout(playWidget);
+        horizontalLayout_3->setSpacing(6);
+        horizontalLayout_3->setContentsMargins(11, 11, 11, 11);
+        horizontalLayout_3->setObjectName(QStringLiteral("horizontalLayout_3"));
+        pushButtonPlay = new QPushButton(playWidget);
+        pushButtonPlay->setObjectName(QStringLiteral("pushButtonPlay"));
+
+        horizontalLayout_3->addWidget(pushButtonPlay);
+
+        pushButton_2 = new QPushButton(playWidget);
+        pushButton_2->setObjectName(QStringLiteral("pushButton_2"));
+
+        horizontalLayout_3->addWidget(pushButton_2);
+
+
+        leftVerticalLayout->addWidget(playWidget);
+
+
+        horizontalLayout->addLayout(leftVerticalLayout);
 
         right_widget = new QWidget(horizontalLayoutWidget);
         right_widget->setObjectName(QStringLiteral("right_widget"));
@@ -170,6 +201,8 @@ public:
     {
         vtkShowerClass->setWindowTitle(QApplication::translate("vtkShowerClass", "vtkShower", 0));
         action->setText(QApplication::translate("vtkShowerClass", "\346\211\223\345\274\200k\346\226\207\344\273\266", 0));
+        pushButtonPlay->setText(QApplication::translate("vtkShowerClass", "\346\222\255\346\224\276", 0));
+        pushButton_2->setText(QApplication::translate("vtkShowerClass", "\345\201\234\346\255\242", 0));
         radioButton_solid->setText(QApplication::translate("vtkShowerClass", "\345\256\236\344\275\223\345\215\225\345\205\203", 0));
         radioButton_wareline->setText(QApplication::translate("vtkShowerClass", "\347\272\277\346\241\206\345\215\225\345\205\203", 0));
         radioButton_setnode->setText(QApplication::translate("vtkShowerClass", "\350\212\202\347\202\271\351\233\206\345\220\210", 0));

@@ -71,6 +71,9 @@
     <ClCompile Include="LSDynaMetaData.cxx">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="CustomMouseInteractorStyle.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="vtkshower.h">
@@ -112,6 +115,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="LSDynaMetaData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CustomMouseInteractorStyle.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
