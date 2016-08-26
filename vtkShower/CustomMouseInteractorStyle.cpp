@@ -9,6 +9,7 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkDataSetMapper.h"
 #include "vtkProperty.h"
+#include "vtkPointPicker.h"
 
 vtkStandardNewMacro(customMouseInteractorStyle);
 
@@ -26,36 +27,34 @@ void customMouseInteractorStyle::OnLeftButtonDown()
 		int* clickPos = this->GetInteractor()->GetEventPosition();
 
 		// Pick from this location.
-		vtkSmartPointer<vtkPropPicker>  picker = vtkSmartPointer<vtkPropPicker>::New();
-		picker->Pick(clickPos[0], clickPos[1], 0, this->GetDefaultRenderer());
+		vtkSmartPointer<vtkPointPicker>  pointPicker = vtkSmartPointer<vtkPointPicker>::New();
+		pointPicker->Pick(clickPos[0], clickPos[1], 0, this->GetDefaultRenderer());
 
-		double* pos = picker->GetPickPosition();
-		std::cout << "Pick position (world coordinates) is: "
-			<< pos[0] << " " << pos[1]
-			<< " " << pos[2] << std::endl;
-
-		std::cout << "Picked actor: " << picker->GetActor() << std::endl;
-		//Create a sphere
-		vtkSmartPointer<vtkSphereSource> sphereSource =
-			vtkSmartPointer<vtkSphereSource>::New();
-		sphereSource->SetCenter(pos[0], pos[1], pos[2]);
-		sphereSource->SetRadius(0.1);
-
-		//Create a mapper and actor
-		vtkSmartPointer<vtkPolyDataMapper> mapper =
-			vtkSmartPointer<vtkPolyDataMapper>::New();
-		mapper->SetInputConnection(sphereSource->GetOutputPort());
-
-		if (actor)
+		if (pointPicker->GetPointId() != -1)
 		{
-			this->GetDefaultRenderer()->RemoveActor(actor);
-			actor->Delete();
-		}
+			double* pos = pointPicker->GetActor()->GetMapper()->GetInputAsDataSet()->GetPoint(pointPicker->GetPointId());
+			//Create a sphere
+			vtkSmartPointer<vtkSphereSource> sphereSource =
+				vtkSmartPointer<vtkSphereSource>::New();
+			sphereSource->SetCenter(pos[0], pos[1], pos[2]);
+			sphereSource->SetRadius(0.1);
 
-		actor = vtkActor::New();
-		actor->SetMapper(mapper);
+			//Create a mapper and actor
+			vtkSmartPointer<vtkPolyDataMapper> mapper =
+				vtkSmartPointer<vtkPolyDataMapper>::New();
+			mapper->SetInputConnection(sphereSource->GetOutputPort());
 
-		this->GetDefaultRenderer()->AddActor(actor);
+			if (actor)
+			{
+				this->GetDefaultRenderer()->RemoveActor(actor);
+				actor->Delete();
+			}
+
+			actor = vtkActor::New();
+			actor->SetMapper(mapper);
+
+			this->GetDefaultRenderer()->AddActor(actor);
+		}	
 	}
 	else if (keyCode == 'c')
 	{
@@ -67,20 +66,9 @@ void customMouseInteractorStyle::OnLeftButtonDown()
 		// Pick from this location.
 		picker->Pick(clickPos[0], clickPos[1], 0, this->GetDefaultRenderer());
 
-		vtkSmartPointer<vtkPropPicker>  pickerActor = vtkSmartPointer<vtkPropPicker>::New();
-		pickerActor->Pick(clickPos[0], clickPos[1], 0, this->GetDefaultRenderer());
-
-		double* worldPosition = picker->GetPickPosition();
-		std::cout << "Cell id is: " << picker->GetCellId() << std::endl;
-
-		if (picker->GetCellId() != -1 && pickerActor->GetActor())
+		if (picker->GetCellId() != -1)
 		{
-
-			std::cout << "Pick position is: " << worldPosition[0] << " " << worldPosition[1]
-				<< " " << worldPosition[2] << endl;
-
-			vtkSmartPointer<vtkIdTypeArray> ids =
-				vtkSmartPointer<vtkIdTypeArray>::New();
+			vtkSmartPointer<vtkIdTypeArray> ids = vtkSmartPointer<vtkIdTypeArray>::New();
 			ids->SetNumberOfComponents(1);
 			ids->InsertNextValue(picker->GetCellId());
 
@@ -97,7 +85,7 @@ void customMouseInteractorStyle::OnLeftButtonDown()
 			vtkSmartPointer<vtkExtractSelection> extractSelection =
 				vtkSmartPointer<vtkExtractSelection>::New();
 
-			extractSelection->SetInputData(0, pickerActor->GetActor()->GetMapper()->GetInputAsDataSet());
+			extractSelection->SetInputData(0, picker->GetActor()->GetMapper()->GetInputAsDataSet());
 			extractSelection->SetInputData(1, selection);
 
 			extractSelection->Update();
@@ -107,16 +95,12 @@ void customMouseInteractorStyle::OnLeftButtonDown()
 				vtkSmartPointer<vtkUnstructuredGrid>::New();
 			selected->ShallowCopy(extractSelection->GetOutput());
 
-			std::cout << "There are " << selected->GetNumberOfPoints()
-				<< " points in the selection." << std::endl;
-			std::cout << "There are " << selected->GetNumberOfCells()
-				<< " cells in the selection." << std::endl;
-
-
-
 			selectedMapper->SetInputData(selected);
 
+			this->GetDefaultRenderer()->RemoveActor(selectedActor);
+
 			selectedActor->SetMapper(selectedMapper);
+			selectedActor->GetProperty()->SetRepresentationToWireframe();
 			selectedActor->GetProperty()->EdgeVisibilityOn();
 			selectedActor->GetProperty()->SetEdgeColor(1, 0, 0);
 			selectedActor->GetProperty()->SetLineWidth(3);
