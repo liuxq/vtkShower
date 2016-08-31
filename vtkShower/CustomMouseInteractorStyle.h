@@ -4,6 +4,8 @@
 
 
 class vtkPointPicker;
+class vtkCellPicker;
+class vtkSphereSource;
 
 //鼠标交互事件
 class customMouseInteractorStyle : public vtkInteractorStyleTrackballCamera
@@ -66,5 +68,8 @@ public:
 
 	vtkTextActor* textActor;
 	vtkPointPicker*  pointPicker;
+	vtkCellPicker*  cellForPointPicker;
+	vtkCellPicker*  cellPicker;
+	vtkSphereSource* sphereSource;
 };
 

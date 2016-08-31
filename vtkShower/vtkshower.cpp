@@ -87,8 +87,6 @@ vtkShower::vtkShower(QWidget *parent)
 
 	lut = vtkLookupTable::New();
 	
-
-
 	connect(ui.comboBox, SIGNAL(activated(int)), this, SLOT(ComboChange(int)));
 	connect(ui.radioButton_solid, SIGNAL(clicked()), this, SLOT(onRadioClickSolid()));
 	connect(ui.radioButton_wareline, SIGNAL(clicked()), this, SLOT(onRadioClickWareline()));
