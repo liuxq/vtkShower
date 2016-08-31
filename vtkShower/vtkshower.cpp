@@ -491,6 +491,8 @@ void vtkShower::visColorBar()
 	colorTableBar->SetNumberOfLabels(10);
 	colorTableBar->SetLabelFormat("%-#6.3g");/*( "%-#6.4f" );*/
 	m_pRenderder->AddActor2D(colorTableBar);
+
+	
 }
 void vtkShower::visPipeline(void)
 {

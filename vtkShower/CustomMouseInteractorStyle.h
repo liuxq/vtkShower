@@ -3,7 +3,7 @@
 #include "vtkshower.h"
 
 
-
+class vtkPointPicker;
 
 //鼠标交互事件
 class customMouseInteractorStyle : public vtkInteractorStyleTrackballCamera
@@ -60,5 +60,11 @@ public:
 	vtkUnstructuredGrid* Data;
 	vtkDataSetMapper* selectedMapper;
 	vtkActor* selectedActor;
+
+	int pointid;
+	double pos[3];
+
+	vtkTextActor* textActor;
+	vtkPointPicker*  pointPicker;
 };
 
