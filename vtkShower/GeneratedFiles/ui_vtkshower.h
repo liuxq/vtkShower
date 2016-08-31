@@ -43,15 +43,22 @@ public:
     QHBoxLayout *horizontalLayout_3;
     QPushButton *pushButtonPlay;
     QPushButton *pushButton_2;
-    QWidget *right_widget;
+    QWidget *right_widget_k;
     QVBoxLayout *right;
     QRadioButton *radioButton_solid;
     QRadioButton *radioButton_wareline;
     QRadioButton *radioButton_setnode;
     QRadioButton *radioButton_setSeg;
-    QHBoxLayout *horizontalLayout_2;
+    QHBoxLayout *horizontalLayout_part;
     QLabel *label_doc;
     QComboBox *comboBox;
+    QWidget *right_widget_lsd;
+    QVBoxLayout *right_2;
+    QRadioButton *radioButton_point_data;
+    QRadioButton *radioButton_shell_data;
+    QHBoxLayout *horizontalLayout_data;
+    QLabel *label_doc_2;
+    QComboBox *comboBox_data_name;
     QMenuBar *menuBar;
     QMenu *menu;
     QToolBar *mainToolBar;
@@ -104,22 +111,22 @@ public:
 
         horizontalLayout->addLayout(leftVerticalLayout);
 
-        right_widget = new QWidget(horizontalLayoutWidget);
-        right_widget->setObjectName(QStringLiteral("right_widget"));
+        right_widget_k = new QWidget(horizontalLayoutWidget);
+        right_widget_k->setObjectName(QStringLiteral("right_widget_k"));
         QSizePolicy sizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
         sizePolicy.setHorizontalStretch(0);
         sizePolicy.setVerticalStretch(0);
-        sizePolicy.setHeightForWidth(right_widget->sizePolicy().hasHeightForWidth());
-        right_widget->setSizePolicy(sizePolicy);
-        right_widget->setMinimumSize(QSize(150, 0));
-        right_widget->setMaximumSize(QSize(150, 16777215));
-        right = new QVBoxLayout(right_widget);
+        sizePolicy.setHeightForWidth(right_widget_k->sizePolicy().hasHeightForWidth());
+        right_widget_k->setSizePolicy(sizePolicy);
+        right_widget_k->setMinimumSize(QSize(150, 0));
+        right_widget_k->setMaximumSize(QSize(150, 16777215));
+        right = new QVBoxLayout(right_widget_k);
         right->setSpacing(6);
         right->setContentsMargins(11, 11, 11, 11);
         right->setObjectName(QStringLiteral("right"));
         right->setSizeConstraint(QLayout::SetFixedSize);
         right->setContentsMargins(1, -1, -1, -1);
-        radioButton_solid = new QRadioButton(right_widget);
+        radioButton_solid = new QRadioButton(right_widget_k);
         radioButton_solid->setObjectName(QStringLiteral("radioButton_solid"));
         sizePolicy.setHeightForWidth(radioButton_solid->sizePolicy().hasHeightForWidth());
         radioButton_solid->setSizePolicy(sizePolicy);
@@ -129,25 +136,25 @@ public:
 
         right->addWidget(radioButton_solid);
 
-        radioButton_wareline = new QRadioButton(right_widget);
+        radioButton_wareline = new QRadioButton(right_widget_k);
         radioButton_wareline->setObjectName(QStringLiteral("radioButton_wareline"));
 
         right->addWidget(radioButton_wareline);
 
-        radioButton_setnode = new QRadioButton(right_widget);
+        radioButton_setnode = new QRadioButton(right_widget_k);
         radioButton_setnode->setObjectName(QStringLiteral("radioButton_setnode"));
 
         right->addWidget(radioButton_setnode);
 
-        radioButton_setSeg = new QRadioButton(right_widget);
+        radioButton_setSeg = new QRadioButton(right_widget_k);
         radioButton_setSeg->setObjectName(QStringLiteral("radioButton_setSeg"));
 
         right->addWidget(radioButton_setSeg);
 
-        horizontalLayout_2 = new QHBoxLayout();
-        horizontalLayout_2->setSpacing(6);
-        horizontalLayout_2->setObjectName(QStringLiteral("horizontalLayout_2"));
-        label_doc = new QLabel(right_widget);
+        horizontalLayout_part = new QHBoxLayout();
+        horizontalLayout_part->setSpacing(6);
+        horizontalLayout_part->setObjectName(QStringLiteral("horizontalLayout_part"));
+        label_doc = new QLabel(right_widget_k);
         label_doc->setObjectName(QStringLiteral("label_doc"));
         QSizePolicy sizePolicy1(QSizePolicy::Fixed, QSizePolicy::Preferred);
         sizePolicy1.setHorizontalStretch(0);
@@ -157,9 +164,9 @@ public:
         label_doc->setMinimumSize(QSize(80, 0));
         label_doc->setMaximumSize(QSize(80, 20));
 
-        horizontalLayout_2->addWidget(label_doc);
+        horizontalLayout_part->addWidget(label_doc);
 
-        comboBox = new QComboBox(right_widget);
+        comboBox = new QComboBox(right_widget_k);
         comboBox->setObjectName(QStringLiteral("comboBox"));
         QSizePolicy sizePolicy2(QSizePolicy::Minimum, QSizePolicy::Fixed);
         sizePolicy2.setHorizontalStretch(0);
@@ -167,13 +174,65 @@ public:
         sizePolicy2.setHeightForWidth(comboBox->sizePolicy().hasHeightForWidth());
         comboBox->setSizePolicy(sizePolicy2);
 
-        horizontalLayout_2->addWidget(comboBox);
+        horizontalLayout_part->addWidget(comboBox);
 
 
-        right->addLayout(horizontalLayout_2);
+        right->addLayout(horizontalLayout_part);
 
 
-        horizontalLayout->addWidget(right_widget, 0, Qt::AlignTop);
+        horizontalLayout->addWidget(right_widget_k, 0, Qt::AlignTop);
+
+        right_widget_lsd = new QWidget(horizontalLayoutWidget);
+        right_widget_lsd->setObjectName(QStringLiteral("right_widget_lsd"));
+        sizePolicy.setHeightForWidth(right_widget_lsd->sizePolicy().hasHeightForWidth());
+        right_widget_lsd->setSizePolicy(sizePolicy);
+        right_widget_lsd->setMinimumSize(QSize(150, 0));
+        right_widget_lsd->setMaximumSize(QSize(150, 16777215));
+        right_2 = new QVBoxLayout(right_widget_lsd);
+        right_2->setSpacing(6);
+        right_2->setContentsMargins(11, 11, 11, 11);
+        right_2->setObjectName(QStringLiteral("right_2"));
+        right_2->setSizeConstraint(QLayout::SetFixedSize);
+        right_2->setContentsMargins(1, -1, -1, -1);
+        radioButton_point_data = new QRadioButton(right_widget_lsd);
+        radioButton_point_data->setObjectName(QStringLiteral("radioButton_point_data"));
+        sizePolicy.setHeightForWidth(radioButton_point_data->sizePolicy().hasHeightForWidth());
+        radioButton_point_data->setSizePolicy(sizePolicy);
+        radioButton_point_data->setMinimumSize(QSize(150, 0));
+        radioButton_point_data->setMaximumSize(QSize(150, 16777215));
+        radioButton_point_data->setChecked(true);
+
+        right_2->addWidget(radioButton_point_data);
+
+        radioButton_shell_data = new QRadioButton(right_widget_lsd);
+        radioButton_shell_data->setObjectName(QStringLiteral("radioButton_shell_data"));
+
+        right_2->addWidget(radioButton_shell_data);
+
+        horizontalLayout_data = new QHBoxLayout();
+        horizontalLayout_data->setSpacing(6);
+        horizontalLayout_data->setObjectName(QStringLiteral("horizontalLayout_data"));
+        label_doc_2 = new QLabel(right_widget_lsd);
+        label_doc_2->setObjectName(QStringLiteral("label_doc_2"));
+        sizePolicy1.setHeightForWidth(label_doc_2->sizePolicy().hasHeightForWidth());
+        label_doc_2->setSizePolicy(sizePolicy1);
+        label_doc_2->setMinimumSize(QSize(80, 0));
+        label_doc_2->setMaximumSize(QSize(80, 20));
+
+        horizontalLayout_data->addWidget(label_doc_2);
+
+        comboBox_data_name = new QComboBox(right_widget_lsd);
+        comboBox_data_name->setObjectName(QStringLiteral("comboBox_data_name"));
+        sizePolicy2.setHeightForWidth(comboBox_data_name->sizePolicy().hasHeightForWidth());
+        comboBox_data_name->setSizePolicy(sizePolicy2);
+
+        horizontalLayout_data->addWidget(comboBox_data_name);
+
+
+        right_2->addLayout(horizontalLayout_data);
+
+
+        horizontalLayout->addWidget(right_widget_lsd);
 
         vtkShowerClass->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(vtkShowerClass);
@@ -208,6 +267,9 @@ public:
         radioButton_setnode->setText(QApplication::translate("vtkShowerClass", "\350\212\202\347\202\271\351\233\206\345\220\210", 0));
         radioButton_setSeg->setText(QApplication::translate("vtkShowerClass", "\350\212\202\347\202\271\351\235\242\351\233\206\345\220\210", 0));
         label_doc->setText(QApplication::translate("vtkShowerClass", "\344\275\223\347\274\226\345\217\267\357\274\232", 0));
+        radioButton_point_data->setText(QApplication::translate("vtkShowerClass", "\347\202\271\346\225\260\346\215\256", 0));
+        radioButton_shell_data->setText(QApplication::translate("vtkShowerClass", "\345\243\263\346\225\260\346\215\256", 0));
+        label_doc_2->setText(QApplication::translate("vtkShowerClass", "\346\225\260\346\215\256\345\220\215\347\247\260\357\274\232", 0));
         menu->setTitle(QApplication::translate("vtkShowerClass", "\346\226\207\344\273\266", 0));
     } // retranslateUi
 

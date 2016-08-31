@@ -35,6 +35,7 @@
 #include "vtkLookupTable.h"
 #include "CustomMouseInteractorStyle.h"
 #include "vtkScalarBarActor.h"
+#include "vtkPointData.h"
 
 
 #include <QFileDialog>
@@ -71,23 +72,16 @@ vtkShower::vtkShower(QWidget *parent)
 
 	rdr = vtkLSDynaReader::New();
 	rdr->SetDatabaseDirectory("D:/result_demo");
-	//rdr->Update();
+	onRadioClickPointData();
 
-	//for (int i = 0; i < rdr->GetNumberOfTimeSteps()-20; i++)
-	//{
-	//	rdr->SetTimeStep(i);
-	//	//rdr->Update();
-	//	m_vFrames.push_back(vtkMultiBlockDataSet::SafeDownCast(rdr->GetOutput()));
-	//}
-
-	//ofstream lxq3("lxqq.txt");
-	//vtkIndent lxq4;
-	//rdr->PrintSelf(lxq3, lxq4);
 	m_iCurStep = 0;
+	m_iDataIndex = 0;
 
 	lut = vtkLookupTable::New();
-	
-	connect(ui.comboBox, SIGNAL(activated(int)), this, SLOT(ComboChange(int)));
+
+	UISet(1);
+
+	connect(ui.comboBox, SIGNAL(activated(int)), this, SLOT(onPartComboChange(int)));
 	connect(ui.radioButton_solid, SIGNAL(clicked()), this, SLOT(onRadioClickSolid()));
 	connect(ui.radioButton_wareline, SIGNAL(clicked()), this, SLOT(onRadioClickWareline()));
 	connect(ui.radioButton_setnode, SIGNAL(clicked()), this, SLOT(onRadioClickSetNode()));
@@ -95,8 +89,21 @@ vtkShower::vtkShower(QWidget *parent)
 	connect(ui.action, SIGNAL(triggered()), this, SLOT(OnMenuOpenKFile()));
 
 	connect(ui.pushButtonPlay, SIGNAL(clicked()), this, SLOT(OnButtonPlay()));
+	connect(ui.radioButton_point_data, SIGNAL(clicked()), this, SLOT(onRadioClickPointData()));
+	connect(ui.radioButton_shell_data, SIGNAL(clicked()), this, SLOT(onRadioClickShellData()));
+	connect(ui.comboBox_data_name, SIGNAL(activated(int)), this, SLOT(onDataComboChange(int)));
 	
 }
+
+void vtkShower::UISet(int index)
+{
+	if (index == 0)
+	{
+		ui.right_widget_k->setVisible(false);
+		ui.right_widget_lsd->setVisible(true);
+	}
+}
+
 void vtkShower::Clear()
 {
 	m_kReader.Clear();
@@ -143,7 +150,7 @@ void vtkShower::Clear()
 void vtkShower::LoadKFile(QString file)
 {
 	Clear();
-	m_showType = Solid;
+	m_kShowType = Solid;
 	m_kReader.read(file.toStdString());
 	//Με
 	ColorMapping cm(m_kReader.GetParts().size() - 1, 0);
@@ -274,9 +281,9 @@ void vtkShower::UpdateTextActorPos()
 	m_pRenWin->Render();
 }
 
-void vtkShower::ComboChange(int index)
+void vtkShower::onPartComboChange(int index)
 {
-	if (Solid == m_showType)
+	if (Solid == m_kShowType)
 	{
 		for (int i = 0; i < m_partActors.size(); i++)
 		{
@@ -290,7 +297,7 @@ void vtkShower::ComboChange(int index)
 			}
 		}
 	}
-	else if (SetNode == m_showType)
+	else if (SetNode == m_kShowType)
 	{
 		for (int i = 0; i < m_setNodeActors.size(); i++)
 		{
@@ -304,7 +311,7 @@ void vtkShower::ComboChange(int index)
 			}
 		}
 	}
-	else if (SetSeg == m_showType)
+	else if (SetSeg == m_kShowType)
 	{
 		if (m_setSegActors.empty())
 		{
@@ -373,7 +380,7 @@ void vtkShower::SetAllPartWireLine(bool beWireline)
 }
 void vtkShower::onRadioClickSolid()
 {
-	m_showType = Solid;
+	m_kShowType = Solid;
 	SetAllPartWireLine(false);
 	m_textActor->SetInput(nullptr);
 	for (int i = 0; i < m_setNodeActors.size(); i++)
@@ -398,7 +405,7 @@ void vtkShower::onRadioClickSolid()
 
 void vtkShower::onRadioClickWareline()
 {
-	m_showType = Wireline;
+	m_kShowType = Wireline;
 	SetAllPartWireLine(true);
 	m_textActor->SetInput(nullptr);
 	for (int i = 0; i < m_setNodeActors.size(); i++)
@@ -413,7 +420,7 @@ void vtkShower::onRadioClickWareline()
 
 void vtkShower::onRadioClickSetNode()
 {
-	m_showType = SetNode;
+	m_kShowType = SetNode;
 	SetAllPartWireLine(true);
 	m_textActor->SetInput(nullptr);
 	SetAllSetSegVisible(false);
@@ -426,12 +433,12 @@ void vtkShower::onRadioClickSetNode()
 	{
 		ui.comboBox->addItem(QString::number(m_kReader.GetSetNode()[i]));
 	}
-	ComboChange(0);
+	onPartComboChange(0);
 }
 
 void vtkShower::onRadioClickSetSeg()
 {
-	m_showType = SetSeg;
+	m_kShowType = SetSeg;
 	SetAllPartWireLine(true);
 	for (int i = 0; i < m_setNodeActors.size(); i++)
 	{
@@ -446,7 +453,33 @@ void vtkShower::onRadioClickSetSeg()
 	{
 		ui.comboBox->addItem(QString::number(m_kReader.GetSetSeg()[i]));
 	}
-	ComboChange(0);
+	onPartComboChange(0);
+}
+
+void vtkShower::onRadioClickPointData()
+{
+	m_lShowType = Point;
+	ui.comboBox_data_name->clear();
+	for (int i = 0; i < rdr->GetNumberOfPointArrays(); i++)
+	{
+		ui.comboBox_data_name->addItem(QString(rdr->GetPointArrayName(i)));
+	}
+	
+}
+
+void vtkShower::onRadioClickShellData()
+{
+	m_lShowType = Shell;
+	ui.comboBox_data_name->clear();
+	for (int i = 0; i < rdr->GetNumberOfShellArrays(); i++)
+	{
+		ui.comboBox_data_name->addItem(QString(rdr->GetShellArrayName(i)));
+	}
+}
+
+void vtkShower::onDataComboChange(int index)
+{
+	m_iDataIndex = index;
 }
 
 void vtkShower::resizeEvent(QResizeEvent * event) {
@@ -508,7 +541,7 @@ void vtkShower::visPipeline(void)
 		{
 			shell = vtkUnstructuredGrid::SafeDownCast(mbds->GetBlock(k));
 
-			if (shell->GetNumberOfCells() > 0)
+			if (m_lShowType == Shell && shell->GetNumberOfCells() > 0)
 			{
 				shell->GetCellData()->SetActiveScalars("Stress");
 				double rang[2];
@@ -538,8 +571,36 @@ void vtkShower::visPipeline(void)
 				m_pRenderder->AddActor(partActor);
 				unMapper->Delete();
 			}
-			else
-				shell = (vtkUnstructuredGrid*)0;
+			else if (m_lShowType == Point && shell->GetNumberOfPoints() > 0)
+			{
+				shell->GetPointData()->SetActiveScalars(rdr->GetPointArrayName(m_iDataIndex));
+				double rang[2];
+				shell->GetPointData()->GetScalars(rdr->GetPointArrayName(m_iDataIndex))->GetRange(rang);
+
+				unMapper = vtkDataSetMapper::New();
+				unMapper->SetInputData(shell);
+				unMapper->UseLookupTableScalarRangeOn();
+				unMapper->SetScalarModeToUsePointData();
+
+				lut->SetTableRange(rang[0], rang[1]);
+				lut->SetHueRange(0, 0.67);
+				lut->SetSaturationRange(1, 1);
+				lut->SetValueRange(1, 1);
+				lut->SetAlphaRange(1, 1);
+				lut->SetNumberOfColors(256);
+				lut->Build();
+
+				unMapper->SetLookupTable(lut);
+
+				vtkActor* partActor = vtkActor::New();
+				partActor->SetMapper(unMapper);
+				partActor->GetProperty()->SetEdgeVisibility(true);
+
+				m_lsdPartActors.push_back(partActor);
+				m_pRenderder->AddActor(partActor);
+				unMapper->Delete();
+			}
+		
 		}
 	}
 	m_pRenderder->ResetCamera();

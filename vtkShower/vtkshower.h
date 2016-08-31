@@ -20,12 +20,18 @@ class vtkDataSetMapper;
 class vtkScalarBarActor;
 
 
-enum ShowType
+enum KShowType
 {
 	Solid,
 	Wireline,
 	SetNode,
 	SetSeg
+};
+
+enum LsdShowType
+{
+	Point,
+	Shell,
 };
 
 class vtkShower : public QMainWindow
@@ -40,7 +46,7 @@ public:
 	vtkSmartPointer< vtkRenderer >   GetRenderer(){ return  m_pRenderder; }
 	vtkSmartPointer<vtkRenderWindow>	GetRenWin(){ return	m_pRenWin; }
 	vtkTextActor* GetTextActor(){ return m_textActor; }
-	ShowType GetShowType() { return m_showType; }
+	KShowType GetShowType() { return m_kShowType; }
 	void UpdateTextActorPos();
 
 protected:
@@ -52,6 +58,7 @@ protected:
 	void RemoveLsdActors();
 	void visPipeline();
 	void visColorBar();
+	void UISet(int);
 
 private:
 	Ui::vtkShowerClass ui;
@@ -79,15 +86,21 @@ private:
 	vtkLSDynaReader* rdr;
 	vtkLookupTable* lut;
 
-	ShowType m_showType;
+	KShowType m_kShowType;
+
+	LsdShowType m_lShowType;
+	int m_iDataIndex;
 	int m_iCurStep;
 
 public slots:
-	void ComboChange(int);
+	void onPartComboChange(int);
 	void onRadioClickSolid();
 	void onRadioClickWareline();
 	void onRadioClickSetNode();
 	void onRadioClickSetSeg();
+	void onRadioClickPointData();
+	void onRadioClickShellData();
+	void onDataComboChange(int);
 	void OnMenuOpenKFile();
 	void OnButtonPlay();
 };
