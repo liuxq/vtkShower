@@ -101,6 +101,7 @@ public slots:
 	void onRadioClickSetSeg();
 	void onRadioClickPointData();
 	void onRadioClickShellData();
+	void onSliderValueChange(int);
 	
 	void OnMenuOpenKFile();
 	void OnButtonPlay();

@@ -81,19 +81,18 @@ vtkShower::vtkShower(QWidget *parent)
 
 	UISet(0);
 
-	connect(ui.comboBox, SIGNAL(activated(int)), this, SLOT(onPartComboChange(int)));
-	connect(ui.comboBox_data_name, SIGNAL(activated(int)), this, SLOT(onDataComboChange(int)));
+	connect(ui.comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(onPartComboChange(int)));
+	connect(ui.comboBox_data_name, SIGNAL(currentIndexChanged(int)), this, SLOT(onDataComboChange(int)));
 	connect(ui.radioButton_solid, SIGNAL(clicked()), this, SLOT(onRadioClickSolid()));
 	connect(ui.radioButton_wareline, SIGNAL(clicked()), this, SLOT(onRadioClickWareline()));
 	connect(ui.radioButton_setnode, SIGNAL(clicked()), this, SLOT(onRadioClickSetNode()));
 	connect(ui.radioButton_setSeg, SIGNAL(clicked()), this, SLOT(onRadioClickSetSeg()));
 	connect(ui.action, SIGNAL(triggered()), this, SLOT(OnMenuOpenKFile()));
 
-	connect(ui.pushButtonPlay, SIGNAL(clicked()), this, SLOT(OnButtonPlay()));
+	connect(ui.pushButton_play, SIGNAL(clicked()), this, SLOT(OnButtonPlay()));
 	connect(ui.radioButton_point_data, SIGNAL(clicked()), this, SLOT(onRadioClickPointData()));
 	connect(ui.radioButton_shell_data, SIGNAL(clicked()), this, SLOT(onRadioClickShellData()));
-	
-	
+	connect(ui.horizontalSlider_frame, SIGNAL(valueChanged(int)), this, SLOT(OnButtonPlay()));
 }
 
 void vtkShower::UISet(int index)
@@ -465,7 +464,8 @@ void vtkShower::onRadioClickPointData()
 	{
 		ui.comboBox_data_name->addItem(QString(rdr->GetPointArrayName(i)));
 	}
-	
+	if (rdr->GetNumberOfPointArrays() > 0)
+		onDataComboChange(0);
 }
 
 void vtkShower::onRadioClickShellData()
@@ -476,11 +476,26 @@ void vtkShower::onRadioClickShellData()
 	{
 		ui.comboBox_data_name->addItem(QString(rdr->GetShellArrayName(i)));
 	}
+	if (rdr->GetNumberOfShellArrays() > 0)
+		onDataComboChange(0);
 }
 
 void vtkShower::onDataComboChange(int index)
 {
 	m_iDataIndex = index;
+	visColorBar();
+	visPipeline();
+}
+
+void vtkShower::onSliderValueChange(int index)
+{
+	if (index >= rdr->GetNumberOfTimeSteps())
+		index = rdr->GetNumberOfTimeSteps() - 1;
+	if (index < 0)
+		index = 0;
+	m_iCurStep = index;
+	visColorBar();
+	visPipeline();
 }
 
 void vtkShower::resizeEvent(QResizeEvent * event) {
@@ -512,9 +527,10 @@ void vtkShower::visColorBar()
 		colorTableBar->Delete();
 	}
 	
+
 	colorTableBar = vtkScalarBarActor::New();
 	colorTableBar->SetLookupTable(lut);
-	colorTableBar->SetTitle("stress");
+	colorTableBar->SetTitle(ui.comboBox_data_name->itemText(m_iDataIndex).toUtf8().constData());
 	colorTableBar->GetPositionCoordinate()->SetCoordinateSystemToNormalizedViewport();
 	colorTableBar->GetPositionCoordinate()->SetValue(0.9, 0.0);
 	colorTableBar->SetOrientationToVertical();

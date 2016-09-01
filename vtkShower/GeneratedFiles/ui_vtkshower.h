@@ -17,11 +17,13 @@
 #include <QtWidgets/QHBoxLayout>
 #include <QtWidgets/QHeaderView>
 #include <QtWidgets/QLabel>
+#include <QtWidgets/QLineEdit>
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/QMenu>
 #include <QtWidgets/QMenuBar>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QRadioButton>
+#include <QtWidgets/QSlider>
 #include <QtWidgets/QStatusBar>
 #include <QtWidgets/QToolBar>
 #include <QtWidgets/QVBoxLayout>
@@ -41,8 +43,10 @@ public:
     QVTKWidget *qvtkWidget;
     QWidget *playWidget;
     QHBoxLayout *horizontalLayout_3;
-    QPushButton *pushButtonPlay;
-    QPushButton *pushButton_2;
+    QPushButton *pushButton_play;
+    QPushButton *pushButton_stop;
+    QSlider *horizontalSlider_frame;
+    QLineEdit *lineEdit_frame;
     QWidget *right_widget_k;
     QVBoxLayout *right;
     QRadioButton *radioButton_solid;
@@ -59,6 +63,12 @@ public:
     QHBoxLayout *horizontalLayout_data;
     QLabel *label_doc_2;
     QComboBox *comboBox_data_name;
+    QHBoxLayout *horizontalLayout_2;
+    QLabel *label;
+    QLineEdit *lineEdit_min;
+    QHBoxLayout *horizontalLayout_4;
+    QLabel *label_2;
+    QLineEdit *lineEdit_max;
     QMenuBar *menuBar;
     QMenu *menu;
     QToolBar *mainToolBar;
@@ -95,15 +105,27 @@ public:
         horizontalLayout_3->setSpacing(6);
         horizontalLayout_3->setContentsMargins(11, 11, 11, 11);
         horizontalLayout_3->setObjectName(QStringLiteral("horizontalLayout_3"));
-        pushButtonPlay = new QPushButton(playWidget);
-        pushButtonPlay->setObjectName(QStringLiteral("pushButtonPlay"));
+        pushButton_play = new QPushButton(playWidget);
+        pushButton_play->setObjectName(QStringLiteral("pushButton_play"));
 
-        horizontalLayout_3->addWidget(pushButtonPlay);
+        horizontalLayout_3->addWidget(pushButton_play);
 
-        pushButton_2 = new QPushButton(playWidget);
-        pushButton_2->setObjectName(QStringLiteral("pushButton_2"));
+        pushButton_stop = new QPushButton(playWidget);
+        pushButton_stop->setObjectName(QStringLiteral("pushButton_stop"));
 
-        horizontalLayout_3->addWidget(pushButton_2);
+        horizontalLayout_3->addWidget(pushButton_stop);
+
+        horizontalSlider_frame = new QSlider(playWidget);
+        horizontalSlider_frame->setObjectName(QStringLiteral("horizontalSlider_frame"));
+        horizontalSlider_frame->setOrientation(Qt::Horizontal);
+
+        horizontalLayout_3->addWidget(horizontalSlider_frame);
+
+        lineEdit_frame = new QLineEdit(playWidget);
+        lineEdit_frame->setObjectName(QStringLiteral("lineEdit_frame"));
+        lineEdit_frame->setMaximumSize(QSize(30, 16777215));
+
+        horizontalLayout_3->addWidget(lineEdit_frame);
 
 
         leftVerticalLayout->addWidget(playWidget);
@@ -231,6 +253,41 @@ public:
 
         right_2->addLayout(horizontalLayout_data);
 
+        horizontalLayout_2 = new QHBoxLayout();
+        horizontalLayout_2->setSpacing(6);
+        horizontalLayout_2->setObjectName(QStringLiteral("horizontalLayout_2"));
+        label = new QLabel(right_widget_lsd);
+        label->setObjectName(QStringLiteral("label"));
+
+        horizontalLayout_2->addWidget(label);
+
+        lineEdit_min = new QLineEdit(right_widget_lsd);
+        lineEdit_min->setObjectName(QStringLiteral("lineEdit_min"));
+        lineEdit_min->setToolTipDuration(-1);
+        lineEdit_min->setInputMethodHints(Qt::ImhPreferNumbers);
+        lineEdit_min->setClearButtonEnabled(false);
+
+        horizontalLayout_2->addWidget(lineEdit_min);
+
+
+        right_2->addLayout(horizontalLayout_2);
+
+        horizontalLayout_4 = new QHBoxLayout();
+        horizontalLayout_4->setSpacing(6);
+        horizontalLayout_4->setObjectName(QStringLiteral("horizontalLayout_4"));
+        label_2 = new QLabel(right_widget_lsd);
+        label_2->setObjectName(QStringLiteral("label_2"));
+
+        horizontalLayout_4->addWidget(label_2);
+
+        lineEdit_max = new QLineEdit(right_widget_lsd);
+        lineEdit_max->setObjectName(QStringLiteral("lineEdit_max"));
+
+        horizontalLayout_4->addWidget(lineEdit_max);
+
+
+        right_2->addLayout(horizontalLayout_4);
+
 
         horizontalLayout->addWidget(right_widget_lsd);
 
@@ -261,8 +318,8 @@ public:
     {
         vtkShowerClass->setWindowTitle(QApplication::translate("vtkShowerClass", "vtkShower", 0));
         action->setText(QApplication::translate("vtkShowerClass", "\346\211\223\345\274\200k\346\226\207\344\273\266", 0));
-        pushButtonPlay->setText(QApplication::translate("vtkShowerClass", "\346\222\255\346\224\276", 0));
-        pushButton_2->setText(QApplication::translate("vtkShowerClass", "\345\201\234\346\255\242", 0));
+        pushButton_play->setText(QApplication::translate("vtkShowerClass", "\346\222\255\346\224\276", 0));
+        pushButton_stop->setText(QApplication::translate("vtkShowerClass", "\345\201\234\346\255\242", 0));
         radioButton_solid->setText(QApplication::translate("vtkShowerClass", "\345\256\236\344\275\223\345\215\225\345\205\203", 0));
         radioButton_wareline->setText(QApplication::translate("vtkShowerClass", "\347\272\277\346\241\206\345\215\225\345\205\203", 0));
         radioButton_setnode->setText(QApplication::translate("vtkShowerClass", "\350\212\202\347\202\271\351\233\206\345\220\210", 0));
@@ -271,6 +328,8 @@ public:
         radioButton_point_data->setText(QApplication::translate("vtkShowerClass", "\347\202\271\346\225\260\346\215\256", 0));
         radioButton_shell_data->setText(QApplication::translate("vtkShowerClass", "\345\243\263\346\225\260\346\215\256", 0));
         label_doc_2->setText(QApplication::translate("vtkShowerClass", "\346\225\260\346\215\256\345\220\215\347\247\260\357\274\232", 0));
+        label->setText(QApplication::translate("vtkShowerClass", "\346\234\200\345\260\217\345\200\274\357\274\232", 0));
+        label_2->setText(QApplication::translate("vtkShowerClass", "\346\234\200\345\244\247\345\200\274\357\274\232", 0));
         menu->setTitle(QApplication::translate("vtkShowerClass", "\346\226\207\344\273\266", 0));
     } // retranslateUi
 

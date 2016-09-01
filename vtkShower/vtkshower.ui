@@ -33,16 +33,33 @@
         <widget class="QWidget" name="playWidget" native="true">
          <layout class="QHBoxLayout" name="horizontalLayout_3">
           <item>
-           <widget class="QPushButton" name="pushButtonPlay">
+           <widget class="QPushButton" name="pushButton_play">
             <property name="text">
              <string>播放</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="pushButton_2">
+           <widget class="QPushButton" name="pushButton_stop">
             <property name="text">
              <string>停止</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QSlider" name="horizontalSlider_frame">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="lineEdit_frame">
+            <property name="maximumSize">
+             <size>
+              <width>30</width>
+              <height>16777215</height>
+             </size>
             </property>
            </widget>
           </item>
@@ -267,6 +284,44 @@
              </sizepolicy>
             </property>
            </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_2">
+          <item>
+           <widget class="QLabel" name="label">
+            <property name="text">
+             <string>最小值：</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="lineEdit_min">
+            <property name="toolTipDuration">
+             <number>-1</number>
+            </property>
+            <property name="inputMethodHints">
+             <set>Qt::ImhPreferNumbers</set>
+            </property>
+            <property name="clearButtonEnabled">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_4">
+          <item>
+           <widget class="QLabel" name="label_2">
+            <property name="text">
+             <string>最大值：</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="lineEdit_max"/>
           </item>
          </layout>
         </item>
