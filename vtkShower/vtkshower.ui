@@ -319,5 +319,22 @@
  <resources>
   <include location="vtkshower.qrc"/>
  </resources>
- <connections/>
+ <connections>
+  <connection>
+   <sender>comboBox</sender>
+   <signal>activated(int)</signal>
+   <receiver>menu</receiver>
+   <slot>hide()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>410</x>
+     <y>143</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>59</x>
+     <y>35</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

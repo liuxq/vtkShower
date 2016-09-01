@@ -79,9 +79,10 @@ vtkShower::vtkShower(QWidget *parent)
 
 	lut = vtkLookupTable::New();
 
-	UISet(1);
+	UISet(0);
 
 	connect(ui.comboBox, SIGNAL(activated(int)), this, SLOT(onPartComboChange(int)));
+	connect(ui.comboBox_data_name, SIGNAL(activated(int)), this, SLOT(onDataComboChange(int)));
 	connect(ui.radioButton_solid, SIGNAL(clicked()), this, SLOT(onRadioClickSolid()));
 	connect(ui.radioButton_wareline, SIGNAL(clicked()), this, SLOT(onRadioClickWareline()));
 	connect(ui.radioButton_setnode, SIGNAL(clicked()), this, SLOT(onRadioClickSetNode()));
@@ -91,7 +92,7 @@ vtkShower::vtkShower(QWidget *parent)
 	connect(ui.pushButtonPlay, SIGNAL(clicked()), this, SLOT(OnButtonPlay()));
 	connect(ui.radioButton_point_data, SIGNAL(clicked()), this, SLOT(onRadioClickPointData()));
 	connect(ui.radioButton_shell_data, SIGNAL(clicked()), this, SLOT(onRadioClickShellData()));
-	connect(ui.comboBox_data_name, SIGNAL(activated(int)), this, SLOT(onDataComboChange(int)));
+	
 	
 }
 

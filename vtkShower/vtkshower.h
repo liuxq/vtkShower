@@ -94,13 +94,14 @@ private:
 
 public slots:
 	void onPartComboChange(int);
+	void onDataComboChange(int);
 	void onRadioClickSolid();
 	void onRadioClickWareline();
 	void onRadioClickSetNode();
 	void onRadioClickSetSeg();
 	void onRadioClickPointData();
 	void onRadioClickShellData();
-	void onDataComboChange(int);
+	
 	void OnMenuOpenKFile();
 	void OnButtonPlay();
 };

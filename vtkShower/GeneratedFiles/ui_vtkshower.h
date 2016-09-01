@@ -252,6 +252,7 @@ public:
         menu->addAction(action);
 
         retranslateUi(vtkShowerClass);
+        QObject::connect(comboBox, SIGNAL(activated(int)), menu, SLOT(hide()));
 
         QMetaObject::connectSlotsByName(vtkShowerClass);
     } // setupUi
