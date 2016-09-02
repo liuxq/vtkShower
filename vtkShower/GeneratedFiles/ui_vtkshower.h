@@ -36,6 +36,7 @@ class Ui_vtkShowerClass
 {
 public:
     QAction *action;
+    QAction *action_LSDyna;
     QWidget *centralWidget;
     QWidget *horizontalLayoutWidget;
     QHBoxLayout *horizontalLayout;
@@ -46,7 +47,7 @@ public:
     QPushButton *pushButton_play;
     QPushButton *pushButton_stop;
     QSlider *horizontalSlider_frame;
-    QLineEdit *lineEdit_frame;
+    QLabel *label_frame;
     QWidget *right_widget_k;
     QVBoxLayout *right;
     QRadioButton *radioButton_solid;
@@ -81,6 +82,8 @@ public:
         vtkShowerClass->resize(650, 515);
         action = new QAction(vtkShowerClass);
         action->setObjectName(QStringLiteral("action"));
+        action_LSDyna = new QAction(vtkShowerClass);
+        action_LSDyna->setObjectName(QStringLiteral("action_LSDyna"));
         centralWidget = new QWidget(vtkShowerClass);
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
         horizontalLayoutWidget = new QWidget(centralWidget);
@@ -118,14 +121,19 @@ public:
         horizontalSlider_frame = new QSlider(playWidget);
         horizontalSlider_frame->setObjectName(QStringLiteral("horizontalSlider_frame"));
         horizontalSlider_frame->setOrientation(Qt::Horizontal);
+        horizontalSlider_frame->setTickPosition(QSlider::TicksBelow);
 
         horizontalLayout_3->addWidget(horizontalSlider_frame);
 
-        lineEdit_frame = new QLineEdit(playWidget);
-        lineEdit_frame->setObjectName(QStringLiteral("lineEdit_frame"));
-        lineEdit_frame->setMaximumSize(QSize(30, 16777215));
+        label_frame = new QLabel(playWidget);
+        label_frame->setObjectName(QStringLiteral("label_frame"));
+        QSizePolicy sizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        sizePolicy.setHorizontalStretch(0);
+        sizePolicy.setVerticalStretch(0);
+        sizePolicy.setHeightForWidth(label_frame->sizePolicy().hasHeightForWidth());
+        label_frame->setSizePolicy(sizePolicy);
 
-        horizontalLayout_3->addWidget(lineEdit_frame);
+        horizontalLayout_3->addWidget(label_frame);
 
 
         leftVerticalLayout->addWidget(playWidget);
@@ -135,9 +143,6 @@ public:
 
         right_widget_k = new QWidget(horizontalLayoutWidget);
         right_widget_k->setObjectName(QStringLiteral("right_widget_k"));
-        QSizePolicy sizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-        sizePolicy.setHorizontalStretch(0);
-        sizePolicy.setVerticalStretch(0);
         sizePolicy.setHeightForWidth(right_widget_k->sizePolicy().hasHeightForWidth());
         right_widget_k->setSizePolicy(sizePolicy);
         right_widget_k->setMinimumSize(QSize(150, 0));
@@ -307,9 +312,9 @@ public:
 
         menuBar->addAction(menu->menuAction());
         menu->addAction(action);
+        menu->addAction(action_LSDyna);
 
         retranslateUi(vtkShowerClass);
-        QObject::connect(comboBox, SIGNAL(activated(int)), menu, SLOT(hide()));
 
         QMetaObject::connectSlotsByName(vtkShowerClass);
     } // setupUi
@@ -318,8 +323,10 @@ public:
     {
         vtkShowerClass->setWindowTitle(QApplication::translate("vtkShowerClass", "vtkShower", 0));
         action->setText(QApplication::translate("vtkShowerClass", "\346\211\223\345\274\200k\346\226\207\344\273\266", 0));
+        action_LSDyna->setText(QApplication::translate("vtkShowerClass", "\346\211\223\345\274\200LSDyna\346\226\207\344\273\266\345\272\223", 0));
         pushButton_play->setText(QApplication::translate("vtkShowerClass", "\346\222\255\346\224\276", 0));
         pushButton_stop->setText(QApplication::translate("vtkShowerClass", "\345\201\234\346\255\242", 0));
+        label_frame->setText(QApplication::translate("vtkShowerClass", "0", 0));
         radioButton_solid->setText(QApplication::translate("vtkShowerClass", "\345\256\236\344\275\223\345\215\225\345\205\203", 0));
         radioButton_wareline->setText(QApplication::translate("vtkShowerClass", "\347\272\277\346\241\206\345\215\225\345\205\203", 0));
         radioButton_setnode->setText(QApplication::translate("vtkShowerClass", "\350\212\202\347\202\271\351\233\206\345\220\210", 0));

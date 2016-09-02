@@ -68,17 +68,24 @@ vtkShower::vtkShower(QWidget *parent)
 	m_pRenderder->SetBackground(0.2, 0.2, 0.2);
 	ui.qvtkWidget->SetRenderWindow(m_pRenWin);
 	ui.qvtkWidget->GetRenderWindow()->Render();
-
+	lut = vtkLookupTable::New();
+	colorTableBar = vtkScalarBarActor::New();
 
 	rdr = vtkLSDynaReader::New();
 	rdr->SetDatabaseDirectory("D:/result_demo");
+	rdr->Update();
 	onRadioClickPointData();
+
+	ui.horizontalSlider_frame->setMaximum(rdr->GetNumberOfTimeSteps());
 
 	m_iCurStep = 0;
 	m_iDataIndex = 0;
 
-	lut = vtkLookupTable::New();
+	m_pRenderder->ResetCamera();
+	m_pRenderder->GetActiveCamera()->Zoom(1.5);
 
+	SetAxis();
+	
 	UISet(0);
 
 	connect(ui.comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(onPartComboChange(int)));
@@ -89,10 +96,24 @@ vtkShower::vtkShower(QWidget *parent)
 	connect(ui.radioButton_setSeg, SIGNAL(clicked()), this, SLOT(onRadioClickSetSeg()));
 	connect(ui.action, SIGNAL(triggered()), this, SLOT(OnMenuOpenKFile()));
 
+	connect(ui.action_LSDyna, SIGNAL(triggered()), this, SLOT(OnMenuOpenLSDFile()));
 	connect(ui.pushButton_play, SIGNAL(clicked()), this, SLOT(OnButtonPlay()));
 	connect(ui.radioButton_point_data, SIGNAL(clicked()), this, SLOT(onRadioClickPointData()));
 	connect(ui.radioButton_shell_data, SIGNAL(clicked()), this, SLOT(onRadioClickShellData()));
-	connect(ui.horizontalSlider_frame, SIGNAL(valueChanged(int)), this, SLOT(OnButtonPlay()));
+	connect(ui.horizontalSlider_frame, SIGNAL(valueChanged(int)), this, SLOT(onSliderValueChange(int)));
+}
+
+void vtkShower::SetAxis()
+{
+	//坐标系
+	vtkAxesActor* axes = vtkAxesActor::New();
+	vtkOrientationMarkerWidget* widget = vtkOrientationMarkerWidget::New();
+	widget->SetOutlineColor(0.9300, 0.5700, 0.1300);
+	widget->SetOrientationMarker(axes);
+	widget->SetInteractor(iren);
+	widget->SetViewport(0.0, 0.0, 0.2, 0.35);
+	widget->SetEnabled(1);
+	widget->InteractiveOff();
 }
 
 void vtkShower::UISet(int index)
@@ -101,6 +122,11 @@ void vtkShower::UISet(int index)
 	{
 		ui.right_widget_k->setVisible(false);
 		ui.right_widget_lsd->setVisible(true);
+	}
+	else
+	{
+		ui.right_widget_k->setVisible(true);
+		ui.right_widget_lsd->setVisible(false);
 	}
 }
 
@@ -149,7 +175,6 @@ void vtkShower::Clear()
 }
 void vtkShower::LoadKFile(QString file)
 {
-	Clear();
 	m_kShowType = Solid;
 	m_kReader.read(file.toStdString());
 	//体
@@ -239,17 +264,7 @@ void vtkShower::LoadKFile(QString file)
 		}
 	}
 
-	//坐标系
-
-	vtkAxesActor* axes = vtkAxesActor::New();
-
-	vtkOrientationMarkerWidget* widget = vtkOrientationMarkerWidget::New();
-	widget->SetOutlineColor(0.9300, 0.5700, 0.1300);
-	widget->SetOrientationMarker(axes);
-	widget->SetInteractor(iren);
-	widget->SetViewport(0.0, 0.0, 0.2, 0.35);
-	widget->SetEnabled(1);
-	widget->InteractiveOff();
+	
 
 	//汉字
 	m_textActor = vtkTextActor::New();
@@ -483,8 +498,11 @@ void vtkShower::onRadioClickShellData()
 void vtkShower::onDataComboChange(int index)
 {
 	m_iDataIndex = index;
-	visColorBar();
-	visPipeline();
+	if (m_iDataIndex >= 0)
+	{
+		visColorBar();
+		visPipeline();
+	}
 }
 
 void vtkShower::onSliderValueChange(int index)
@@ -494,12 +512,21 @@ void vtkShower::onSliderValueChange(int index)
 	if (index < 0)
 		index = 0;
 	m_iCurStep = index;
+	ui.label_frame->setText(QString::number(m_iCurStep));
 	visColorBar();
 	visPipeline();
 }
 
 void vtkShower::resizeEvent(QResizeEvent * event) {
 	ui.horizontalLayoutWidget->resize(this->size().width(), this->size().height() - 50);
+}
+
+void vtkShower::OnMenuOpenLSDFile()
+{
+	QDir dir;
+	QString dirName = QFileDialog::getExistingDirectory(this, QString(tr("打开Lsdyna文件库")), dir.absolutePath());
+	if (dirName.isEmpty() == true) return;
+
 }
 
 void vtkShower::OnMenuOpenKFile()
@@ -510,13 +537,19 @@ void vtkShower::OnMenuOpenKFile()
 	QString fileName = QFileDialog::getOpenFileName(this, QString(tr("打开k文件")), dir.absolutePath(), filter);
 	if (fileName.isEmpty() == true) return;
 
+	Clear();
+	RemoveLsdActors();
+	UISet(1);
 	LoadKFile(fileName);
 }
+
 void vtkShower::OnButtonPlay()
 {
 	visColorBar();
 	visPipeline();
 	m_iCurStep = (m_iCurStep + 1) % rdr->GetNumberOfTimeSteps();
+	ui.label_frame->setText(QString::number(m_iCurStep));
+	ui.horizontalSlider_frame->setValue(m_iCurStep);
 }
 
 void vtkShower::visColorBar()
@@ -524,18 +557,16 @@ void vtkShower::visColorBar()
 	if (colorTableBar)
 	{
 		m_pRenderder->RemoveActor2D(colorTableBar);
-		colorTableBar->Delete();
 	}
-	
 
-	colorTableBar = vtkScalarBarActor::New();
 	colorTableBar->SetLookupTable(lut);
 	colorTableBar->SetTitle(ui.comboBox_data_name->itemText(m_iDataIndex).toUtf8().constData());
 	colorTableBar->GetPositionCoordinate()->SetCoordinateSystemToNormalizedViewport();
-	colorTableBar->GetPositionCoordinate()->SetValue(0.9, 0.0);
+	colorTableBar->GetPositionCoordinate()->SetValue(0.9, 0.1);
 	colorTableBar->SetOrientationToVertical();
 	colorTableBar->SetWidth(0.07);
-	colorTableBar->SetHeight(1.0);
+	colorTableBar->SetHeight(0.8);
+	//colorTableBar->SetMaximumHeightInPixels(500);
 	colorTableBar->SetNumberOfLabels(10);
 	colorTableBar->SetLabelFormat("%-#6.3g");/*( "%-#6.4f" );*/
 	m_pRenderder->AddActor2D(colorTableBar);
@@ -620,8 +651,7 @@ void vtkShower::visPipeline(void)
 		
 		}
 	}
-	m_pRenderder->ResetCamera();
-	m_pRenderder->GetActiveCamera()->Zoom(1.5);
+	
 	m_pRenWin->Render();
 }
 

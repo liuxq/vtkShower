@@ -19,8 +19,8 @@
 
 QT_BEGIN_MOC_NAMESPACE
 struct qt_meta_stringdata_vtkShower_t {
-    QByteArrayData data[13];
-    char stringdata0[218];
+    QByteArrayData data[14];
+    char stringdata0[236];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -41,7 +41,8 @@ QT_MOC_LITERAL(8, 125, 21), // "onRadioClickPointData"
 QT_MOC_LITERAL(9, 147, 21), // "onRadioClickShellData"
 QT_MOC_LITERAL(10, 169, 19), // "onSliderValueChange"
 QT_MOC_LITERAL(11, 189, 15), // "OnMenuOpenKFile"
-QT_MOC_LITERAL(12, 205, 12) // "OnButtonPlay"
+QT_MOC_LITERAL(12, 205, 17), // "OnMenuOpenLSDFile"
+QT_MOC_LITERAL(13, 223, 12) // "OnButtonPlay"
 
     },
     "vtkShower\0onPartComboChange\0\0"
@@ -49,7 +50,8 @@ QT_MOC_LITERAL(12, 205, 12) // "OnButtonPlay"
     "onRadioClickWareline\0onRadioClickSetNode\0"
     "onRadioClickSetSeg\0onRadioClickPointData\0"
     "onRadioClickShellData\0onSliderValueChange\0"
-    "OnMenuOpenKFile\0OnButtonPlay"
+    "OnMenuOpenKFile\0OnMenuOpenLSDFile\0"
+    "OnButtonPlay"
 };
 #undef QT_MOC_LITERAL
 
@@ -59,7 +61,7 @@ static const uint qt_meta_data_vtkShower[] = {
        7,       // revision
        0,       // classname
        0,    0, // classinfo
-      11,   14, // methods
+      12,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -67,17 +69,18 @@ static const uint qt_meta_data_vtkShower[] = {
        0,       // signalCount
 
  // slots: name, argc, parameters, tag, flags
-       1,    1,   69,    2, 0x0a /* Public */,
-       3,    1,   72,    2, 0x0a /* Public */,
-       4,    0,   75,    2, 0x0a /* Public */,
-       5,    0,   76,    2, 0x0a /* Public */,
-       6,    0,   77,    2, 0x0a /* Public */,
-       7,    0,   78,    2, 0x0a /* Public */,
-       8,    0,   79,    2, 0x0a /* Public */,
-       9,    0,   80,    2, 0x0a /* Public */,
-      10,    1,   81,    2, 0x0a /* Public */,
-      11,    0,   84,    2, 0x0a /* Public */,
-      12,    0,   85,    2, 0x0a /* Public */,
+       1,    1,   74,    2, 0x0a /* Public */,
+       3,    1,   77,    2, 0x0a /* Public */,
+       4,    0,   80,    2, 0x0a /* Public */,
+       5,    0,   81,    2, 0x0a /* Public */,
+       6,    0,   82,    2, 0x0a /* Public */,
+       7,    0,   83,    2, 0x0a /* Public */,
+       8,    0,   84,    2, 0x0a /* Public */,
+       9,    0,   85,    2, 0x0a /* Public */,
+      10,    1,   86,    2, 0x0a /* Public */,
+      11,    0,   89,    2, 0x0a /* Public */,
+      12,    0,   90,    2, 0x0a /* Public */,
+      13,    0,   91,    2, 0x0a /* Public */,
 
  // slots: parameters
     QMetaType::Void, QMetaType::Int,    2,
@@ -89,6 +92,7 @@ static const uint qt_meta_data_vtkShower[] = {
     QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void, QMetaType::Int,    2,
+    QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void,
 
@@ -111,7 +115,8 @@ void vtkShower::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, v
         case 7: _t->onRadioClickShellData(); break;
         case 8: _t->onSliderValueChange((*reinterpret_cast< int(*)>(_a[1]))); break;
         case 9: _t->OnMenuOpenKFile(); break;
-        case 10: _t->OnButtonPlay(); break;
+        case 10: _t->OnMenuOpenLSDFile(); break;
+        case 11: _t->OnButtonPlay(); break;
         default: ;
         }
     }
@@ -142,13 +147,13 @@ int vtkShower::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 11)
+        if (_id < 12)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 11;
+        _id -= 12;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 11)
+        if (_id < 12)
             *reinterpret_cast<int*>(_a[0]) = -1;
-        _id -= 11;
+        _id -= 12;
     }
     return _id;
 }

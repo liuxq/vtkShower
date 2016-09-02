@@ -59,6 +59,7 @@ protected:
 	void visPipeline();
 	void visColorBar();
 	void UISet(int);
+	void SetAxis();
 
 private:
 	Ui::vtkShowerClass ui;
@@ -104,6 +105,7 @@ public slots:
 	void onSliderValueChange(int);
 	
 	void OnMenuOpenKFile();
+	void OnMenuOpenLSDFile();
 	void OnButtonPlay();
 };
 

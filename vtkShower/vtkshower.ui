@@ -27,7 +27,7 @@
      <item>
       <layout class="QVBoxLayout" name="leftVerticalLayout">
        <item>
-        <widget class="QVTKWidget" name="qvtkWidget"/>
+        <widget class="QVTKWidget" name="qvtkWidget" native="true"/>
        </item>
        <item>
         <widget class="QWidget" name="playWidget" native="true">
@@ -51,15 +51,21 @@
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
             </property>
+            <property name="tickPosition">
+             <enum>QSlider::TicksBelow</enum>
+            </property>
            </widget>
           </item>
           <item>
-           <widget class="QLineEdit" name="lineEdit_frame">
-            <property name="maximumSize">
-             <size>
-              <width>30</width>
-              <height>16777215</height>
-             </size>
+           <widget class="QLabel" name="label_frame">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>0</string>
             </property>
            </widget>
           </item>
@@ -345,6 +351,7 @@
      <string>文件</string>
     </property>
     <addaction name="action"/>
+    <addaction name="action_LSDyna"/>
    </widget>
    <addaction name="menu"/>
   </widget>
@@ -362,6 +369,11 @@
     <string>打开k文件</string>
    </property>
   </action>
+  <action name="action_LSDyna">
+   <property name="text">
+    <string>打开LSDyna文件库</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
@@ -374,22 +386,5 @@
  <resources>
   <include location="vtkshower.qrc"/>
  </resources>
- <connections>
-  <connection>
-   <sender>comboBox</sender>
-   <signal>activated(int)</signal>
-   <receiver>menu</receiver>
-   <slot>hide()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>410</x>
-     <y>143</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>59</x>
-     <y>35</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>
