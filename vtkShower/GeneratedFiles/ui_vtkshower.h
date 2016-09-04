@@ -70,6 +70,7 @@ public:
     QHBoxLayout *horizontalLayout_4;
     QLabel *label_2;
     QLineEdit *lineEdit_max;
+    QPushButton *pushButton_line;
     QMenuBar *menuBar;
     QMenu *menu;
     QToolBar *mainToolBar;
@@ -293,8 +294,13 @@ public:
 
         right_2->addLayout(horizontalLayout_4);
 
+        pushButton_line = new QPushButton(right_widget_lsd);
+        pushButton_line->setObjectName(QStringLiteral("pushButton_line"));
 
-        horizontalLayout->addWidget(right_widget_lsd);
+        right_2->addWidget(pushButton_line);
+
+
+        horizontalLayout->addWidget(right_widget_lsd, 0, Qt::AlignTop);
 
         vtkShowerClass->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(vtkShowerClass);
@@ -337,6 +343,7 @@ public:
         label_doc_2->setText(QApplication::translate("vtkShowerClass", "\346\225\260\346\215\256\345\220\215\347\247\260\357\274\232", 0));
         label->setText(QApplication::translate("vtkShowerClass", "\346\234\200\345\260\217\345\200\274\357\274\232", 0));
         label_2->setText(QApplication::translate("vtkShowerClass", "\346\234\200\345\244\247\345\200\274\357\274\232", 0));
+        pushButton_line->setText(QApplication::translate("vtkShowerClass", "\346\233\262\347\272\277\350\241\250\347\244\272", 0));
         menu->setTitle(QApplication::translate("vtkShowerClass", "\346\226\207\344\273\266", 0));
     } // retranslateUi
 

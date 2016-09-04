@@ -3,6 +3,7 @@
 
 #include <QtWidgets/QMainWindow>
 #include "ui_vtkshower.h"
+#include "ui_lineDialog.h"
 #include "QVTKWidget.h"
 #include "vtkImageViewer2.h"
 #include "vtkSmartPointer.h"
@@ -63,6 +64,9 @@ protected:
 
 private:
 	Ui::vtkShowerClass ui;
+	Ui::Dialog_line ui_dialog;
+	QDialog* m_dialogLine;
+	//LineWidget* m_widgetLine;
 
 	//自定义控件
 	vtkSmartPointer< vtkImageViewer2 >          m_pImageViewer;
@@ -93,6 +97,8 @@ private:
 	int m_iDataIndex;
 	int m_iCurStep;
 
+	vector<double> lxq;
+
 public slots:
 	void onPartComboChange(int);
 	void onDataComboChange(int);
@@ -103,6 +109,7 @@ public slots:
 	void onRadioClickPointData();
 	void onRadioClickShellData();
 	void onSliderValueChange(int);
+	void onButtonLine();
 	
 	void OnMenuOpenKFile();
 	void OnMenuOpenLSDFile();

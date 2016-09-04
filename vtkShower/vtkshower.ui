@@ -27,7 +27,7 @@
      <item>
       <layout class="QVBoxLayout" name="leftVerticalLayout">
        <item>
-        <widget class="QVTKWidget" name="qvtkWidget" native="true"/>
+        <widget class="QVTKWidget" name="qvtkWidget"/>
        </item>
        <item>
         <widget class="QWidget" name="playWidget" native="true">
@@ -192,7 +192,7 @@
        </layout>
       </widget>
      </item>
-     <item>
+     <item alignment="Qt::AlignTop">
       <widget class="QWidget" name="right_widget_lsd" native="true">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -330,6 +330,13 @@
            <widget class="QLineEdit" name="lineEdit_max"/>
           </item>
          </layout>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pushButton_line">
+          <property name="text">
+           <string>曲线表示</string>
+          </property>
+         </widget>
         </item>
        </layout>
       </widget>
