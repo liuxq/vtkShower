@@ -59,11 +59,8 @@ vtkShower::vtkShower(QWidget *parent)
 	ui.setupUi(this);
 
 	m_dialogLine = new QDialog(this);
-	m_dialogLine->setModal(true);
 	ui_dialog.setupUi(m_dialogLine);
-
-	//m_widgetLine = new LineWidget(m_dialogLine);
-
+	m_dialogLine->setWindowFlags(Qt::Dialog | Qt::WindowCloseButtonHint);
 
 	m_pRenderder = vtkSmartPointer< vtkRenderer >::New();
 	m_pRenWin = vtkSmartPointer<vtkRenderWindow>::New();
@@ -110,6 +107,8 @@ vtkShower::vtkShower(QWidget *parent)
 	connect(ui.radioButton_shell_data, SIGNAL(clicked()), this, SLOT(onRadioClickShellData()));
 	connect(ui.horizontalSlider_frame, SIGNAL(valueChanged(int)), this, SLOT(onSliderValueChange(int)));
 	connect(ui.pushButton_line, SIGNAL(clicked()), this, SLOT(onButtonLine()));
+
+	connect(ui_dialog.pushButton, SIGNAL(clicked()), this, SLOT(OnButtonCloseLine()));
 }
 
 void vtkShower::SetAxis()
@@ -673,6 +672,11 @@ void vtkShower::onButtonLine()
 	}
 	ui_dialog.verticalWidget->setData(&lxq);
 	m_dialogLine->show();
+}
+
+void vtkShower::OnButtonCloseLine()
+{
+	m_dialogLine->close();
 }
 
 void vtkShower::RemoveLsdActors()

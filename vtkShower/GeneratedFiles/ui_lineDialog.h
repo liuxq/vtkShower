@@ -17,7 +17,6 @@
 #include <QtWidgets/QHeaderView>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QVBoxLayout>
-#include <QtWidgets/QWidget>
 #include "linewidget.h"
 
 QT_BEGIN_NAMESPACE
@@ -25,8 +24,7 @@ QT_BEGIN_NAMESPACE
 class Ui_Dialog_line
 {
 public:
-    QWidget *verticalLayoutWidget;
-    QVBoxLayout *verticalLayout;
+    QVBoxLayout *verticalLayout_2;
     LineWidget *verticalWidget;
     QPushButton *pushButton;
 
@@ -34,22 +32,27 @@ public:
     {
         if (Dialog_line->objectName().isEmpty())
             Dialog_line->setObjectName(QStringLiteral("Dialog_line"));
+        Dialog_line->setWindowModality(Qt::NonModal);
         Dialog_line->resize(384, 290);
-        verticalLayoutWidget = new QWidget(Dialog_line);
-        verticalLayoutWidget->setObjectName(QStringLiteral("verticalLayoutWidget"));
-        verticalLayoutWidget->setGeometry(QRect(10, 280, 160, 80));
-        verticalLayout = new QVBoxLayout(verticalLayoutWidget);
-        verticalLayout->setObjectName(QStringLiteral("verticalLayout"));
-        verticalLayout->setContentsMargins(0, 0, 0, 0);
-        verticalWidget = new LineWidget(verticalLayoutWidget);
+        Dialog_line->setContextMenuPolicy(Qt::NoContextMenu);
+        Dialog_line->setSizeGripEnabled(false);
+        Dialog_line->setModal(true);
+        verticalLayout_2 = new QVBoxLayout(Dialog_line);
+        verticalLayout_2->setObjectName(QStringLiteral("verticalLayout_2"));
+        verticalWidget = new LineWidget(Dialog_line);
         verticalWidget->setObjectName(QStringLiteral("verticalWidget"));
 
-        verticalLayout->addWidget(verticalWidget);
+        verticalLayout_2->addWidget(verticalWidget);
 
-        pushButton = new QPushButton(verticalLayoutWidget);
+        pushButton = new QPushButton(Dialog_line);
         pushButton->setObjectName(QStringLiteral("pushButton"));
+        QSizePolicy sizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        sizePolicy.setHorizontalStretch(0);
+        sizePolicy.setVerticalStretch(0);
+        sizePolicy.setHeightForWidth(pushButton->sizePolicy().hasHeightForWidth());
+        pushButton->setSizePolicy(sizePolicy);
 
-        verticalLayout->addWidget(pushButton);
+        verticalLayout_2->addWidget(pushButton, 0, Qt::AlignRight);
 
 
         retranslateUi(Dialog_line);

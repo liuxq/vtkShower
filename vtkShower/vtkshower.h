@@ -110,6 +110,7 @@ public slots:
 	void onRadioClickShellData();
 	void onSliderValueChange(int);
 	void onButtonLine();
+	void OnButtonCloseLine();
 	
 	void OnMenuOpenKFile();
 	void OnMenuOpenLSDFile();
