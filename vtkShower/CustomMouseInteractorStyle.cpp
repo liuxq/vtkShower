@@ -37,6 +37,10 @@ void customMouseInteractorStyle::OnLeftButtonDown()
 
 		if (cellForPointPicker->GetCellId() != -1)
 		{
+			curActor = cellForPointPicker->GetActor();
+			
+			isPoint = true;
+
 			double* realpos = cellForPointPicker->GetPickPosition();
 			vtkCell* cell = cellForPointPicker->GetActor()->GetMapper()->GetInputAsDataSet()->GetCell(cellForPointPicker->GetCellId());
 			int pointid = -1;
@@ -57,6 +61,8 @@ void customMouseInteractorStyle::OnLeftButtonDown()
 					p3 = pos[2];
 				}
 			}
+
+			pointId = pointid;
 
 			if (textActor)
 			{
@@ -96,6 +102,10 @@ void customMouseInteractorStyle::OnLeftButtonDown()
 
 		if (cellPicker->GetCellId() != -1)
 		{
+			curActor = cellPicker->GetActor();
+			cellId = cellPicker->GetCellId();
+			isPoint = false;
+
 			vtkSmartPointer<vtkIdTypeArray> ids = vtkSmartPointer<vtkIdTypeArray>::New();
 			ids->SetNumberOfComponents(1);
 			ids->InsertNextValue(cellPicker->GetCellId());

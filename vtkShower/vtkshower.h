@@ -90,6 +90,7 @@ private:
 	vtkCoordinate* m_coordinate;
 	vtkLSDynaReader* rdr;
 	vtkLookupTable* lut;
+	customMouseInteractorStyle* m_style;
 
 	KShowType m_kShowType;
 

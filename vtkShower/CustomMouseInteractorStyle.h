@@ -63,13 +63,15 @@ public:
 	vtkDataSetMapper* selectedMapper;
 	vtkActor* selectedActor;
 
-	int pointid;
-	double pos[3];
-
 	vtkTextActor* textActor;
 	vtkPointPicker*  pointPicker;
 	vtkCellPicker*  cellForPointPicker;
 	vtkCellPicker*  cellPicker;
 	vtkSphereSource* sphereSource;
+
+	vtkActor* curActor;
+	bool isPoint;
+	int pointId;
+	int cellId;
 };
 

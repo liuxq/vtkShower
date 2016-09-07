@@ -67,9 +67,9 @@ vtkShower::vtkShower(QWidget *parent)
 	m_pRenWin->AddRenderer(m_pRenderder);
 	iren = vtkRenderWindowInteractor::New();
 	iren->SetRenderWindow(m_pRenWin);
-	vtkSmartPointer<customMouseInteractorStyle> style = vtkSmartPointer<customMouseInteractorStyle>::New();
-	iren->SetInteractorStyle(style);
-	style->SetDefaultRenderer(m_pRenderder);
+	m_style = customMouseInteractorStyle::New();
+	iren->SetInteractorStyle(m_style);
+	m_style->SetDefaultRenderer(m_pRenderder);
 	m_pRenderder->SetBackground(0.2, 0.2, 0.2);
 	ui.qvtkWidget->SetRenderWindow(m_pRenWin);
 	ui.qvtkWidget->GetRenderWindow()->Render();
@@ -665,10 +665,9 @@ void vtkShower::visPipeline(void)
 
 void vtkShower::onButtonLine()
 {
-	lxq.clear();
-	for (int i = 0; i < 100; i++)
+	if (m_style->isPoint)
 	{
-		lxq.push_back(i);
+		//m_style->curActor->GetMapper()->GetInputAsDataSet()->getarra
 	}
 	ui_dialog.verticalWidget->setData(&lxq);
 	m_dialogLine->show();
