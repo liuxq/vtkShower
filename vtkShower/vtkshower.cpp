@@ -37,6 +37,7 @@
 #include "vtkScalarBarActor.h"
 #include "vtkPointData.h"
 #include "linewidget.h"
+#include "vtkFloatArray.h"
 
 
 #include <QFileDialog>
@@ -79,7 +80,20 @@ vtkShower::vtkShower(QWidget *parent)
 	rdr = vtkLSDynaReader::New();
 	rdr->SetDatabaseDirectory("D:/result_demo");
 	rdr->Update();
+
+	for (int i = 0; i < rdr->GetNumberOfTimeSteps(); i++)
+	{
+		rdr->SetTimeStep(i);
+		rdr->Update();
+		vtkMultiBlockDataSet* mbds = vtkMultiBlockDataSet::SafeDownCast(rdr->GetOutput());
+		vtkMultiBlockDataSet* mbds2 = vtkMultiBlockDataSet::New();
+		mbds2->DeepCopy(mbds);
+		m_vFrames.push_back(mbds2);
+	}
+	
 	onRadioClickPointData();
+
+
 
 	ui.horizontalSlider_frame->setMaximum(rdr->GetNumberOfTimeSteps());
 
@@ -553,8 +567,6 @@ void vtkShower::OnMenuOpenKFile()
 
 void vtkShower::OnButtonPlay()
 {
-	visColorBar();
-	visPipeline();
 	m_iCurStep = (m_iCurStep + 1) % rdr->GetNumberOfTimeSteps();
 	ui.label_frame->setText(QString::number(m_iCurStep));
 	ui.horizontalSlider_frame->setValue(m_iCurStep);
@@ -585,9 +597,7 @@ void vtkShower::visPipeline(void)
 {
 	RemoveLsdActors();
 	vtkUnstructuredGrid* shell = (vtkUnstructuredGrid*)0;
-	rdr->SetTimeStep(m_iCurStep);
-	rdr->Update();
-	vtkMultiBlockDataSet* mbds = vtkMultiBlockDataSet::SafeDownCast(rdr->GetOutput());
+	vtkMultiBlockDataSet* mbds = m_vFrames[m_iCurStep];
 
 	for (int k = 0; k < mbds->GetNumberOfBlocks(); ++k)
 	{
@@ -619,11 +629,10 @@ void vtkShower::visPipeline(void)
 
 				unMapper->SetLookupTable(lut);
 
-				vtkActor* partActor = vtkActor::New();
+				vtkActor* partActor = GetLSDActorByIndex(k);
 				partActor->SetMapper(unMapper);
 				partActor->GetProperty()->SetEdgeVisibility(true);
 
-				m_lsdPartActors.push_back(partActor);
 				m_pRenderder->AddActor(partActor);
 				unMapper->Delete();
 			}
@@ -648,11 +657,10 @@ void vtkShower::visPipeline(void)
 
 				unMapper->SetLookupTable(lut);
 
-				vtkActor* partActor = vtkActor::New();
+				vtkActor* partActor = GetLSDActorByIndex(k);
 				partActor->SetMapper(unMapper);
 				partActor->GetProperty()->SetEdgeVisibility(true);
 
-				m_lsdPartActors.push_back(partActor);
 				m_pRenderder->AddActor(partActor);
 				unMapper->Delete();
 			}
@@ -662,14 +670,58 @@ void vtkShower::visPipeline(void)
 	
 	m_pRenWin->Render();
 }
-
+vtkActor* vtkShower::GetLSDActorByIndex(int index)
+{
+	while (index >= m_lsdPartActors.size())
+	{
+		vtkActor* partActor = vtkActor::New();
+		m_lsdPartActors.push_back(partActor);
+	}
+	return m_lsdPartActors[index];
+}
 void vtkShower::onButtonLine()
 {
-	if (m_style->isPoint)
+	int curSelectPart = -1;
+	vtkMultiBlockDataSet* mbds = m_vFrames[m_iCurStep];
+	for (int k = 0; k < mbds->GetNumberOfBlocks(); ++k)
 	{
-		//m_style->curActor->GetMapper()->GetInputAsDataSet()->getarra
+		int type = mbds->GetBlock(k)->GetDataObjectType();
+
+		if (type == VTK_UNSTRUCTURED_GRID)
+		{
+			if (vtkUnstructuredGrid::SafeDownCast(mbds->GetBlock(k)) == m_style->curActor->GetMapper()->GetInputAsDataSet())
+			{
+				curSelectPart = k;
+			}
+		}
 	}
-	ui_dialog.verticalWidget->setData(&lxq);
+
+	if (curSelectPart >= 0)
+	{
+		m_lines.clear();
+		if (m_style->isPoint)
+		{
+			//m_style->curActor->GetMapper()->GetInputAsDataSet()->getarra
+			for (int i = 0; i < m_vFrames.size(); i++)
+			{
+				vtkUnstructuredGrid* shell = (vtkUnstructuredGrid*)0;
+				vtkMultiBlockDataSet* mbds = m_vFrames[i];
+
+				int type = mbds->GetBlock(curSelectPart)->GetDataObjectType();
+				{
+					if (type == VTK_UNSTRUCTURED_GRID)
+					{
+						shell = vtkUnstructuredGrid::SafeDownCast(mbds->GetBlock(curSelectPart));
+						vtkFloatArray* va = vtkFloatArray::SafeDownCast(shell->GetPointData()->GetArray(ui.comboBox_data_name->itemText(m_iDataIndex).toUtf8().constData()));
+						m_lines.push_back(va->GetValue(m_style->pointId));
+					}
+				}
+
+			}
+		}
+	}
+	
+	ui_dialog.verticalWidget->setData(&m_lines);
 	m_dialogLine->show();
 }
 
@@ -683,9 +735,9 @@ void vtkShower::RemoveLsdActors()
 	for (int i = 0; i < m_lsdPartActors.size(); i++)
 	{
 		m_pRenderder->RemoveActor(m_lsdPartActors[i]);
-		m_lsdPartActors[i]->Delete();
+		//m_lsdPartActors[i]->Delete();
 	}
-	m_lsdPartActors.clear();
+	//m_lsdPartActors.clear();
 }
 
 vtkShower::~vtkShower()

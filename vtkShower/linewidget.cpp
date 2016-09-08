@@ -35,7 +35,6 @@ void LineWidget::setCurStep(int stepIndex)
 
 void LineWidget::calculate()
 {
-
 	if (!theMotion)
 		return;
 	miny = MAX_DOUBLE;

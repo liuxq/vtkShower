@@ -19,6 +19,7 @@ class vtkLSDynaReader;
 class vtkLookupTable;
 class vtkDataSetMapper;
 class vtkScalarBarActor;
+class customMouseInteractorStyle;
 
 
 enum KShowType
@@ -61,6 +62,7 @@ protected:
 	void visColorBar();
 	void UISet(int);
 	void SetAxis();
+	vtkActor* GetLSDActorByIndex(int);
 
 private:
 	Ui::vtkShowerClass ui;
@@ -98,7 +100,7 @@ private:
 	int m_iDataIndex;
 	int m_iCurStep;
 
-	vector<double> lxq;
+	vector<double> m_lines;
 
 public slots:
 	void onPartComboChange(int);
