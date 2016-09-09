@@ -44,21 +44,21 @@ public:
 		}
 	}
 
-	virtual void OnKeyDown()
-	{
-		keyCode = this->GetInteractor()->GetKeyCode();
-	}
+	//virtual void OnKeyDown()
+	//{
+	//	keyCode = this->GetInteractor()->GetKeySym();
+	//}
 
-	virtual void OnKeyUp()
-	{
-		keyCode = 255;
-	}
+	//virtual void OnKeyUp()
+	//{
+	//	keyCode = "";
+	//}
 
 	virtual void OnLeftButtonDown();
 
 public:
 	vtkActor* actor;
-	char keyCode;
+	string keyCode;
 	vtkUnstructuredGrid* Data;
 	vtkDataSetMapper* selectedMapper;
 	vtkActor* selectedActor;
@@ -73,5 +73,6 @@ public:
 	bool isPoint;
 	int pointId;
 	int cellId;
+	bool isPointSelectMode;
 };
 

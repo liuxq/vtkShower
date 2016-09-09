@@ -44,6 +44,7 @@
 #include <QDir>
 #include <QEvent>
 #include <QTextEncoder>
+#include <QTimer>
 
 #include "ColorMapping.h"
 
@@ -51,7 +52,7 @@
 vtkShower* vtkShower::instance = NULL;
 
 vtkShower::vtkShower(QWidget *parent)
-: QMainWindow(parent)
+	: QMainWindow(parent), m_iCurStep(0),m_iDataIndex(0)
 {
 	if (instance == NULL)
 		instance = this;
@@ -93,12 +94,9 @@ vtkShower::vtkShower(QWidget *parent)
 	
 	onRadioClickPointData();
 
-
-
 	ui.horizontalSlider_frame->setMaximum(rdr->GetNumberOfTimeSteps());
 
-	m_iCurStep = 0;
-	m_iDataIndex = 0;
+	
 
 	m_pRenderder->ResetCamera();
 	m_pRenderder->GetActiveCamera()->Zoom(1.5);
@@ -117,12 +115,16 @@ vtkShower::vtkShower(QWidget *parent)
 
 	connect(ui.action_LSDyna, SIGNAL(triggered()), this, SLOT(OnMenuOpenLSDFile()));
 	connect(ui.pushButton_play, SIGNAL(clicked()), this, SLOT(OnButtonPlay()));
+	connect(ui.pushButton_stop, SIGNAL(clicked()), this, SLOT(OnButtonStop()));
 	connect(ui.radioButton_point_data, SIGNAL(clicked()), this, SLOT(onRadioClickPointData()));
 	connect(ui.radioButton_shell_data, SIGNAL(clicked()), this, SLOT(onRadioClickShellData()));
 	connect(ui.horizontalSlider_frame, SIGNAL(valueChanged(int)), this, SLOT(onSliderValueChange(int)));
 	connect(ui.pushButton_line, SIGNAL(clicked()), this, SLOT(onButtonLine()));
 
 	connect(ui_dialog.pushButton, SIGNAL(clicked()), this, SLOT(OnButtonCloseLine()));
+
+	timer = new QTimer(this);
+	connect(timer, SIGNAL(timeout()), this, SLOT(OnTimerOut()));
 }
 
 void vtkShower::SetAxis()
@@ -496,6 +498,7 @@ void vtkShower::onRadioClickSetSeg()
 void vtkShower::onRadioClickPointData()
 {
 	m_lShowType = Point;
+	m_style->isPointSelectMode = true;
 	ui.comboBox_data_name->clear();
 	for (int i = 0; i < rdr->GetNumberOfPointArrays(); i++)
 	{
@@ -508,6 +511,7 @@ void vtkShower::onRadioClickPointData()
 void vtkShower::onRadioClickShellData()
 {
 	m_lShowType = Shell;
+	m_style->isPointSelectMode = false;
 	ui.comboBox_data_name->clear();
 	for (int i = 0; i < rdr->GetNumberOfShellArrays(); i++)
 	{
@@ -567,9 +571,12 @@ void vtkShower::OnMenuOpenKFile()
 
 void vtkShower::OnButtonPlay()
 {
-	m_iCurStep = (m_iCurStep + 1) % rdr->GetNumberOfTimeSteps();
-	ui.label_frame->setText(QString::number(m_iCurStep));
-	ui.horizontalSlider_frame->setValue(m_iCurStep);
+	timer->start(100);
+}
+
+void vtkShower::OnButtonStop()
+{
+	timer->stop();
 }
 
 void vtkShower::visColorBar()
@@ -609,17 +616,20 @@ void vtkShower::visPipeline(void)
 
 			if (m_lShowType == Shell && shell->GetNumberOfCells() > 0)
 			{
-				shell->GetCellData()->SetActiveScalars("Stress");
+				shell->GetCellData()->SetActiveScalars(rdr->GetShellArrayName(m_iDataIndex));
 				double rang[2];
-				shell->GetCellData()->GetScalars("Stress")->GetRange(rang);
-				vtkDataArray* lxq = shell->GetCellData()->GetScalars("Stress");
+				rang[0] = -1;
+				rang[1] = 1;
+				vtkFloatArray* fa = vtkFloatArray::SafeDownCast(shell->GetCellData()->GetScalars(rdr->GetShellArrayName(m_iDataIndex)));
+				if (fa)
+					fa->GetRange(rang);
 
 				unMapper = vtkDataSetMapper::New();
 				unMapper->SetInputData(shell);
 				unMapper->UseLookupTableScalarRangeOn();
 				unMapper->SetScalarModeToUseCellData();
 
-				lut->SetTableRange(-35000, 35000);
+				lut->SetTableRange(rang[0], rang[1]);
 				lut->SetHueRange(0, 0.67);
 				lut->SetSaturationRange(1, 1);
 				lut->SetValueRange(1, 1);
@@ -681,6 +691,9 @@ vtkActor* vtkShower::GetLSDActorByIndex(int index)
 }
 void vtkShower::onButtonLine()
 {
+	if (!m_style->curActor)
+		return;
+
 	int curSelectPart = -1;
 	vtkMultiBlockDataSet* mbds = m_vFrames[m_iCurStep];
 	for (int k = 0; k < mbds->GetNumberOfBlocks(); ++k)
@@ -701,7 +714,6 @@ void vtkShower::onButtonLine()
 		m_lines.clear();
 		if (m_style->isPoint)
 		{
-			//m_style->curActor->GetMapper()->GetInputAsDataSet()->getarra
 			for (int i = 0; i < m_vFrames.size(); i++)
 			{
 				vtkUnstructuredGrid* shell = (vtkUnstructuredGrid*)0;
@@ -713,7 +725,28 @@ void vtkShower::onButtonLine()
 					{
 						shell = vtkUnstructuredGrid::SafeDownCast(mbds->GetBlock(curSelectPart));
 						vtkFloatArray* va = vtkFloatArray::SafeDownCast(shell->GetPointData()->GetArray(ui.comboBox_data_name->itemText(m_iDataIndex).toUtf8().constData()));
-						m_lines.push_back(va->GetValue(m_style->pointId));
+						if (va)
+							m_lines.push_back(va->GetValue(m_style->pointId));
+					}
+				}
+
+			}
+		}
+		else
+		{
+			for (int i = 0; i < m_vFrames.size(); i++)
+			{
+				vtkUnstructuredGrid* shell = (vtkUnstructuredGrid*)0;
+				vtkMultiBlockDataSet* mbds = m_vFrames[i];
+
+				int type = mbds->GetBlock(curSelectPart)->GetDataObjectType();
+				{
+					if (type == VTK_UNSTRUCTURED_GRID)
+					{
+						shell = vtkUnstructuredGrid::SafeDownCast(mbds->GetBlock(curSelectPart));
+						vtkFloatArray* va = vtkFloatArray::SafeDownCast(shell->GetCellData()->GetArray(ui.comboBox_data_name->itemText(m_iDataIndex).toUtf8().constData()));
+						if (va)
+							m_lines.push_back(va->GetValue(m_style->cellId));
 					}
 				}
 
@@ -722,12 +755,20 @@ void vtkShower::onButtonLine()
 	}
 	
 	ui_dialog.verticalWidget->setData(&m_lines);
+	ui_dialog.verticalWidget->setName(ui.comboBox_data_name->itemText(m_iDataIndex) + (m_style->isPoint ? ("  PointID:" + QString::number(m_style->pointId)) : ("  CellID:" + QString::number(m_style->cellId))));
 	m_dialogLine->show();
 }
 
 void vtkShower::OnButtonCloseLine()
 {
 	m_dialogLine->close();
+}
+
+void vtkShower::OnTimerOut()
+{
+	m_iCurStep = (m_iCurStep + 1) % rdr->GetNumberOfTimeSteps();
+	ui.label_frame->setText(QString::number(m_iCurStep));
+	ui.horizontalSlider_frame->setValue(m_iCurStep);
 }
 
 void vtkShower::RemoveLsdActors()

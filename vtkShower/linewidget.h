@@ -10,7 +10,7 @@ class LineWidget: public QWidget
 public:
 	LineWidget(QWidget* parrent = NULL);
 	void setData(std::vector<double>* theMotion);
-	void setData(QString filename);
+	void setName(QString filename);
 	void setCurStep(int stepIndex);
 	void setIsSolved(bool);
 protected:
@@ -25,4 +25,5 @@ private:
 	int stepIndex;
 	bool isSolved;
 	int X_showLength;
+	QString name;
 };

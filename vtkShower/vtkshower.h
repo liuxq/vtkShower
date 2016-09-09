@@ -20,6 +20,7 @@ class vtkLookupTable;
 class vtkDataSetMapper;
 class vtkScalarBarActor;
 class customMouseInteractorStyle;
+class QTimer;
 
 
 enum KShowType
@@ -102,6 +103,8 @@ private:
 
 	vector<double> m_lines;
 
+	QTimer *timer;
+
 public slots:
 	void onPartComboChange(int);
 	void onDataComboChange(int);
@@ -114,10 +117,12 @@ public slots:
 	void onSliderValueChange(int);
 	void onButtonLine();
 	void OnButtonCloseLine();
+	void OnTimerOut();
 	
 	void OnMenuOpenKFile();
 	void OnMenuOpenLSDFile();
 	void OnButtonPlay();
+	void OnButtonStop();
 };
 
 #endif // VTKSHOWER_H

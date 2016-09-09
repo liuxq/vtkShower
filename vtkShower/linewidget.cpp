@@ -19,8 +19,9 @@ LineWidget::LineWidget(QWidget* parrent):QWidget(parrent)
 	X_showLength = 10;
 }
 
-void LineWidget::setData(QString fileName)
+void LineWidget::setName(QString Name)
 {
+	name = Name;
 }
 void LineWidget::setData(std::vector<double>* theMotion)
 {
@@ -56,11 +57,11 @@ void LineWidget::drawWhenSolving(QPaintEvent* e)
 	if (!theMotion || theMotion->empty())
 		return;
 
-	int X_increase = 20;//递增步长
+	int X_increase = 0;//递增步长
 	X_showLength = X_increase;
 	if (theMotion->size() > X_showLength)
 	{
-		X_showLength = theMotion->size() + X_increase;
+		X_showLength = theMotion->size()  - 1 + X_increase;
 	}
 
 	int X_length = this->width() - WAVE_MARGIN*2;
@@ -96,17 +97,17 @@ void LineWidget::drawWhenSolving(QPaintEvent* e)
 	painter.drawPath(path);
 
 	//画当前step点
-	painter.setPen(QPen(Qt::white));
-	int x = (theMotion->size()-1)*X_rate + WAVE_MARGIN;//x坐标
-	painter.drawLine(x,WAVE_MARGIN,x,this->height()-WAVE_MARGIN);
+	//painter.setPen(QPen(Qt::white));
+	//int x = (theMotion->size()-1)*X_rate + WAVE_MARGIN;//x坐标
+	//painter.drawLine(x,WAVE_MARGIN,x,this->height()-WAVE_MARGIN);
 
 	//横向的
 	for ( int i = 0; i < WAVE_Y_DIMENTION + 1; i++)
 	{
 		if (i == 0 || i == WAVE_Y_DIMENTION)
-			painter.setPen(QPen(Qt::blue,1));
+			painter.setPen(QPen(Qt::red, 1));
 		else
-			painter.setPen(QPen(Qt::blue,1,Qt::DotLine));
+			painter.setPen(QPen(Qt::red, 1, Qt::DotLine));
 		double y = this->height() - WAVE_MARGIN - i * Y_offset;
 		painter.drawLine(WAVE_MARGIN,y,this->width() - WAVE_MARGIN ,y);
 		float text = miny + i*(maxy - miny)/WAVE_Y_DIMENTION;
@@ -118,9 +119,9 @@ void LineWidget::drawWhenSolving(QPaintEvent* e)
 	for ( int i = 0; i < WAVE_X_DIMENTION + 1; i++)
 	{
 		if (i == 0 || i == WAVE_X_DIMENTION)
-			painter.setPen(QPen(Qt::blue,1));
+			painter.setPen(QPen(Qt::red,1));
 		else
-			painter.setPen(QPen(Qt::blue,1,Qt::DotLine));
+			painter.setPen(QPen(Qt::red, 1, Qt::DotLine));
 		double x = WAVE_MARGIN + i * X_offset;
 		painter.drawLine(x,WAVE_MARGIN,x ,this->height() - WAVE_MARGIN);
 		float text = i*X_showLength/WAVE_X_DIMENTION;
@@ -131,7 +132,7 @@ void LineWidget::drawWhenSolving(QPaintEvent* e)
 
 	//当前单元\点
 	painter.setFont(QFont("Arial",8,QFont::Bold));
-	painter.drawText(WAVE_MARGIN,WAVE_MARGIN/2,"Motion");
+	painter.drawText(WAVE_MARGIN, WAVE_MARGIN / 2, name);
 }
 void LineWidget::drawAfterSolving(QPaintEvent* e)
 {
