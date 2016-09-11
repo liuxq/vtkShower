@@ -48,16 +48,17 @@ public:
 	static vtkShower* instance;
 	vtkSmartPointer< vtkRenderer >   GetRenderer(){ return  m_pRenderder; }
 	vtkSmartPointer<vtkRenderWindow>	GetRenWin(){ return	m_pRenWin; }
-	vtkTextActor* GetTextActor(){ return m_textActor; }
+	vtkTextActor* GetTextActor(){ return m_textKElementActor; }
 	KShowType GetShowType() { return m_kShowType; }
 	void UpdateTextActorPos();
+	int m_TypeMode;//1 k, 0 lsd, 2 none
 
 protected:
 	void resizeEvent(QResizeEvent * event);
 	void SetAllPartWireLine(bool);
 	void SetAllSetSegVisible(bool bVisible);
 	void LoadKFile(QString);
-	void Clear();
+	void RemoveKActors();
 	void RemoveLsdActors();
 	void visPipeline();
 	void visColorBar();
@@ -81,7 +82,8 @@ private:
 	vector<vtkActor*> m_partActors;
 	vector<vtkActor*> m_setNodeActors;
 	vector<vtkActor*> m_setSegActors;
-	vtkTextActor* m_textActor;
+	vtkTextActor* m_textKElementActor;
+	vtkTextActor* m_textLSDRangeActor;
 	map<int, vector<vtkActor*> > m_setSegArrowActors;
 	vector<vtkMultiBlockDataSet*> m_vFrames;
 	vector<vtkActor*> m_lsdPartActors;
@@ -103,7 +105,12 @@ private:
 
 	vector<double> m_lines;
 
-	QTimer *timer;
+	QTimer *LsdPlaytimer;
+
+	float m_rangeMin;
+	float m_rangeMax;
+	bool m_rangeMode;//0 auto, 1 custom
+	
 
 public slots:
 	void onPartComboChange(int);
@@ -123,6 +130,8 @@ public slots:
 	void OnMenuOpenLSDFile();
 	void OnButtonPlay();
 	void OnButtonStop();
+	void onDataRangeComboChange(int);
+	void onButtonChangeRange();
 };
 
 #endif // VTKSHOWER_H

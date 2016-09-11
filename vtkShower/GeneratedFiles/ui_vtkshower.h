@@ -64,12 +64,18 @@ public:
     QHBoxLayout *horizontalLayout_data;
     QLabel *label_doc_2;
     QComboBox *comboBox_data_name;
-    QHBoxLayout *horizontalLayout_2;
+    QHBoxLayout *horizontalLayout_data_2;
+    QLabel *label_doc_3;
+    QComboBox *comboBox_data_color;
+    QWidget *verticalWidget_range;
+    QVBoxLayout *verticalLayout;
+    QHBoxLayout *horizontalLayout_min;
     QLabel *label;
     QLineEdit *lineEdit_min;
-    QHBoxLayout *horizontalLayout_4;
+    QHBoxLayout *horizontalLayout_max;
     QLabel *label_2;
     QLineEdit *lineEdit_max;
+    QPushButton *pushButton_range_change;
     QPushButton *pushButton_line;
     QMenuBar *menuBar;
     QMenu *menu;
@@ -89,7 +95,7 @@ public:
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
         horizontalLayoutWidget = new QWidget(centralWidget);
         horizontalLayoutWidget->setObjectName(QStringLiteral("horizontalLayoutWidget"));
-        horizontalLayoutWidget->setGeometry(QRect(0, 0, 611, 361));
+        horizontalLayoutWidget->setGeometry(QRect(0, 0, 611, 369));
         horizontalLayout = new QHBoxLayout(horizontalLayoutWidget);
         horizontalLayout->setSpacing(6);
         horizontalLayout->setContentsMargins(11, 11, 11, 11);
@@ -259,40 +265,81 @@ public:
 
         right_2->addLayout(horizontalLayout_data);
 
-        horizontalLayout_2 = new QHBoxLayout();
-        horizontalLayout_2->setSpacing(6);
-        horizontalLayout_2->setObjectName(QStringLiteral("horizontalLayout_2"));
-        label = new QLabel(right_widget_lsd);
+        horizontalLayout_data_2 = new QHBoxLayout();
+        horizontalLayout_data_2->setSpacing(6);
+        horizontalLayout_data_2->setObjectName(QStringLiteral("horizontalLayout_data_2"));
+        label_doc_3 = new QLabel(right_widget_lsd);
+        label_doc_3->setObjectName(QStringLiteral("label_doc_3"));
+        sizePolicy1.setHeightForWidth(label_doc_3->sizePolicy().hasHeightForWidth());
+        label_doc_3->setSizePolicy(sizePolicy1);
+        label_doc_3->setMinimumSize(QSize(80, 0));
+        label_doc_3->setMaximumSize(QSize(80, 20));
+
+        horizontalLayout_data_2->addWidget(label_doc_3);
+
+        comboBox_data_color = new QComboBox(right_widget_lsd);
+        comboBox_data_color->setObjectName(QStringLiteral("comboBox_data_color"));
+        sizePolicy2.setHeightForWidth(comboBox_data_color->sizePolicy().hasHeightForWidth());
+        comboBox_data_color->setSizePolicy(sizePolicy2);
+        comboBox_data_color->setEditable(false);
+
+        horizontalLayout_data_2->addWidget(comboBox_data_color);
+
+
+        right_2->addLayout(horizontalLayout_data_2);
+
+        verticalWidget_range = new QWidget(right_widget_lsd);
+        verticalWidget_range->setObjectName(QStringLiteral("verticalWidget_range"));
+        verticalWidget_range->setEnabled(true);
+        verticalLayout = new QVBoxLayout(verticalWidget_range);
+        verticalLayout->setSpacing(6);
+        verticalLayout->setContentsMargins(11, 11, 11, 11);
+        verticalLayout->setObjectName(QStringLiteral("verticalLayout"));
+        verticalLayout->setContentsMargins(9, 9, 9, 9);
+        horizontalLayout_min = new QHBoxLayout();
+        horizontalLayout_min->setSpacing(6);
+        horizontalLayout_min->setObjectName(QStringLiteral("horizontalLayout_min"));
+        label = new QLabel(verticalWidget_range);
         label->setObjectName(QStringLiteral("label"));
 
-        horizontalLayout_2->addWidget(label);
+        horizontalLayout_min->addWidget(label);
 
-        lineEdit_min = new QLineEdit(right_widget_lsd);
+        lineEdit_min = new QLineEdit(verticalWidget_range);
         lineEdit_min->setObjectName(QStringLiteral("lineEdit_min"));
         lineEdit_min->setToolTipDuration(-1);
         lineEdit_min->setInputMethodHints(Qt::ImhPreferNumbers);
         lineEdit_min->setClearButtonEnabled(false);
 
-        horizontalLayout_2->addWidget(lineEdit_min);
+        horizontalLayout_min->addWidget(lineEdit_min);
 
 
-        right_2->addLayout(horizontalLayout_2);
+        verticalLayout->addLayout(horizontalLayout_min);
 
-        horizontalLayout_4 = new QHBoxLayout();
-        horizontalLayout_4->setSpacing(6);
-        horizontalLayout_4->setObjectName(QStringLiteral("horizontalLayout_4"));
-        label_2 = new QLabel(right_widget_lsd);
+        horizontalLayout_max = new QHBoxLayout();
+        horizontalLayout_max->setSpacing(6);
+        horizontalLayout_max->setObjectName(QStringLiteral("horizontalLayout_max"));
+        label_2 = new QLabel(verticalWidget_range);
         label_2->setObjectName(QStringLiteral("label_2"));
 
-        horizontalLayout_4->addWidget(label_2);
+        horizontalLayout_max->addWidget(label_2);
 
-        lineEdit_max = new QLineEdit(right_widget_lsd);
+        lineEdit_max = new QLineEdit(verticalWidget_range);
         lineEdit_max->setObjectName(QStringLiteral("lineEdit_max"));
 
-        horizontalLayout_4->addWidget(lineEdit_max);
+        horizontalLayout_max->addWidget(lineEdit_max);
 
 
-        right_2->addLayout(horizontalLayout_4);
+        verticalLayout->addLayout(horizontalLayout_max);
+
+        pushButton_range_change = new QPushButton(verticalWidget_range);
+        pushButton_range_change->setObjectName(QStringLiteral("pushButton_range_change"));
+        sizePolicy.setHeightForWidth(pushButton_range_change->sizePolicy().hasHeightForWidth());
+        pushButton_range_change->setSizePolicy(sizePolicy);
+
+        verticalLayout->addWidget(pushButton_range_change, 0, Qt::AlignRight);
+
+
+        right_2->addWidget(verticalWidget_range);
 
         pushButton_line = new QPushButton(right_widget_lsd);
         pushButton_line->setObjectName(QStringLiteral("pushButton_line"));
@@ -322,6 +369,9 @@ public:
 
         retranslateUi(vtkShowerClass);
 
+        comboBox_data_color->setCurrentIndex(-1);
+
+
         QMetaObject::connectSlotsByName(vtkShowerClass);
     } // setupUi
 
@@ -341,8 +391,11 @@ public:
         radioButton_point_data->setText(QApplication::translate("vtkShowerClass", "\347\202\271\346\225\260\346\215\256", 0));
         radioButton_shell_data->setText(QApplication::translate("vtkShowerClass", "\345\243\263\346\225\260\346\215\256", 0));
         label_doc_2->setText(QApplication::translate("vtkShowerClass", "\346\225\260\346\215\256\345\220\215\347\247\260\357\274\232", 0));
+        label_doc_3->setText(QApplication::translate("vtkShowerClass", "\351\242\234\350\211\262\346\230\240\345\260\204\357\274\232", 0));
+        comboBox_data_color->setCurrentText(QString());
         label->setText(QApplication::translate("vtkShowerClass", "\346\234\200\345\260\217\345\200\274\357\274\232", 0));
         label_2->setText(QApplication::translate("vtkShowerClass", "\346\234\200\345\244\247\345\200\274\357\274\232", 0));
+        pushButton_range_change->setText(QApplication::translate("vtkShowerClass", "\347\241\256\350\256\244\344\277\256\346\224\271", 0));
         pushButton_line->setText(QApplication::translate("vtkShowerClass", "\346\233\262\347\272\277\350\241\250\347\244\272", 0));
         menu->setTitle(QApplication::translate("vtkShowerClass", "\346\226\207\344\273\266", 0));
     } // retranslateUi

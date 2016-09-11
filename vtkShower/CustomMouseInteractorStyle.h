@@ -19,28 +19,37 @@ public:
 	virtual void OnMouseMove()
 	{
 		vtkInteractorStyleTrackballCamera::OnMouseMove();
-
-		if (vtkShower::instance->GetShowType() == KShowType::SetSeg)
+		if (vtkShower::instance->m_TypeMode == 1)
 		{
-			vtkShower::instance->UpdateTextActorPos();
+			if (vtkShower::instance->GetShowType() == KShowType::SetSeg)
+			{
+				vtkShower::instance->UpdateTextActorPos();
+			}
 		}
+		
 	}
 	virtual void OnMouseWheelForward()
 	{
 		vtkInteractorStyleTrackballCamera::OnMouseWheelForward();
 
-		if (vtkShower::instance->GetShowType() == KShowType::SetSeg)
+		if (vtkShower::instance->m_TypeMode == 1)
 		{
-			vtkShower::instance->UpdateTextActorPos();
+			if (vtkShower::instance->GetShowType() == KShowType::SetSeg)
+			{
+				vtkShower::instance->UpdateTextActorPos();
+			}
 		}
 	}
 	virtual void OnMouseWheelBackward()
 	{
 		vtkInteractorStyleTrackballCamera::OnMouseWheelBackward();
 
-		if (vtkShower::instance->GetShowType() == KShowType::SetSeg)
+		if (vtkShower::instance->m_TypeMode == 1)
 		{
-			vtkShower::instance->UpdateTextActorPos();
+			if (vtkShower::instance->GetShowType() == KShowType::SetSeg)
+			{
+				vtkShower::instance->UpdateTextActorPos();
+			}
 		}
 	}
 

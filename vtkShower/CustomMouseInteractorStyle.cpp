@@ -32,7 +32,7 @@ void customMouseInteractorStyle::OnLeftButtonDown()
 {
 	vtkInteractorStyleTrackballCamera::OnLeftButtonDown();
 
-	if (this->GetInteractor()->GetControlKey())
+	if (this->GetInteractor()->GetControlKey() && vtkShower::instance->m_TypeMode == 0)
 	{
 		if (isPointSelectMode)
 		{

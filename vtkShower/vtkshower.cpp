@@ -52,12 +52,12 @@
 vtkShower* vtkShower::instance = NULL;
 
 vtkShower::vtkShower(QWidget *parent)
-	: QMainWindow(parent), m_iCurStep(0),m_iDataIndex(0)
+: QMainWindow(parent), m_iCurStep(0), m_iDataIndex(0), m_rangeMode(0), m_rangeMin(-1), m_rangeMax(1), m_TypeMode(2)
 {
 	if (instance == NULL)
 		instance = this;
 
-	m_textActor = NULL;
+	m_textKElementActor = NULL;
 	ui.setupUi(this);
 
 	m_dialogLine = new QDialog(this);
@@ -78,32 +78,19 @@ vtkShower::vtkShower(QWidget *parent)
 	lut = vtkLookupTable::New();
 	colorTableBar = vtkScalarBarActor::New();
 
-	rdr = vtkLSDynaReader::New();
-	rdr->SetDatabaseDirectory("D:/result_demo");
-	rdr->Update();
-
-	for (int i = 0; i < rdr->GetNumberOfTimeSteps(); i++)
-	{
-		rdr->SetTimeStep(i);
-		rdr->Update();
-		vtkMultiBlockDataSet* mbds = vtkMultiBlockDataSet::SafeDownCast(rdr->GetOutput());
-		vtkMultiBlockDataSet* mbds2 = vtkMultiBlockDataSet::New();
-		mbds2->DeepCopy(mbds);
-		m_vFrames.push_back(mbds2);
-	}
+	m_textLSDRangeActor = vtkTextActor::New();
+	m_textLSDRangeActor->SetPosition(0, 0);
+	m_textLSDRangeActor->GetTextProperty()->SetFontSize(16);
+	m_textLSDRangeActor->GetTextProperty()->SetColor(1.0, 0.0, 0.0);
 	
-	onRadioClickPointData();
-
-	ui.horizontalSlider_frame->setMaximum(rdr->GetNumberOfTimeSteps());
-
-	
+	ui.comboBox_data_color->addItem(QString::fromLocal8Bit("自动"));
+	ui.comboBox_data_color->addItem(QString::fromLocal8Bit("自定义"));
 
 	m_pRenderder->ResetCamera();
 	m_pRenderder->GetActiveCamera()->Zoom(1.5);
 
 	SetAxis();
-	
-	UISet(0);
+	UISet(m_TypeMode);
 
 	connect(ui.comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(onPartComboChange(int)));
 	connect(ui.comboBox_data_name, SIGNAL(currentIndexChanged(int)), this, SLOT(onDataComboChange(int)));
@@ -113,6 +100,7 @@ vtkShower::vtkShower(QWidget *parent)
 	connect(ui.radioButton_setSeg, SIGNAL(clicked()), this, SLOT(onRadioClickSetSeg()));
 	connect(ui.action, SIGNAL(triggered()), this, SLOT(OnMenuOpenKFile()));
 
+	connect(ui.comboBox_data_color, SIGNAL(currentIndexChanged(int)), this, SLOT(onDataRangeComboChange(int)));
 	connect(ui.action_LSDyna, SIGNAL(triggered()), this, SLOT(OnMenuOpenLSDFile()));
 	connect(ui.pushButton_play, SIGNAL(clicked()), this, SLOT(OnButtonPlay()));
 	connect(ui.pushButton_stop, SIGNAL(clicked()), this, SLOT(OnButtonStop()));
@@ -120,11 +108,12 @@ vtkShower::vtkShower(QWidget *parent)
 	connect(ui.radioButton_shell_data, SIGNAL(clicked()), this, SLOT(onRadioClickShellData()));
 	connect(ui.horizontalSlider_frame, SIGNAL(valueChanged(int)), this, SLOT(onSliderValueChange(int)));
 	connect(ui.pushButton_line, SIGNAL(clicked()), this, SLOT(onButtonLine()));
-
+	connect(ui.pushButton_range_change, SIGNAL(clicked()), this, SLOT(onButtonChangeRange()));
+	
 	connect(ui_dialog.pushButton, SIGNAL(clicked()), this, SLOT(OnButtonCloseLine()));
 
-	timer = new QTimer(this);
-	connect(timer, SIGNAL(timeout()), this, SLOT(OnTimerOut()));
+	LsdPlaytimer = new QTimer(this);
+	connect(LsdPlaytimer, SIGNAL(timeout()), this, SLOT(OnTimerOut()));
 }
 
 void vtkShower::SetAxis()
@@ -146,15 +135,23 @@ void vtkShower::UISet(int index)
 	{
 		ui.right_widget_k->setVisible(false);
 		ui.right_widget_lsd->setVisible(true);
+		ui.playWidget->setVisible(true);
 	}
-	else
+	else if (index == 1)
 	{
 		ui.right_widget_k->setVisible(true);
 		ui.right_widget_lsd->setVisible(false);
+		ui.playWidget->setVisible(false);
+	}
+	else
+	{
+		ui.right_widget_k->setVisible(false);
+		ui.right_widget_lsd->setVisible(false);
+		ui.playWidget->setVisible(false);
 	}
 }
 
-void vtkShower::Clear()
+void vtkShower::RemoveKActors()
 {
 	m_kReader.Clear();
 	m_pRenderder->Clear();
@@ -179,11 +176,11 @@ void vtkShower::Clear()
 	}
 	m_setSegActors.clear();
 	
-	if (m_textActor)
+	if (m_textKElementActor)
 	{
-		m_pRenderder->RemoveActor2D(m_textActor);
-		m_textActor->Delete();
-		m_textActor = NULL;
+		m_pRenderder->RemoveActor2D(m_textKElementActor);
+		m_textKElementActor->Delete();
+		m_textKElementActor = NULL;
 	}
 
 	for (int i = 0; i < m_setSegArrowActors.size(); i++)
@@ -291,13 +288,13 @@ void vtkShower::LoadKFile(QString file)
 	
 
 	//汉字
-	m_textActor = vtkTextActor::New();
-	m_textActor->SetPosition(0, 0);
-	m_textActor->GetTextProperty()->SetFontFamily(VTK_FONT_FILE);
-	m_textActor->GetTextProperty()->SetFontFile("ttf/楷体.ttf");
-	m_textActor->GetTextProperty()->SetFontSize(24);
-	m_textActor->GetTextProperty()->SetColor(1.0, 0.0, 0.0);
-	m_pRenderder->AddActor2D(m_textActor);
+	m_textKElementActor = vtkTextActor::New();
+	m_textKElementActor->SetPosition(0, 0);
+	m_textKElementActor->GetTextProperty()->SetFontFamily(VTK_FONT_FILE);
+	m_textKElementActor->GetTextProperty()->SetFontFile("ttf/楷体.ttf");
+	m_textKElementActor->GetTextProperty()->SetFontSize(24);
+	m_textKElementActor->GetTextProperty()->SetColor(1.0, 0.0, 0.0);
+	m_pRenderder->AddActor2D(m_textKElementActor);
 	m_coordinate = vtkCoordinate::New();
 	m_coordinate->SetCoordinateSystemToWorld();
 
@@ -316,7 +313,7 @@ void vtkShower::UpdateTextActorPos()
 {
 	m_coordinate->SetValue(m_textPos);
 	int* view = m_coordinate->GetComputedDisplayValue(vtkShower::instance->GetRenderer());
-	m_textActor->SetPosition((double)view[0], (double)view[1]);
+	m_textKElementActor->SetPosition((double)view[0], (double)view[1]);
 	m_pRenWin->Render();
 }
 
@@ -377,14 +374,14 @@ void vtkShower::onPartComboChange(int index)
 		}
 		if (index == 0)
 		{
-			m_textActor->SetInput(QString::fromLocal8Bit("压力").toUtf8().constData());
+			m_textKElementActor->SetInput(QString::fromLocal8Bit("压力").toUtf8().constData());
 			vector<Vec3d> start, end;
 			m_kReader.GetSetSegArrow(m_kReader.GetSetSeg()[index], start, end);
 			m_textPos = start[0];
 		}
-		else
+		else if (index > 0)
 		{
-			m_textActor->SetInput(QString::fromLocal8Bit("集中力").toUtf8().constData());
+			m_textKElementActor->SetInput(QString::fromLocal8Bit("集中力").toUtf8().constData());
 			vector<Vec3d> start, end;
 			m_kReader.GetSetSegArrow(m_kReader.GetSetSeg()[index], start, end);
 			m_textPos = start[0];
@@ -421,7 +418,7 @@ void vtkShower::onRadioClickSolid()
 {
 	m_kShowType = Solid;
 	SetAllPartWireLine(false);
-	m_textActor->SetInput(nullptr);
+	m_textKElementActor->SetInput(nullptr);
 	for (int i = 0; i < m_setNodeActors.size(); i++)
 	{
 		m_setNodeActors[i]->VisibilityOff();
@@ -446,7 +443,7 @@ void vtkShower::onRadioClickWareline()
 {
 	m_kShowType = Wireline;
 	SetAllPartWireLine(true);
-	m_textActor->SetInput(nullptr);
+	m_textKElementActor->SetInput(nullptr);
 	for (int i = 0; i < m_setNodeActors.size(); i++)
 	{
 		m_setNodeActors[i]->VisibilityOff();
@@ -461,7 +458,7 @@ void vtkShower::onRadioClickSetNode()
 {
 	m_kShowType = SetNode;
 	SetAllPartWireLine(true);
-	m_textActor->SetInput(nullptr);
+	m_textKElementActor->SetInput(nullptr);
 	SetAllSetSegVisible(false);
 
 	ui.label_doc->setHidden(false);
@@ -549,34 +546,64 @@ void vtkShower::resizeEvent(QResizeEvent * event) {
 
 void vtkShower::OnMenuOpenLSDFile()
 {
-	QDir dir;
+	
+	/*QDir dir;
 	QString dirName = QFileDialog::getExistingDirectory(this, QString(tr("打开Lsdyna文件库")), dir.absolutePath());
-	if (dirName.isEmpty() == true) return;
+	if (dirName.isEmpty() == true) return;*/
 
+	m_TypeMode = 0;
+
+	RemoveKActors();
+	RemoveLsdActors();
+
+	rdr = vtkLSDynaReader::New();
+	//rdr->SetDatabaseDirectory(dirName.toUtf8().constData());
+	rdr->SetDatabaseDirectory("D:/result_demo");
+	rdr->Update();
+
+	for (int i = 0; i < rdr->GetNumberOfTimeSteps(); i++)
+	{
+		rdr->SetTimeStep(i);
+		rdr->Update();
+		vtkMultiBlockDataSet* mbds = vtkMultiBlockDataSet::SafeDownCast(rdr->GetOutput());
+		vtkMultiBlockDataSet* mbds2 = vtkMultiBlockDataSet::New();
+		mbds2->DeepCopy(mbds);
+		m_vFrames.push_back(mbds2);
+	}
+
+	onRadioClickPointData();
+
+	ui.horizontalSlider_frame->setMaximum(rdr->GetNumberOfTimeSteps());
+	ui.verticalWidget_range->setHidden(true);
+	UISet(m_TypeMode);
+	m_pRenderder->ResetCamera();
+	m_pRenderder->GetActiveCamera()->Zoom(1.5);
 }
 
 void vtkShower::OnMenuOpenKFile()
 {
+	LsdPlaytimer->stop();
 	QString filter;
 	filter = "k file (*.k)";
 	QDir dir;
 	QString fileName = QFileDialog::getOpenFileName(this, QString(tr("打开k文件")), dir.absolutePath(), filter);
 	if (fileName.isEmpty() == true) return;
 
-	Clear();
+	m_TypeMode = 1;
+	RemoveKActors();
 	RemoveLsdActors();
-	UISet(1);
+	UISet(m_TypeMode);
 	LoadKFile(fileName);
 }
 
 void vtkShower::OnButtonPlay()
 {
-	timer->start(100);
+	LsdPlaytimer->start(100);
 }
 
 void vtkShower::OnButtonStop()
 {
-	timer->stop();
+	LsdPlaytimer->stop();
 }
 
 void vtkShower::visColorBar()
@@ -606,6 +633,9 @@ void vtkShower::visPipeline(void)
 	vtkUnstructuredGrid* shell = (vtkUnstructuredGrid*)0;
 	vtkMultiBlockDataSet* mbds = m_vFrames[m_iCurStep];
 
+	float rangeMin = 0xffffffe;
+	float rangeMax = -0xffffffe;
+
 	for (int k = 0; k < mbds->GetNumberOfBlocks(); ++k)
 	{
 		int type = mbds->GetBlock(k)->GetDataObjectType();
@@ -617,27 +647,22 @@ void vtkShower::visPipeline(void)
 			if (m_lShowType == Shell && shell->GetNumberOfCells() > 0)
 			{
 				shell->GetCellData()->SetActiveScalars(rdr->GetShellArrayName(m_iDataIndex));
-				double rang[2];
-				rang[0] = -1;
-				rang[1] = 1;
-				vtkFloatArray* fa = vtkFloatArray::SafeDownCast(shell->GetCellData()->GetScalars(rdr->GetShellArrayName(m_iDataIndex)));
-				if (fa)
-					fa->GetRange(rang);
+				if (m_rangeMode == 0)
+				{
+					vtkFloatArray* fa = vtkFloatArray::SafeDownCast(shell->GetCellData()->GetScalars(rdr->GetShellArrayName(m_iDataIndex)));
+					if (fa)
+					{
+						double range[2];
+						fa->GetRange(range);
+						if (rangeMin > range[0]) rangeMin = range[0];
+						if (rangeMax < range[1]) rangeMax = range[1];
+					}
+				}
 
 				unMapper = vtkDataSetMapper::New();
 				unMapper->SetInputData(shell);
 				unMapper->UseLookupTableScalarRangeOn();
 				unMapper->SetScalarModeToUseCellData();
-
-				lut->SetTableRange(rang[0], rang[1]);
-				lut->SetHueRange(0, 0.67);
-				lut->SetSaturationRange(1, 1);
-				lut->SetValueRange(1, 1);
-				lut->SetAlphaRange(1, 1);
-				lut->SetNumberOfColors(256);
-				lut->Build();
-
-				unMapper->SetLookupTable(lut);
 
 				vtkActor* partActor = GetLSDActorByIndex(k);
 				partActor->SetMapper(unMapper);
@@ -649,23 +674,23 @@ void vtkShower::visPipeline(void)
 			else if (m_lShowType == Point && shell->GetNumberOfPoints() > 0)
 			{
 				shell->GetPointData()->SetActiveScalars(rdr->GetPointArrayName(m_iDataIndex));
-				double rang[2];
-				shell->GetPointData()->GetScalars(rdr->GetPointArrayName(m_iDataIndex))->GetRange(rang);
+
+				if (m_rangeMode == 0)
+				{
+					vtkFloatArray* fa = vtkFloatArray::SafeDownCast(shell->GetPointData()->GetScalars(rdr->GetPointArrayName(m_iDataIndex)));
+					if (fa)
+					{
+						double range[2];
+						fa->GetRange(range);
+						if (rangeMin > range[0]) rangeMin = range[0];
+						if (rangeMax < range[1]) rangeMax = range[1];
+					}	
+				}
 
 				unMapper = vtkDataSetMapper::New();
 				unMapper->SetInputData(shell);
 				unMapper->UseLookupTableScalarRangeOn();
 				unMapper->SetScalarModeToUsePointData();
-
-				lut->SetTableRange(rang[0], rang[1]);
-				lut->SetHueRange(0, 0.67);
-				lut->SetSaturationRange(1, 1);
-				lut->SetValueRange(1, 1);
-				lut->SetAlphaRange(1, 1);
-				lut->SetNumberOfColors(256);
-				lut->Build();
-
-				unMapper->SetLookupTable(lut);
 
 				vtkActor* partActor = GetLSDActorByIndex(k);
 				partActor->SetMapper(unMapper);
@@ -677,7 +702,33 @@ void vtkShower::visPipeline(void)
 		
 		}
 	}
-	
+
+	if (m_rangeMode == 0)
+	{
+		m_rangeMin = rangeMin;
+		m_rangeMax = rangeMax;
+	}
+
+	if (m_rangeMin > m_rangeMax)
+	{
+		m_rangeMax = 1;
+		m_rangeMin = -1;
+	}
+	lut->SetTableRange(m_rangeMin, m_rangeMax);
+	lut->SetHueRange(0, 0.67);
+	lut->SetSaturationRange(1, 1);
+	lut->SetValueRange(1, 1);
+	lut->SetAlphaRange(1, 1);
+	lut->SetNumberOfColors(256);
+	lut->Build();
+
+	for (int m = 0; m < m_lsdPartActors.size(); m++)
+	{
+		m_lsdPartActors[m]->GetMapper()->SetLookupTable(lut);
+	}
+
+	m_textLSDRangeActor->SetInput((QString("Range min:") + QString::number(m_rangeMin) + "   max:" + QString::number(m_rangeMax)).toUtf8().constData());
+	m_pRenderder->AddActor2D(m_textLSDRangeActor);
 	m_pRenWin->Render();
 }
 vtkActor* vtkShower::GetLSDActorByIndex(int index)
@@ -771,14 +822,35 @@ void vtkShower::OnTimerOut()
 	ui.horizontalSlider_frame->setValue(m_iCurStep);
 }
 
+void vtkShower::onDataRangeComboChange(int index)
+{
+	m_rangeMode = index;
+	if (index == 0)
+	{
+		ui.verticalWidget_range->setHidden(true);
+	}
+	else
+		ui.verticalWidget_range->setHidden(false);
+	visColorBar();
+	visPipeline();
+}
+
+void vtkShower::onButtonChangeRange()
+{
+	m_rangeMin = ui.lineEdit_min->text().toFloat();
+	m_rangeMax = ui.lineEdit_max->text().toFloat();
+	
+	visColorBar();
+	visPipeline();
+}
+
 void vtkShower::RemoveLsdActors()
 {
 	for (int i = 0; i < m_lsdPartActors.size(); i++)
 	{
 		m_pRenderder->RemoveActor(m_lsdPartActors[i]);
-		//m_lsdPartActors[i]->Delete();
 	}
-	//m_lsdPartActors.clear();
+	m_pRenderder->RemoveActor2D(m_textLSDRangeActor);
 }
 
 vtkShower::~vtkShower()
