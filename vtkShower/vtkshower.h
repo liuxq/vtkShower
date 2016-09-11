@@ -62,6 +62,7 @@ protected:
 	void RemoveLsdActors();
 	void visPipeline();
 	void visColorBar();
+	void RenderLsd();
 	void UISet(int);
 	void SetAxis();
 	vtkActor* GetLSDActorByIndex(int);

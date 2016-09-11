@@ -45,6 +45,7 @@
 #include <QEvent>
 #include <QTextEncoder>
 #include <QTimer>
+#include <QTextCodec>
 
 #include "ColorMapping.h"
 
@@ -197,7 +198,7 @@ void vtkShower::RemoveKActors()
 void vtkShower::LoadKFile(QString file)
 {
 	m_kShowType = Solid;
-	m_kReader.read(file.toStdString());
+	m_kReader.read((const char*)file.toLocal8Bit());
 	//体
 	ColorMapping cm(m_kReader.GetParts().size() - 1, 0);
 	for (int i = 0; i < m_kReader.GetParts().size(); i++)
@@ -523,8 +524,7 @@ void vtkShower::onDataComboChange(int index)
 	m_iDataIndex = index;
 	if (m_iDataIndex >= 0)
 	{
-		visColorBar();
-		visPipeline();
+		RenderLsd();
 	}
 }
 
@@ -536,8 +536,7 @@ void vtkShower::onSliderValueChange(int index)
 		index = 0;
 	m_iCurStep = index;
 	ui.label_frame->setText(QString::number(m_iCurStep));
-	visColorBar();
-	visPipeline();
+	RenderLsd();
 }
 
 void vtkShower::resizeEvent(QResizeEvent * event) {
@@ -546,10 +545,9 @@ void vtkShower::resizeEvent(QResizeEvent * event) {
 
 void vtkShower::OnMenuOpenLSDFile()
 {
-	
-	/*QDir dir;
-	QString dirName = QFileDialog::getExistingDirectory(this, QString(tr("打开Lsdyna文件库")), dir.absolutePath());
-	if (dirName.isEmpty() == true) return;*/
+	QDir dir;
+	QString dirName = QFileDialog::getExistingDirectory(this, QString::fromLocal8Bit("打开Lsdyna文件库"), dir.absolutePath());
+	if (dirName.isEmpty() == true) return;
 
 	m_TypeMode = 0;
 
@@ -557,8 +555,8 @@ void vtkShower::OnMenuOpenLSDFile()
 	RemoveLsdActors();
 
 	rdr = vtkLSDynaReader::New();
-	//rdr->SetDatabaseDirectory(dirName.toUtf8().constData());
-	rdr->SetDatabaseDirectory("D:/result_demo");
+	rdr->SetDatabaseDirectory(dirName.toLocal8Bit());
+	//rdr->SetDatabaseDirectory("D:/result_demo");
 	rdr->Update();
 
 	for (int i = 0; i < rdr->GetNumberOfTimeSteps(); i++)
@@ -586,7 +584,7 @@ void vtkShower::OnMenuOpenKFile()
 	QString filter;
 	filter = "k file (*.k)";
 	QDir dir;
-	QString fileName = QFileDialog::getOpenFileName(this, QString(tr("打开k文件")), dir.absolutePath(), filter);
+	QString fileName = QFileDialog::getOpenFileName(this, QString::fromLocal8Bit("打开k文件"), dir.absolutePath(), filter);
 	if (fileName.isEmpty() == true) return;
 
 	m_TypeMode = 1;
@@ -608,28 +606,29 @@ void vtkShower::OnButtonStop()
 
 void vtkShower::visColorBar()
 {
-	if (colorTableBar)
-	{
-		m_pRenderder->RemoveActor2D(colorTableBar);
-	}
-
 	colorTableBar->SetLookupTable(lut);
 	colorTableBar->SetTitle(ui.comboBox_data_name->itemText(m_iDataIndex).toUtf8().constData());
 	colorTableBar->GetPositionCoordinate()->SetCoordinateSystemToNormalizedViewport();
 	colorTableBar->GetPositionCoordinate()->SetValue(0.9, 0.1);
 	colorTableBar->SetOrientationToVertical();
-	colorTableBar->SetWidth(0.07);
+	colorTableBar->SetWidth(0.1);
 	colorTableBar->SetHeight(0.8);
 	//colorTableBar->SetMaximumHeightInPixels(500);
 	colorTableBar->SetNumberOfLabels(10);
 	colorTableBar->SetLabelFormat("%-#6.3g");/*( "%-#6.4f" );*/
 	m_pRenderder->AddActor2D(colorTableBar);
-
-	
 }
-void vtkShower::visPipeline(void)
+
+void vtkShower::RenderLsd()
 {
 	RemoveLsdActors();
+	visColorBar();
+	visPipeline();
+}
+
+void vtkShower::visPipeline(void)
+{
+	
 	vtkUnstructuredGrid* shell = (vtkUnstructuredGrid*)0;
 	vtkMultiBlockDataSet* mbds = m_vFrames[m_iCurStep];
 
@@ -831,8 +830,8 @@ void vtkShower::onDataRangeComboChange(int index)
 	}
 	else
 		ui.verticalWidget_range->setHidden(false);
-	visColorBar();
-	visPipeline();
+	
+	RenderLsd();
 }
 
 void vtkShower::onButtonChangeRange()
@@ -840,12 +839,15 @@ void vtkShower::onButtonChangeRange()
 	m_rangeMin = ui.lineEdit_min->text().toFloat();
 	m_rangeMax = ui.lineEdit_max->text().toFloat();
 	
-	visColorBar();
-	visPipeline();
+	RenderLsd();
 }
 
 void vtkShower::RemoveLsdActors()
 {
+	if (colorTableBar)
+	{
+		m_pRenderder->RemoveActor2D(colorTableBar);
+	}
 	for (int i = 0; i < m_lsdPartActors.size(); i++)
 	{
 		m_pRenderder->RemoveActor(m_lsdPartActors[i]);
