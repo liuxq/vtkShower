@@ -111,6 +111,7 @@ private:
 	float m_rangeMin;
 	float m_rangeMax;
 	bool m_rangeMode;//0 auto, 1 custom
+	int m_iCurPartIndex;
 	
 
 public slots:
@@ -132,6 +133,7 @@ public slots:
 	void OnButtonPlay();
 	void OnButtonStop();
 	void onDataRangeComboChange(int);
+	void onLsdPartComboChange(int);
 	void onButtonChangeRange();
 };
 

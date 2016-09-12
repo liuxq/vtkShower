@@ -61,6 +61,9 @@ public:
     QVBoxLayout *right_2;
     QRadioButton *radioButton_point_data;
     QRadioButton *radioButton_shell_data;
+    QHBoxLayout *horizontalLayout_data_3;
+    QLabel *label_doc_4;
+    QComboBox *comboBox_part;
     QHBoxLayout *horizontalLayout_data;
     QLabel *label_doc_2;
     QComboBox *comboBox_data_name;
@@ -243,6 +246,28 @@ public:
 
         right_2->addWidget(radioButton_shell_data);
 
+        horizontalLayout_data_3 = new QHBoxLayout();
+        horizontalLayout_data_3->setSpacing(6);
+        horizontalLayout_data_3->setObjectName(QStringLiteral("horizontalLayout_data_3"));
+        label_doc_4 = new QLabel(right_widget_lsd);
+        label_doc_4->setObjectName(QStringLiteral("label_doc_4"));
+        sizePolicy1.setHeightForWidth(label_doc_4->sizePolicy().hasHeightForWidth());
+        label_doc_4->setSizePolicy(sizePolicy1);
+        label_doc_4->setMinimumSize(QSize(80, 0));
+        label_doc_4->setMaximumSize(QSize(80, 20));
+
+        horizontalLayout_data_3->addWidget(label_doc_4);
+
+        comboBox_part = new QComboBox(right_widget_lsd);
+        comboBox_part->setObjectName(QStringLiteral("comboBox_part"));
+        sizePolicy2.setHeightForWidth(comboBox_part->sizePolicy().hasHeightForWidth());
+        comboBox_part->setSizePolicy(sizePolicy2);
+
+        horizontalLayout_data_3->addWidget(comboBox_part);
+
+
+        right_2->addLayout(horizontalLayout_data_3);
+
         horizontalLayout_data = new QHBoxLayout();
         horizontalLayout_data->setSpacing(6);
         horizontalLayout_data->setObjectName(QStringLiteral("horizontalLayout_data"));
@@ -390,6 +415,7 @@ public:
         label_doc->setText(QApplication::translate("vtkShowerClass", "\344\275\223\347\274\226\345\217\267\357\274\232", 0));
         radioButton_point_data->setText(QApplication::translate("vtkShowerClass", "\347\202\271\346\225\260\346\215\256", 0));
         radioButton_shell_data->setText(QApplication::translate("vtkShowerClass", "\345\243\263\346\225\260\346\215\256", 0));
+        label_doc_4->setText(QApplication::translate("vtkShowerClass", "\344\275\223\347\274\226\345\217\267\357\274\232", 0));
         label_doc_2->setText(QApplication::translate("vtkShowerClass", "\346\225\260\346\215\256\345\220\215\347\247\260\357\274\232", 0));
         label_doc_3->setText(QApplication::translate("vtkShowerClass", "\351\242\234\350\211\262\346\230\240\345\260\204\357\274\232", 0));
         comboBox_data_color->setCurrentText(QString());
