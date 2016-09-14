@@ -61,9 +61,8 @@ public:
     QVBoxLayout *right_2;
     QRadioButton *radioButton_point_data;
     QRadioButton *radioButton_shell_data;
-    QHBoxLayout *horizontalLayout_data_3;
     QLabel *label_doc_4;
-    QComboBox *comboBox_part;
+    QVBoxLayout *verticalLayout_part;
     QHBoxLayout *horizontalLayout_data;
     QLabel *label_doc_2;
     QComboBox *comboBox_data_name;
@@ -98,7 +97,7 @@ public:
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
         horizontalLayoutWidget = new QWidget(centralWidget);
         horizontalLayoutWidget->setObjectName(QStringLiteral("horizontalLayoutWidget"));
-        horizontalLayoutWidget->setGeometry(QRect(0, 0, 611, 369));
+        horizontalLayoutWidget->setGeometry(QRect(0, 0, 592, 294));
         horizontalLayout = new QHBoxLayout(horizontalLayoutWidget);
         horizontalLayout->setSpacing(6);
         horizontalLayout->setContentsMargins(11, 11, 11, 11);
@@ -246,9 +245,6 @@ public:
 
         right_2->addWidget(radioButton_shell_data);
 
-        horizontalLayout_data_3 = new QHBoxLayout();
-        horizontalLayout_data_3->setSpacing(6);
-        horizontalLayout_data_3->setObjectName(QStringLiteral("horizontalLayout_data_3"));
         label_doc_4 = new QLabel(right_widget_lsd);
         label_doc_4->setObjectName(QStringLiteral("label_doc_4"));
         sizePolicy1.setHeightForWidth(label_doc_4->sizePolicy().hasHeightForWidth());
@@ -256,17 +252,13 @@ public:
         label_doc_4->setMinimumSize(QSize(80, 0));
         label_doc_4->setMaximumSize(QSize(80, 20));
 
-        horizontalLayout_data_3->addWidget(label_doc_4);
+        right_2->addWidget(label_doc_4);
 
-        comboBox_part = new QComboBox(right_widget_lsd);
-        comboBox_part->setObjectName(QStringLiteral("comboBox_part"));
-        sizePolicy2.setHeightForWidth(comboBox_part->sizePolicy().hasHeightForWidth());
-        comboBox_part->setSizePolicy(sizePolicy2);
+        verticalLayout_part = new QVBoxLayout();
+        verticalLayout_part->setSpacing(6);
+        verticalLayout_part->setObjectName(QStringLiteral("verticalLayout_part"));
 
-        horizontalLayout_data_3->addWidget(comboBox_part);
-
-
-        right_2->addLayout(horizontalLayout_data_3);
+        right_2->addLayout(verticalLayout_part);
 
         horizontalLayout_data = new QHBoxLayout();
         horizontalLayout_data->setSpacing(6);

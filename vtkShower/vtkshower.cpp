@@ -46,6 +46,7 @@
 #include <QTextEncoder>
 #include <QTimer>
 #include <QTextCodec>
+#include <qcheckbox>
 
 #include "ColorMapping.h"
 
@@ -54,7 +55,7 @@ vtkShower* vtkShower::instance = NULL;
 
 vtkShower::vtkShower(QWidget *parent)
 : QMainWindow(parent), m_iCurStep(0), m_iDataIndex(0), m_rangeMode(0), 
-m_rangeMin(-1), m_rangeMax(1), m_TypeMode(2), m_iCurPartIndex(0)
+m_rangeMin(-1), m_rangeMax(1), m_TypeMode(2)
 {
 	if (instance == NULL)
 		instance = this;
@@ -103,7 +104,7 @@ m_rangeMin(-1), m_rangeMax(1), m_TypeMode(2), m_iCurPartIndex(0)
 	connect(ui.action, SIGNAL(triggered()), this, SLOT(OnMenuOpenKFile()));
 
 	connect(ui.comboBox_data_color, SIGNAL(currentIndexChanged(int)), this, SLOT(onDataRangeComboChange(int)));
-	connect(ui.comboBox_part, SIGNAL(currentIndexChanged(int)), this, SLOT(onLsdPartComboChange(int)));
+	//connect(ui.comboBox_part, SIGNAL(currentIndexChanged(int)), this, SLOT(onLsdPartComboChange(int)));
 	connect(ui.action_LSDyna, SIGNAL(triggered()), this, SLOT(OnMenuOpenLSDFile()));
 	connect(ui.pushButton_play, SIGNAL(clicked()), this, SLOT(OnButtonPlay()));
 	connect(ui.pushButton_stop, SIGNAL(clicked()), this, SLOT(OnButtonStop()));
@@ -506,17 +507,26 @@ void vtkShower::onRadioClickPointData()
 	ui.comboBox_data_name->clear();
 
 	vtkMultiBlockDataSet* mbds = m_vFrames[m_iCurStep];
-	int type = mbds->GetBlock(m_iCurPartIndex)->GetDataObjectType();
-	if (type == VTK_UNSTRUCTURED_GRID)
+	//找到第一个要显示的part，并设置数据
+	for (int j = 0; j < m_partsCbs.size(); j++)
 	{
-		vtkUnstructuredGrid* ugrid = vtkUnstructuredGrid::SafeDownCast(mbds->GetBlock(m_iCurPartIndex));
-		for (int i = 0; i < ugrid->GetPointData()->GetNumberOfArrays(); i++)
+		if (m_partsCbs[j]->isChecked())
 		{
-			ui.comboBox_data_name->addItem(QString(ugrid->GetPointData()->GetArrayName(i)));
+			int type = mbds->GetBlock(j)->GetDataObjectType();
+			if (type == VTK_UNSTRUCTURED_GRID)
+			{
+				vtkUnstructuredGrid* ugrid = vtkUnstructuredGrid::SafeDownCast(mbds->GetBlock(j));
+				for (int i = 0; i < ugrid->GetPointData()->GetNumberOfArrays(); i++)
+				{
+					ui.comboBox_data_name->addItem(QString(ugrid->GetPointData()->GetArrayName(i)));
+				}
+				if (ugrid->GetPointData()->GetNumberOfArrays() > 0)
+					onDataComboChange(0);
+			}
+			break;
 		}
-		if (ugrid->GetPointData()->GetNumberOfArrays() > 0)
-			onDataComboChange(0);
 	}
+	
 }
 
 void vtkShower::onRadioClickShellData()
@@ -527,16 +537,25 @@ void vtkShower::onRadioClickShellData()
 	m_style->isPointSelectMode = false;
 	ui.comboBox_data_name->clear();
 	vtkMultiBlockDataSet* mbds = m_vFrames[m_iCurStep];
-	int type = mbds->GetBlock(m_iCurPartIndex)->GetDataObjectType();
-	if (type == VTK_UNSTRUCTURED_GRID)
+
+	//找到第一个要显示的part，并设置数据
+	for (int j = 0; j < m_partsCbs.size(); j++)
 	{
-		vtkUnstructuredGrid* ugrid = vtkUnstructuredGrid::SafeDownCast(mbds->GetBlock(m_iCurPartIndex));
-		for (int i = 0; i < ugrid->GetCellData()->GetNumberOfArrays(); i++)
+		if (m_partsCbs[j]->isChecked())
 		{
-			ui.comboBox_data_name->addItem(QString(ugrid->GetCellData()->GetArrayName(i)));
+			int type = mbds->GetBlock(j)->GetDataObjectType();
+			if (type == VTK_UNSTRUCTURED_GRID)
+			{
+				vtkUnstructuredGrid* ugrid = vtkUnstructuredGrid::SafeDownCast(mbds->GetBlock(j));
+				for (int i = 0; i < ugrid->GetCellData()->GetNumberOfArrays(); i++)
+				{
+					ui.comboBox_data_name->addItem(QString(ugrid->GetCellData()->GetArrayName(i)));
+				}
+				if (ugrid->GetCellData()->GetNumberOfArrays() > 0)
+					onDataComboChange(0);
+			}
+			break;
 		}
-		if (ugrid->GetCellData()->GetNumberOfArrays() > 0)
-			onDataComboChange(0);
 	}
 }
 
@@ -580,11 +599,22 @@ void vtkShower::OnMenuOpenLSDFile()
 	//rdr->SetDatabaseDirectory("D:/result_demo我");
 	rdr->Update();
 
-	ui.comboBox_part->clear();
+	for (int i = 0; i < m_partsCbs.size(); i++)
+	{
+		ui.verticalLayout_part->removeWidget(m_partsCbs[i]);
+		disconnect(m_partsCbs[i], SIGNAL(stateChanged(int)), this, SLOT(onLsdPartSelect(int)));
+		m_partsCbs[i]->deleteLater();
+	}
+	m_partsCbs.clear();
 	vtkMultiBlockDataSet* mbds1 = vtkMultiBlockDataSet::SafeDownCast(rdr->GetOutput());
 	for (int j = 0; j < mbds1->GetNumberOfBlocks(); j++)
 	{
-		ui.comboBox_part->addItem(QString::number(j));
+		QCheckBox* cb = new QCheckBox(ui.right_widget_lsd);
+		cb->setChecked(true);
+		cb->setText(QString::number(j));
+		ui.verticalLayout_part->addWidget(cb);
+		m_partsCbs.push_back(cb);
+		connect(cb, SIGNAL(stateChanged(int)), this, SLOT(onLsdPartSelect(int)));
 	}
 
 	for (int i = 0; i < rdr->GetNumberOfTimeSteps(); i++)
@@ -597,7 +627,6 @@ void vtkShower::OnMenuOpenLSDFile()
 		m_vFrames.push_back(mbds2);
 		
 	}
-	m_iCurPartIndex = 0;
 	onRadioClickPointData();
 
 	ui.horizontalSlider_frame->setMaximum(rdr->GetNumberOfTimeSteps());
@@ -665,102 +694,105 @@ void vtkShower::visPipeline(void)
 	float rangeMin = 0xffffffe;
 	float rangeMax = -0xffffffe;
 
-	//for (int k = 0; k < mbds->GetNumberOfBlocks(); ++k)
-	//{
-	int type = mbds->GetBlock(m_iCurPartIndex)->GetDataObjectType();
-	if (type == VTK_UNSTRUCTURED_GRID)
+	for (int k = 0; k < mbds->GetNumberOfBlocks(); ++k)
 	{
-		ugrid = vtkUnstructuredGrid::SafeDownCast(mbds->GetBlock(m_iCurPartIndex));
+		if (!m_partsCbs[k]->isChecked())
+			continue;
 
-		if (m_lShowType == Shell && ugrid->GetNumberOfCells() > 0)
+		int type = mbds->GetBlock(k)->GetDataObjectType();
+		if (type == VTK_UNSTRUCTURED_GRID)
 		{
-			ugrid->GetCellData()->SetActiveScalars(ugrid->GetCellData()->GetArrayName(m_iDataIndex));
-			if (m_rangeMode == 0)
+			ugrid = vtkUnstructuredGrid::SafeDownCast(mbds->GetBlock(k));
+
+			if (m_lShowType == Shell && ugrid->GetNumberOfCells() > 0)
 			{
-				vtkDataArray* vda = ugrid->GetCellData()->GetScalars(ugrid->GetCellData()->GetArrayName(m_iDataIndex));
-				if (vda->GetDataType() == VTK_ID_TYPE)
+				ugrid->GetCellData()->SetActiveScalars(ugrid->GetCellData()->GetArrayName(m_iDataIndex));
+				if (m_rangeMode == 0)
 				{
-					vtkIdTypeArray* ida = vtkIdTypeArray::SafeDownCast(vda);
-					if (ida)
+					vtkDataArray* vda = ugrid->GetCellData()->GetScalars(ugrid->GetCellData()->GetArrayName(m_iDataIndex));
+					if (vda->GetDataType() == VTK_ID_TYPE)
 					{
-						double range[2];
-						ida->GetRange(range);
-						if (rangeMin > range[0]) rangeMin = range[0];
-						if (rangeMax < range[1]) rangeMax = range[1];
+						vtkIdTypeArray* ida = vtkIdTypeArray::SafeDownCast(vda);
+						if (ida)
+						{
+							double range[2];
+							ida->GetRange(range);
+							if (rangeMin > range[0]) rangeMin = range[0];
+							if (rangeMax < range[1]) rangeMax = range[1];
+						}
 					}
-				}
-				else if (vda->GetDataType() == VTK_FLOAT)
-				{
-					vtkFloatArray* fa = vtkFloatArray::SafeDownCast(vda);
-					if (fa)
+					else if (vda->GetDataType() == VTK_FLOAT)
 					{
-						double range[2];
-						fa->GetRange(range);
-						if (rangeMin > range[0]) rangeMin = range[0];
-						if (rangeMax < range[1]) rangeMax = range[1];
+						vtkFloatArray* fa = vtkFloatArray::SafeDownCast(vda);
+						if (fa)
+						{
+							double range[2];
+							fa->GetRange(range);
+							if (rangeMin > range[0]) rangeMin = range[0];
+							if (rangeMax < range[1]) rangeMax = range[1];
+						}
 					}
-				}
 				
-			}
-
-			unMapper = vtkDataSetMapper::New();
-			unMapper->SetInputData(ugrid);
-			unMapper->UseLookupTableScalarRangeOn();
-			unMapper->SetScalarModeToUseCellData();
-
-			vtkActor* partActor = GetLSDActorByIndex(m_iCurPartIndex);
-			partActor->SetMapper(unMapper);
-			partActor->GetProperty()->SetEdgeVisibility(true);
-
-			m_pRenderder->AddActor(partActor);
-			unMapper->Delete();
-		}
-		else if (m_lShowType == Point && ugrid->GetNumberOfPoints() > 0)
-		{
-			ugrid->GetPointData()->SetActiveScalars(ugrid->GetPointData()->GetArrayName(m_iDataIndex));
-
-			if (m_rangeMode == 0)
-			{
-				vtkDataArray* vda = ugrid->GetPointData()->GetScalars(ugrid->GetPointData()->GetArrayName(m_iDataIndex));
-				if (vda->GetDataType() == VTK_ID_TYPE)
-				{
-					vtkIdTypeArray* ida = vtkIdTypeArray::SafeDownCast(vda);
-					if (ida)
-					{
-						double range[2];
-						ida->GetRange(range);
-						if (rangeMin > range[0]) rangeMin = range[0];
-						if (rangeMax < range[1]) rangeMax = range[1];
-					}
 				}
-				else if (vda->GetDataType() == VTK_FLOAT)
-				{
-					vtkFloatArray* fa = vtkFloatArray::SafeDownCast(vda);
-					if (fa)
-					{
-						double range[2];
-						fa->GetRange(range);
-						if (rangeMin > range[0]) rangeMin = range[0];
-						if (rangeMax < range[1]) rangeMax = range[1];
-					}
-				}	
+
+				unMapper = vtkDataSetMapper::New();
+				unMapper->SetInputData(ugrid);
+				unMapper->UseLookupTableScalarRangeOn();
+				unMapper->SetScalarModeToUseCellData();
+
+				vtkActor* partActor = GetLSDActorByIndex(k);
+				partActor->SetMapper(unMapper);
+				partActor->GetProperty()->SetEdgeVisibility(true);
+
+				m_pRenderder->AddActor(partActor);
+				unMapper->Delete();
 			}
+			else if (m_lShowType == Point && ugrid->GetNumberOfPoints() > 0)
+			{
+				ugrid->GetPointData()->SetActiveScalars(ugrid->GetPointData()->GetArrayName(m_iDataIndex));
 
-			unMapper = vtkDataSetMapper::New();
-			unMapper->SetInputData(ugrid);
-			unMapper->UseLookupTableScalarRangeOn();
-			unMapper->SetScalarModeToUsePointData();
+				if (m_rangeMode == 0)
+				{
+					vtkDataArray* vda = ugrid->GetPointData()->GetScalars(ugrid->GetPointData()->GetArrayName(m_iDataIndex));
+					if (vda->GetDataType() == VTK_ID_TYPE)
+					{
+						vtkIdTypeArray* ida = vtkIdTypeArray::SafeDownCast(vda);
+						if (ida)
+						{
+							double range[2];
+							ida->GetRange(range);
+							if (rangeMin > range[0]) rangeMin = range[0];
+							if (rangeMax < range[1]) rangeMax = range[1];
+						}
+					}
+					else if (vda->GetDataType() == VTK_FLOAT)
+					{
+						vtkFloatArray* fa = vtkFloatArray::SafeDownCast(vda);
+						if (fa)
+						{
+							double range[2];
+							fa->GetRange(range);
+							if (rangeMin > range[0]) rangeMin = range[0];
+							if (rangeMax < range[1]) rangeMax = range[1];
+						}
+					}	
+				}
 
-			vtkActor* partActor = GetLSDActorByIndex(m_iCurPartIndex);
-			partActor->SetMapper(unMapper);
-			partActor->GetProperty()->SetEdgeVisibility(true);
+				unMapper = vtkDataSetMapper::New();
+				unMapper->SetInputData(ugrid);
+				unMapper->UseLookupTableScalarRangeOn();
+				unMapper->SetScalarModeToUsePointData();
 
-			m_pRenderder->AddActor(partActor);
-			unMapper->Delete();
-		}
+				vtkActor* partActor = GetLSDActorByIndex(k);
+				partActor->SetMapper(unMapper);
+				partActor->GetProperty()->SetEdgeVisibility(true);
+
+				m_pRenderder->AddActor(partActor);
+				unMapper->Delete();
+			}
 		
+		}
 	}
-	//}
 
 	if (m_rangeMode == 0)
 	{
@@ -781,10 +813,11 @@ void vtkShower::visPipeline(void)
 	lut->SetNumberOfColors(256);
 	lut->Build();
 
-	/*for (int m = 0; m < m_lsdPartActors.size(); m++)
-	{*/
-	m_lsdPartActors[m_iCurPartIndex]->GetMapper()->SetLookupTable(lut);
-	//}
+	for (int m = 0; m < m_lsdPartActors.size(); m++)
+	{
+		if (m_partsCbs[m]->isChecked())
+			m_lsdPartActors[m]->GetMapper()->SetLookupTable(lut);
+	}
 
 	m_textLSDRangeActor->SetInput((QString("Range min:") + QString::number(m_rangeMin) + "   max:" + QString::number(m_rangeMax)).toUtf8().constData());
 	m_pRenderder->AddActor2D(m_textLSDRangeActor);
@@ -826,17 +859,32 @@ void vtkShower::onButtonLine()
 		{
 			for (int i = 0; i < m_vFrames.size(); i++)
 			{
-				vtkUnstructuredGrid* shell = (vtkUnstructuredGrid*)0;
+				vtkUnstructuredGrid* ugrid = (vtkUnstructuredGrid*)0;
 				vtkMultiBlockDataSet* mbds = m_vFrames[i];
 
 				int type = mbds->GetBlock(curSelectPart)->GetDataObjectType();
 				{
 					if (type == VTK_UNSTRUCTURED_GRID)
 					{
-						shell = vtkUnstructuredGrid::SafeDownCast(mbds->GetBlock(curSelectPart));
-						vtkFloatArray* va = vtkFloatArray::SafeDownCast(shell->GetPointData()->GetArray(ui.comboBox_data_name->itemText(m_iDataIndex).toUtf8().constData()));
-						if (va)
-							m_lines.push_back(va->GetValue(m_style->pointId));
+						ugrid = vtkUnstructuredGrid::SafeDownCast(mbds->GetBlock(curSelectPart));
+
+						vtkDataArray* vda = ugrid->GetPointData()->GetScalars(ugrid->GetPointData()->GetArrayName(m_iDataIndex));
+						if (vda->GetDataType() == VTK_ID_TYPE)
+						{
+							vtkIdTypeArray* ida = vtkIdTypeArray::SafeDownCast(vda);
+							if (ida)
+							{
+								m_lines.push_back(ida->GetValue(m_style->pointId));
+							}
+						}
+						else if (vda->GetDataType() == VTK_FLOAT)
+						{
+							vtkFloatArray* fa = vtkFloatArray::SafeDownCast(vda);
+							if (fa)
+							{
+								m_lines.push_back(fa->GetValue(m_style->pointId));
+							}
+						}
 					}
 				}
 
@@ -846,17 +894,32 @@ void vtkShower::onButtonLine()
 		{
 			for (int i = 0; i < m_vFrames.size(); i++)
 			{
-				vtkUnstructuredGrid* shell = (vtkUnstructuredGrid*)0;
+				vtkUnstructuredGrid* ugrid = (vtkUnstructuredGrid*)0;
 				vtkMultiBlockDataSet* mbds = m_vFrames[i];
 
 				int type = mbds->GetBlock(curSelectPart)->GetDataObjectType();
 				{
 					if (type == VTK_UNSTRUCTURED_GRID)
 					{
-						shell = vtkUnstructuredGrid::SafeDownCast(mbds->GetBlock(curSelectPart));
-						vtkFloatArray* va = vtkFloatArray::SafeDownCast(shell->GetCellData()->GetArray(ui.comboBox_data_name->itemText(m_iDataIndex).toUtf8().constData()));
-						if (va)
-							m_lines.push_back(va->GetValue(m_style->cellId));
+						ugrid = vtkUnstructuredGrid::SafeDownCast(mbds->GetBlock(curSelectPart));
+						
+						vtkDataArray* vda = ugrid->GetCellData()->GetScalars(ugrid->GetCellData()->GetArrayName(m_iDataIndex));
+						if (vda->GetDataType() == VTK_ID_TYPE)
+						{
+							vtkIdTypeArray* ida = vtkIdTypeArray::SafeDownCast(vda);
+							if (ida)
+							{
+								m_lines.push_back(ida->GetValue(m_style->cellId));
+							}
+						}
+						else if (vda->GetDataType() == VTK_FLOAT)
+						{
+							vtkFloatArray* fa = vtkFloatArray::SafeDownCast(vda);
+							if (fa)
+							{
+								m_lines.push_back(fa->GetValue(m_style->cellId));
+							}
+						}
 					}
 				}
 
@@ -894,9 +957,8 @@ void vtkShower::onDataRangeComboChange(int index)
 	RenderLsd();
 }
 
-void vtkShower::onLsdPartComboChange(int index)
+void vtkShower::onLsdPartSelect(int index)
 {
-	m_iCurPartIndex = index;
 	if (m_lShowType == Point)
 	{
 		onRadioClickPointData();
@@ -905,8 +967,9 @@ void vtkShower::onLsdPartComboChange(int index)
 	{
 		onRadioClickShellData();
 	}
-	
-	RenderLsd();
+	/*m_pRenderder->ResetCamera();
+	m_pRenderder->GetActiveCamera()->Zoom(1.5);
+	m_pRenWin->Render();*/
 }
 
 void vtkShower::onButtonChangeRange()

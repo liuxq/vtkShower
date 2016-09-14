@@ -21,6 +21,7 @@ class vtkDataSetMapper;
 class vtkScalarBarActor;
 class customMouseInteractorStyle;
 class QTimer;
+class QCheckBox;
 
 
 enum KShowType
@@ -111,7 +112,8 @@ private:
 	float m_rangeMin;
 	float m_rangeMax;
 	bool m_rangeMode;//0 auto, 1 custom
-	int m_iCurPartIndex;
+
+	vector<QCheckBox*> m_partsCbs;
 	
 
 public slots:
@@ -133,7 +135,7 @@ public slots:
 	void OnButtonPlay();
 	void OnButtonStop();
 	void onDataRangeComboChange(int);
-	void onLsdPartComboChange(int);
+	void onLsdPartSelect(int);
 	void onButtonChangeRange();
 };
 

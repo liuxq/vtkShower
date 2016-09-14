@@ -20,7 +20,7 @@
 QT_BEGIN_MOC_NAMESPACE
 struct qt_meta_stringdata_vtkShower_t {
     QByteArrayData data[21];
-    char stringdata0[355];
+    char stringdata0[350];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -48,8 +48,8 @@ QT_MOC_LITERAL(15, 247, 17), // "OnMenuOpenLSDFile"
 QT_MOC_LITERAL(16, 265, 12), // "OnButtonPlay"
 QT_MOC_LITERAL(17, 278, 12), // "OnButtonStop"
 QT_MOC_LITERAL(18, 291, 22), // "onDataRangeComboChange"
-QT_MOC_LITERAL(19, 314, 20), // "onLsdPartComboChange"
-QT_MOC_LITERAL(20, 335, 19) // "onButtonChangeRange"
+QT_MOC_LITERAL(19, 314, 15), // "onLsdPartSelect"
+QT_MOC_LITERAL(20, 330, 19) // "onButtonChangeRange"
 
     },
     "vtkShower\0onPartComboChange\0\0"
@@ -60,7 +60,7 @@ QT_MOC_LITERAL(20, 335, 19) // "onButtonChangeRange"
     "onButtonLine\0OnButtonCloseLine\0"
     "OnTimerOut\0OnMenuOpenKFile\0OnMenuOpenLSDFile\0"
     "OnButtonPlay\0OnButtonStop\0"
-    "onDataRangeComboChange\0onLsdPartComboChange\0"
+    "onDataRangeComboChange\0onLsdPartSelect\0"
     "onButtonChangeRange"
 };
 #undef QT_MOC_LITERAL
@@ -146,7 +146,7 @@ void vtkShower::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, v
         case 14: _t->OnButtonPlay(); break;
         case 15: _t->OnButtonStop(); break;
         case 16: _t->onDataRangeComboChange((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 17: _t->onLsdPartComboChange((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 17: _t->onLsdPartSelect((*reinterpret_cast< int(*)>(_a[1]))); break;
         case 18: _t->onButtonChangeRange(); break;
         default: ;
         }
