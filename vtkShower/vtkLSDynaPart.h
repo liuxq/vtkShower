@@ -106,12 +106,14 @@ public:
   void ReadPointBasedProperty(float *data,
                               const vtkIdType& numTuples,
                               const vtkIdType& numComps,
-                              const vtkIdType& currentGlobalPointIndex);
+                              const vtkIdType& currentGlobalPointIndex,
+							  bool isIdType);
 
   void ReadPointBasedProperty(double *data,
                               const vtkIdType& numTuples,
                               const vtkIdType& numComps,
-                              const vtkIdType& currentGlobalPointIndex);
+                              const vtkIdType& currentGlobalPointIndex,
+							  bool isIdType);
 
   //Description:
   //Adds a property to the part
@@ -151,7 +153,8 @@ protected:
   void AddPointInformation(T *buffer,T *pointData,
                            const vtkIdType& numTuples,
                            const vtkIdType& numComps,
-                           const vtkIdType& currentGlobalPointIndex);
+                           const vtkIdType& currentGlobalPointIndex,
+						   bool isIdType);
 
   //basic info about the part
   LSDynaMetaData::LSDYNA_TYPES Type;

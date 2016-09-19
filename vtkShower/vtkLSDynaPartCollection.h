@@ -162,7 +162,7 @@ protected:
   template<typename T>
   void FillPointProperty(const vtkIdType& numTuples,
                          const vtkIdType& numComps,
-                         vtkLSDynaPart** parts, const vtkIdType numParts);
+                         vtkLSDynaPart** parts, const vtkIdType numParts, bool isVtkId);
 
 private:
   vtkLSDynaPartCollection( const vtkLSDynaPartCollection& ); // Not implemented.
