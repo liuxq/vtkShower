@@ -250,7 +250,7 @@
         <item>
          <widget class="QRadioButton" name="radioButton_shell_data">
           <property name="text">
-           <string>壳数据</string>
+           <string>单元数据</string>
           </property>
          </widget>
         </item>

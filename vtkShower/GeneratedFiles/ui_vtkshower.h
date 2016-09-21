@@ -406,7 +406,7 @@ public:
         radioButton_setSeg->setText(QApplication::translate("vtkShowerClass", "\350\212\202\347\202\271\351\235\242\351\233\206\345\220\210", 0));
         label_doc->setText(QApplication::translate("vtkShowerClass", "\344\275\223\347\274\226\345\217\267\357\274\232", 0));
         radioButton_point_data->setText(QApplication::translate("vtkShowerClass", "\347\202\271\346\225\260\346\215\256", 0));
-        radioButton_shell_data->setText(QApplication::translate("vtkShowerClass", "\345\243\263\346\225\260\346\215\256", 0));
+        radioButton_shell_data->setText(QApplication::translate("vtkShowerClass", "\345\215\225\345\205\203\346\225\260\346\215\256", 0));
         label_doc_4->setText(QApplication::translate("vtkShowerClass", "\344\275\223\347\274\226\345\217\267\357\274\232", 0));
         label_doc_2->setText(QApplication::translate("vtkShowerClass", "\346\225\260\346\215\256\345\220\215\347\247\260\357\274\232", 0));
         label_doc_3->setText(QApplication::translate("vtkShowerClass", "\351\242\234\350\211\262\346\230\240\345\260\204\357\274\232", 0));
