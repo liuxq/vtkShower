@@ -596,9 +596,13 @@ void vtkShower::OnMenuOpenLSDFile()
 
 	rdr = vtkLSDynaReader::New();
 	//rdr->SetDatabaseDirectory(dirName.toLocal8Bit());
-	//rdr->SetDatabaseDirectory("D:/result_demoÎÒ");
-	rdr->SetDatabaseDirectory("D:/res");
+	rdr->SetDatabaseDirectory("D:/result-solid_element32");
+	//rdr->SetDatabaseDirectory("D:/res");
 	rdr->Update();
+
+	ofstream lxq("lxq.txt");
+	vtkIndent vi;
+	rdr->PrintSelf(lxq,vi);
 
 	for (int i = 0; i < m_partsCbs.size(); i++)
 	{
@@ -618,7 +622,7 @@ void vtkShower::OnMenuOpenLSDFile()
 		connect(cb, SIGNAL(stateChanged(int)), this, SLOT(onLsdPartSelect(int)));
 	}
 
-	for (int i = 0; i < rdr->GetNumberOfTimeSteps(); i++)
+	for (int i = 0; i < 30/*rdr->GetNumberOfTimeSteps()*/; i++)
 	{
 		rdr->SetTimeStep(i);
 		rdr->Update();

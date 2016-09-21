@@ -1853,7 +1853,8 @@ int vtkLSDynaReader::ReadHeaderInformation( int curAdapt )
   iddtmp += p->NumberOfCells[LSDynaMetaData::SHELL]*5*p->Fam.GetWordSize(); // Size of quads on disk
   iddtmp += p->NumberOfCells[LSDynaMetaData::BEAM]*6*p->Fam.GetWordSize(); // Size of beams on disk
   p->PreStateSize += iddtmp;
-  p->Fam.SkipToWord( LSDynaFamily::GeometryData, curAdapt, iddtmp/p->Fam.GetWordSize() ); // Skip to end of geometry
+  p->Fam.SkipToWord(LSDynaFamily::GeometryData, curAdapt, iddtmp / p->Fam.GetWordSize()/* + 22*/); // Skip to end of geometry lxq
+  //p->StateSize += 22 * 8;
 
   // =========== User Material, Node, And Element Identification Numbers Section
   p->Fam.MarkSectionStart( curAdapt, LSDynaFamily::UserIdData );
@@ -2280,76 +2281,76 @@ int vtkLSDynaReader::ReadHeaderInformation( int curAdapt )
 
 int vtkLSDynaReader::ScanDatabaseTimeSteps()
 {
-  LSDynaMetaData* p = this->P;
+	LSDynaMetaData* p = this->P;
 
-  // ======================================================= State Data Sections
-  // The 2 lines below are now in ReadHeaderInformation:
-  // p->Fam.MarkSectionStart( curAdapt, LSDynaFamily::TimeStepSection );
-  // p->Fam.SetStateSize( p->StateSize / p->Fam.GetWordSize() );
-  // It may be useful to call
-  // p->JumpToMark( LSDynaFamily::TimeStepSection );
-  // here.
-  if ( p->Fam.GetStateSize() <= 0 )
-    {
-    vtkErrorMacro( "Database has bad state size (" << p->Fam.GetStateSize() << ")." );
-    return 1;
-    }
+	// ======================================================= State Data Sections
+	// The 2 lines below are now in ReadHeaderInformation:
+	// p->Fam.MarkSectionStart( curAdapt, LSDynaFamily::TimeStepSection );
+	// p->Fam.SetStateSize( p->StateSize / p->Fam.GetWordSize() );
+	// It may be useful to call
+	// p->JumpToMark( LSDynaFamily::TimeStepSection );
+	// here.
+	if (p->Fam.GetStateSize() <= 0)
+	{
+		vtkErrorMacro("Database has bad state size (" << p->Fam.GetStateSize() << ").");
+		return 1;
+	}
 
-  // Discover the number of states and record the time value for each.
-  int ntimesteps = 0;
-  double time;
-  int itmp = 1;
-  int lastAdapt = 0;
-  do {
-    if ( p->Fam.BufferChunk( LSDynaFamily::Float, 1 ) == 0 )
-      {
-      time = p->Fam.GetNextWordAsFloat();
-      if ( time != LSDynaFamily::EOFMarker )
-        {
-        p->Fam.MarkTimeStep();
-        p->TimeValues.push_back( time );
-        //fprintf( stderr, "%d %f\n", (int) p->TimeValues.size() - 1, time ); fflush(stderr);
-        if ( p->Fam.SkipToWord( LSDynaFamily::TimeStepSection, ntimesteps++, p->Fam.GetStateSize() ) )
-          {
-          itmp = 0;
-          }
-        }
-      else
-        {
-        if ( p->Fam.AdvanceFile() )
-          {
-          itmp = 0;
-          }
-        else
-          {
-          if ( ntimesteps == 0 )
-            {
-            // First time step was an EOF marker... move the marker to the
-            // beginning of the first real time step...
-            p->Fam.MarkSectionStart( lastAdapt, LSDynaFamily::TimeStepSection );
-            }
-          }
-        int nextAdapt = p->Fam.GetCurrentAdaptLevel();
-        if ( nextAdapt != lastAdapt )
-          {
-          // Read the next static header section... state size has changed.
-          p->Fam.MarkSectionStart( nextAdapt, LSDynaFamily::ControlSection );
-          this->ReadHeaderInformation( nextAdapt );
-          //p->Fam.SkipToWord( LSDynaFamily::EndOfStaticSection, nextAdapt, 0 );
-          lastAdapt = nextAdapt;
-          }
-        }
-      }
-    else
-      {
-      itmp = 0;
-      }
-  } while (itmp);
+	// Discover the number of states and record the time value for each.
+	int ntimesteps = 0;
+	double time;
+	int itmp = 1;
+	int lastAdapt = 0;
+	do {
+		if (p->Fam.BufferChunk(LSDynaFamily::Float, 1) == 0)
+		{
+			time = p->Fam.GetNextWordAsFloat();
+			if (time != LSDynaFamily::EOFMarker)
+			{
+				p->Fam.MarkTimeStep();
+				p->TimeValues.push_back(time);
+				//fprintf( stderr, "%d %f\n", (int) p->TimeValues.size() - 1, time ); fflush(stderr);
+				if (p->Fam.SkipToWord(LSDynaFamily::TimeStepSection, ntimesteps++, p->Fam.GetStateSize()))
+				{
+					itmp = 0;
+				}
+			}
+			else
+			{
+				if (p->Fam.AdvanceFile())
+				{
+					itmp = 0;
+				}
+				else
+				{
+					if (ntimesteps == 0)
+					{
+						// First time step was an EOF marker... move the marker to the
+						// beginning of the first real time step...
+						p->Fam.MarkSectionStart(lastAdapt, LSDynaFamily::TimeStepSection);
+					}
+				}
+				int nextAdapt = p->Fam.GetCurrentAdaptLevel();
+				if (nextAdapt != lastAdapt)
+				{
+					// Read the next static header section... state size has changed.
+					p->Fam.MarkSectionStart(nextAdapt, LSDynaFamily::ControlSection);
+					this->ReadHeaderInformation(nextAdapt);
+					//p->Fam.SkipToWord( LSDynaFamily::EndOfStaticSection, nextAdapt, 0 );
+					lastAdapt = nextAdapt;
+				}
+			}
+		}
+		else
+		{
+			itmp = 0;
+		}
+	} while (itmp);
 
-  this->TimeStepRange[0] = 0;
-  this->TimeStepRange[1] = ntimesteps ? ntimesteps - 1 : 0;
+	this->TimeStepRange[0] = 0;
+	this->TimeStepRange[1] = ntimesteps ? ntimesteps - 1 : 0;
 
-  return -1;
+	return -1;
 }
 
 // =================================== Provide information about the database to the pipeline

@@ -264,74 +264,74 @@ const char* LSDynaFamily::SectionTypeToString( SectionType s )
   }
 
 //-----------------------------------------------------------------------------
-int LSDynaFamily::SkipToWord( SectionType sType, vtkIdType sId, vtkIdType wordNumber )
-  {
-  LSDynaFamilySectionMark mark;
-  if ( sType != TimeStepSection && sType < ElementDeletionState )
-    {
-    assert( sId < (int)this->Adaptations.size() );
-    if ( sId < 0 )
-      sId = 0;
-    mark = this->AdaptationsMarkers[sId].Marks[ sType ];
-    mark.Offset += wordNumber;
-    }
-  else
-    {
-    // NOTE: SkipToWord cannot jump outside of the current adaptation level!
-    // You must use SetTimeStep() to do that -- it will call ReadHeaderInformation().
-    mark = this->AdaptationsMarkers[this->FAdapt].Marks[ sType ];
-    mark.Offset += wordNumber;
-    if ( sId >= (vtkIdType) this->TimeStepMarks.size() )
-      {
-      return 1;
-      }
-    mark.FileNumber = this->TimeStepMarks[ sId ].FileNumber;
-    mark.Offset = this->TimeStepMarks[ sId ].Offset +
-      ( this->AdaptationsMarkers[this->FAdapt].Marks[sType].Offset -
-        this->AdaptationsMarkers[this->FAdapt].Marks[TimeStepSection].Offset ) +
-      wordNumber;
-    }
+int LSDynaFamily::SkipToWord(SectionType sType, vtkIdType sId, vtkIdType wordNumber)
+{
+	LSDynaFamilySectionMark mark;
+	if (sType != TimeStepSection && sType < ElementDeletionState)
+	{
+		assert(sId < (int)this->Adaptations.size());
+		if (sId < 0)
+			sId = 0;
+		mark = this->AdaptationsMarkers[sId].Marks[sType];
+		mark.Offset += wordNumber;
+	}
+	else
+	{
+		// NOTE: SkipToWord cannot jump outside of the current adaptation level!
+		// You must use SetTimeStep() to do that -- it will call ReadHeaderInformation().
+		mark = this->AdaptationsMarkers[this->FAdapt].Marks[sType];
+		mark.Offset += wordNumber;
+		if (sId >= (vtkIdType) this->TimeStepMarks.size())
+		{
+			return 1;
+		}
+		mark.FileNumber = this->TimeStepMarks[sId].FileNumber;
+		mark.Offset = this->TimeStepMarks[sId].Offset +
+			(this->AdaptationsMarkers[this->FAdapt].Marks[sType].Offset -
+			this->AdaptationsMarkers[this->FAdapt].Marks[TimeStepSection].Offset) +
+			wordNumber;
+	}
 
-  // if the skip is too big for one file, advance to the correct file
-  while ( (mark.FileNumber < (vtkIdType) this->Files.size()) && (mark.Offset > this->FileSizes[ mark.FileNumber ]) )
-    {
-    mark.Offset -= this->FileSizes[ mark.FileNumber ];
-    mark.FileNumber++;
-    }
+	// if the skip is too big for one file, advance to the correct file
+	while ((mark.FileNumber < (vtkIdType) this->Files.size()) && (mark.Offset > this->FileSizes[mark.FileNumber]))
+	{
+		mark.Offset -= this->FileSizes[mark.FileNumber];
+		mark.FileNumber++;
+	}
 
-  if ( mark.FileNumber > (vtkIdType) this->Files.size() )
-    {
-    // when stepping past the end of the entire database (as opposed
-    // to a single file), return a different value
-    return 2;
-    }
+	if (mark.FileNumber > (vtkIdType) this->Files.size())
+	{
+		// when stepping past the end of the entire database (as opposed
+		// to a single file), return a different value
+		return 2;
+	}
 
-  if ( this->FNum < 0 || (this->FNum != mark.FileNumber) )
-    {
-    if ( this->FNum >= 0 )
-      {
-      if ( ! VTK_LSDYNA_ISBADFILE(this->FD) )
-        {
-        VTK_LSDYNA_CLOSEFILE(this->FD);
-        }
-      }
-    this->FD = VTK_LSDYNA_OPENFILE(this->Files[mark.FileNumber].c_str());
-    if ( VTK_LSDYNA_ISBADFILE(this->FD) )
-      {
-      return errno;
-      }
-    this->FNum = mark.FileNumber;
-    this->FAdapt = this->FileAdaptLevels[ this->FNum ];
-    }
-  vtkLSDynaOff_t offset = mark.Offset * this->WordSize;
-  // FIXME: Handle case where wordNumber + mark.Offset > (7=factor)*512*512
-  if ( VTK_LSDYNA_SEEKTELL(this->FD,offset,SEEK_SET) != offset )
-    {
-    return errno;
-    }
-  this->FWord = mark.Offset;
-  return 0;
-  }
+	if (this->FNum < 0 || (this->FNum != mark.FileNumber))
+	{
+		if (this->FNum >= 0)
+		{
+			if (!VTK_LSDYNA_ISBADFILE(this->FD))
+			{
+				VTK_LSDYNA_CLOSEFILE(this->FD);
+			}
+		}
+		this->FD = VTK_LSDYNA_OPENFILE(this->Files[mark.FileNumber].c_str());
+		if (VTK_LSDYNA_ISBADFILE(this->FD))
+		{
+			return errno;
+		}
+		this->FNum = mark.FileNumber;
+		this->FAdapt = this->FileAdaptLevels[this->FNum];
+	}
+	vtkLSDynaOff_t offset = mark.Offset * this->WordSize;
+	// FIXME: Handle case where wordNumber + mark.Offset > (7=factor)*512*512
+	if (VTK_LSDYNA_SEEKTELL(this->FD, offset, SEEK_SET) != offset)
+	{
+		return errno;
+	}
+	this->FWord = mark.Offset;
+	return 0;
+}
 
 // FIXME: Assumes there is a valid file open and that
 // lseek will return the byte just past the time value word.
@@ -403,6 +403,8 @@ int LSDynaFamily::SkipWords( vtkIdType numWords )
 //-----------------------------------------------------------------------------
 int LSDynaFamily::BufferChunk( WordType wType, vtkIdType chunkSizeInWords )
   {
+	/*unsigned char* lxq = new unsigned char[4000000];
+	int n = VTK_LSDYNA_READ(this->FD, (void*)lxq, 4000000);*/
   if ( chunkSizeInWords == 0 )
     return 0;
 
