@@ -403,8 +403,8 @@ int LSDynaFamily::SkipWords( vtkIdType numWords )
 //-----------------------------------------------------------------------------
 int LSDynaFamily::BufferChunk( WordType wType, vtkIdType chunkSizeInWords )
   {
-	/*unsigned char* lxq = new unsigned char[4000000];
-	int n = VTK_LSDYNA_READ(this->FD, (void*)lxq, 4000000);*/
+	  /*unsigned char* lxq = new unsigned char[4000000];
+	  int n = VTK_LSDYNA_READ(this->FD, (void*)lxq, 4000000);*/
   if ( chunkSizeInWords == 0 )
     return 0;
 

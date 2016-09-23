@@ -1424,859 +1424,859 @@ void vtkLSDynaReader::ResetPartsCache()
 }
 
 // =================================== Read the control word header for the current adaptation level
-int vtkLSDynaReader::ReadHeaderInformation( int curAdapt )
+int vtkLSDynaReader::ReadHeaderInformation(int curAdapt)
 {
-  LSDynaMetaData* p = this->P;
+	LSDynaMetaData* p = this->P;
 
-  // =================================== Control Word Section
-  p->Fam.SkipToWord( LSDynaFamily::ControlSection, curAdapt /*timestep*/, 0 );
-  p->Fam.BufferChunk( LSDynaFamily::Char, 10 );
-  memcpy( p->Title, p->Fam.GetNextWordAsChars(), 40*sizeof(char) );
-  p->Title[40] = '\0';
+	// =================================== Control Word Section
+	p->Fam.SkipToWord(LSDynaFamily::ControlSection, curAdapt /*timestep*/, 0);
+	p->Fam.BufferChunk(LSDynaFamily::Char, 10);
+	memcpy(p->Title, p->Fam.GetNextWordAsChars(), 40 * sizeof(char));
+	p->Title[40] = '\0';
 
-  p->Fam.SkipToWord( LSDynaFamily::ControlSection, curAdapt /*timestep*/, 13 );
+	p->Fam.SkipToWord(LSDynaFamily::ControlSection, curAdapt /*timestep*/, 13);
 
-  // Release number: Release number in character*4 form: 50 for R5.0, 511c for R5.1.1c.
-  p->Fam.BufferChunk( LSDynaFamily::Char, 1 );
-  memcpy( p->ReleaseNumber, p->Fam.GetNextWordAsChars(), 4*sizeof(char));
-  p->ReleaseNumber[4] = '\0';
+	// Release number: Release number in character*4 form: 50 for R5.0, 511c for R5.1.1c.
+	p->Fam.BufferChunk(LSDynaFamily::Char, 1);
+	memcpy(p->ReleaseNumber, p->Fam.GetNextWordAsChars(), 4 * sizeof(char));
+	p->ReleaseNumber[4] = '\0';
 
-  // Version: Code version, floating number, eg 960.0 it is used to distinguish the
-  // floating point format, like cray, ieee, and dpieee.
-  p->Fam.BufferChunk( LSDynaFamily::Float, 1 );
-  p->CodeVersion = p->Fam.GetNextWordAsFloat();
+	// Version: Code version, floating number, eg 960.0 it is used to distinguish the
+	// floating point format, like cray, ieee, and dpieee.
+	p->Fam.BufferChunk(LSDynaFamily::Float, 1);
+	p->CodeVersion = p->Fam.GetNextWordAsFloat();
 
-  p->Fam.BufferChunk( LSDynaFamily::Int, 49 );
-  p->Dict[    "NDIM"] = p->Fam.GetNextWordAsInt();
-  p->Dict[   "NUMNP"] = p->Fam.GetNextWordAsInt();
-  p->Dict[   "ICODE"] = p->Fam.GetNextWordAsInt();
-  p->Dict[   "NGLBV"] = p->Fam.GetNextWordAsInt();
-  p->Dict[      "IT"] = p->Fam.GetNextWordAsInt();
-  p->Dict[      "IU"] = p->Fam.GetNextWordAsInt();
-  p->Dict[      "IV"] = p->Fam.GetNextWordAsInt();
-  p->Dict[      "IA"] = p->Fam.GetNextWordAsInt();
-  p->Dict[    "NEL8"] = p->Fam.GetNextWordAsInt();
-  p->Dict[ "NUMMAT8"] = p->Fam.GetNextWordAsInt();
-  p->Fam.GetNextWordAsInt(); // BLANK
-  p->Fam.GetNextWordAsInt(); // BLANK
-  p->Dict[    "NV3D"] = p->Fam.GetNextWordAsInt();
-  p->Dict[    "NEL2"] = p->Fam.GetNextWordAsInt();
-  p->Dict[ "NUMMAT2"] = p->Fam.GetNextWordAsInt();
-  p->Dict[    "NV1D"] = p->Fam.GetNextWordAsInt();
-  p->Dict[    "NEL4"] = p->Fam.GetNextWordAsInt();
-  p->Dict[ "NUMMAT4"] = p->Fam.GetNextWordAsInt();
-  p->Dict[    "NV2D"] = p->Fam.GetNextWordAsInt();
-  p->Dict[   "NEIPH"] = p->Fam.GetNextWordAsInt();
-  p->Dict[   "NEIPS"] = p->Fam.GetNextWordAsInt();
-  p->Dict[  "MAXINT"] = p->Fam.GetNextWordAsInt();
-  // do MDLOPT here?
-  p->Dict[   "NMSPH"] = p->Fam.GetNextWordAsInt();
-  p->Dict[  "EDLOPT"] = p->Dict["NMSPH"]; // EDLOPT is not standard
-  p->Dict[  "NGPSPH"] = p->Fam.GetNextWordAsInt();
-  p->Dict[   "NARBS"] = p->Fam.GetNextWordAsInt();
-  p->Dict[    "NELT"] = p->Fam.GetNextWordAsInt();
-  p->Dict[ "NUMMATT"] = p->Fam.GetNextWordAsInt();
-  p->Dict[   "NV3DT"] = p->Fam.GetNextWordAsInt();
-  p->Dict["IOSHL(1)"] = p->Fam.GetNextWordAsInt() == 1000 ? 1 : 0;
-  p->Dict["IOSHL(2)"] = p->Fam.GetNextWordAsInt() == 1000 ? 1 : 0;
-  p->Dict["IOSHL(3)"] = p->Fam.GetNextWordAsInt() == 1000 ? 1 : 0;
-  p->Dict["IOSHL(4)"] = p->Fam.GetNextWordAsInt() == 1000 ? 1 : 0;
-  p->Dict[ "IALEMAT"] = p->Fam.GetNextWordAsInt();
-  p->Dict[  "NCFDV1"] = p->Fam.GetNextWordAsInt();
-  p->Dict[  "NCFDV2"] = p->Fam.GetNextWordAsInt();
-  p->Dict[  "NADAPT"] = p->Fam.GetNextWordAsInt();
-  p->Fam.GetNextWordAsInt(); // BLANK
+	p->Fam.BufferChunk(LSDynaFamily::Int, 49);
+	p->Dict["NDIM"] = p->Fam.GetNextWordAsInt();
+	p->Dict["NUMNP"] = p->Fam.GetNextWordAsInt();
+	p->Dict["ICODE"] = p->Fam.GetNextWordAsInt();
+	p->Dict["NGLBV"] = p->Fam.GetNextWordAsInt();
+	p->Dict["IT"] = p->Fam.GetNextWordAsInt();
+	p->Dict["IU"] = p->Fam.GetNextWordAsInt();
+	p->Dict["IV"] = p->Fam.GetNextWordAsInt();
+	p->Dict["IA"] = p->Fam.GetNextWordAsInt();
+	p->Dict["NEL8"] = p->Fam.GetNextWordAsInt();
+	p->Dict["NUMMAT8"] = p->Fam.GetNextWordAsInt();
+	p->Fam.GetNextWordAsInt(); // BLANK
+	p->Fam.GetNextWordAsInt(); // BLANK
+	p->Dict["NV3D"] = p->Fam.GetNextWordAsInt();
+	p->Dict["NEL2"] = p->Fam.GetNextWordAsInt();
+	p->Dict["NUMMAT2"] = p->Fam.GetNextWordAsInt();
+	p->Dict["NV1D"] = p->Fam.GetNextWordAsInt();
+	p->Dict["NEL4"] = p->Fam.GetNextWordAsInt();
+	p->Dict["NUMMAT4"] = p->Fam.GetNextWordAsInt();
+	p->Dict["NV2D"] = p->Fam.GetNextWordAsInt();
+	p->Dict["NEIPH"] = p->Fam.GetNextWordAsInt();
+	p->Dict["NEIPS"] = p->Fam.GetNextWordAsInt();
+	p->Dict["MAXINT"] = p->Fam.GetNextWordAsInt();
+	// do MDLOPT here?
+	p->Dict["NMSPH"] = p->Fam.GetNextWordAsInt();
+	p->Dict["EDLOPT"] = p->Dict["NMSPH"]; // EDLOPT is not standard
+	p->Dict["NGPSPH"] = p->Fam.GetNextWordAsInt();
+	p->Dict["NARBS"] = p->Fam.GetNextWordAsInt();
+	p->Dict["NELT"] = p->Fam.GetNextWordAsInt();
+	p->Dict["NUMMATT"] = p->Fam.GetNextWordAsInt();
+	p->Dict["NV3DT"] = p->Fam.GetNextWordAsInt();
+	p->Dict["IOSHL(1)"] = p->Fam.GetNextWordAsInt() == 1000 ? 1 : 0;
+	p->Dict["IOSHL(2)"] = p->Fam.GetNextWordAsInt() == 1000 ? 1 : 0;
+	p->Dict["IOSHL(3)"] = p->Fam.GetNextWordAsInt() == 1000 ? 1 : 0;
+	p->Dict["IOSHL(4)"] = p->Fam.GetNextWordAsInt() == 1000 ? 1 : 0;
+	p->Dict["IALEMAT"] = p->Fam.GetNextWordAsInt();
+	p->Dict["NCFDV1"] = p->Fam.GetNextWordAsInt();
+	p->Dict["NCFDV2"] = p->Fam.GetNextWordAsInt();
+	p->Dict["NADAPT"] = p->Fam.GetNextWordAsInt();
+	p->Fam.GetNextWordAsInt(); // BLANK
 
-  // NUMFLUID: Total number of ALE fluid groups. Fluid density and
-  // volume fractions output as history variables, and a flag
-  // for the dominant group. If negative multi-material
-  // species mass for each group is also output. Order is: rho,
-  // vf1, … vfn, dvf flag, m1, … mn. Density is at position 8
-  // after the location for plastic strain. Any element material
-  // history variables are written before the Ale variables, and
-  // the six element strains components after these if
-  // ISTRN=1.
-  p->Dict["NUMFLUID"] = p->Fam.GetNextWordAsInt();
+	// NUMFLUID: Total number of ALE fluid groups. Fluid density and
+	// volume fractions output as history variables, and a flag
+	// for the dominant group. If negative multi-material
+	// species mass for each group is also output. Order is: rho,
+	// vf1, … vfn, dvf flag, m1, … mn. Density is at position 8
+	// after the location for plastic strain. Any element material
+	// history variables are written before the Ale variables, and
+	// the six element strains components after these if
+	// ISTRN=1.
+	p->Dict["NUMFLUID"] = p->Fam.GetNextWordAsInt();
 
-  // Compute the derived values in this->P
-  // =========================================== Control Word Section Processing
-  int itmp;
-  vtkIdType iddtmp;
-  char ctmp[128]; // temp space for generating keywords (i.e. isphfg) and attribute names (i.e., StressIntPt3)
+	// Compute the derived values in this->P
+	// =========================================== Control Word Section Processing
+	int itmp;
+	vtkIdType iddtmp;
+	char ctmp[128]; // temp space for generating keywords (i.e. isphfg) and attribute names (i.e., StressIntPt3)
 
-  // --- Initialize some values
-  p->ReadRigidRoadMvmt = 0;
-  p->PreStateSize = 64*p->Fam.GetWordSize();
-  p->StateSize = p->Fam.GetWordSize(); // Account for "time word"
-  p->Dimensionality = p->Dict["NDIM"];
-  switch (p->Dimensionality)
-    {
-  case 2:
-  case 3:
-    p->Dict["MATTYP"] = 0;
-    p->ConnectivityUnpacked = 0;
-    break;
-  case 7:
-    p->ReadRigidRoadMvmt = 1;
-    VTK_FALLTHROUGH;
-  case 5:
-    p->Dict["MATTYP"] = 1;
-    p->ConnectivityUnpacked = 1;
-    p->Dimensionality = 3;
-    break;
-  case 4:
-    p->ConnectivityUnpacked = 1;
-    p->Dict["MATTYP"] = 0;
-    p->Dimensionality = 3;
-    break;
-  default:
-    vtkErrorMacro("Unknown Dimensionality " << p->Dimensionality << " encountered" );
-    p->FileIsValid = 0;
-    return 0;
-    }
+	// --- Initialize some values
+	p->ReadRigidRoadMvmt = 0;
+	p->PreStateSize = 64 * p->Fam.GetWordSize();
+	p->StateSize = p->Fam.GetWordSize(); // Account for "time word"
+	p->Dimensionality = p->Dict["NDIM"];
+	switch (p->Dimensionality)
+	{
+	case 2:
+	case 3:
+		p->Dict["MATTYP"] = 0;
+		p->ConnectivityUnpacked = 0;
+		break;
+	case 7:
+		p->ReadRigidRoadMvmt = 1;
+		VTK_FALLTHROUGH;
+	case 5:
+		p->Dict["MATTYP"] = 1;
+		p->ConnectivityUnpacked = 1;
+		p->Dimensionality = 3;
+		break;
+	case 4:
+		p->ConnectivityUnpacked = 1;
+		p->Dict["MATTYP"] = 0;
+		p->Dimensionality = 3;
+		break;
+	default:
+		vtkErrorMacro("Unknown Dimensionality " << p->Dimensionality << " encountered");
+		p->FileIsValid = 0;
+		return 0;
+	}
 
-  // FIXME Are these marks valid since we are marking the word past the end of the chunk?
-  p->Fam.MarkSectionStart( curAdapt, LSDynaFamily::StaticSection );
-  p->Fam.MarkSectionStart( curAdapt, LSDynaFamily::MaterialTypeData );
-  if ( p->Dict["MATTYP"] != 0 )
-    {
-    p->Fam.BufferChunk( LSDynaFamily::Int, 2 );
-    p->Dict["NUMRBE"] = p->Fam.GetNextWordAsInt();
-    p->Dict["NUMMAT"] = p->Fam.GetNextWordAsInt();
-    }
-  else
-    {
-    p->Dict["NUMRBE"] = 0;
-    p->Dict["NUMMAT"] = 0;
-    }
-  p->NumberOfNodes = p->Dict["NUMNP"];
+	// FIXME Are these marks valid since we are marking the word past the end of the chunk?
+	p->Fam.MarkSectionStart(curAdapt, LSDynaFamily::StaticSection);
+	p->Fam.MarkSectionStart(curAdapt, LSDynaFamily::MaterialTypeData);
+	if (p->Dict["MATTYP"] != 0)
+	{
+		p->Fam.BufferChunk(LSDynaFamily::Int, 2);
+		p->Dict["NUMRBE"] = p->Fam.GetNextWordAsInt();
+		p->Dict["NUMMAT"] = p->Fam.GetNextWordAsInt();
+	}
+	else
+	{
+		p->Dict["NUMRBE"] = 0;
+		p->Dict["NUMMAT"] = 0;
+	}
+	p->NumberOfNodes = p->Dict["NUMNP"];
 
-  p->NumberOfCells[LSDynaMetaData::RIGID_BODY] = p->Dict["NUMRBE"];
-  p->NumberOfCells[LSDynaMetaData::SOLID] = p->Dict["NEL8"];
-  p->NumberOfCells[LSDynaMetaData::THICK_SHELL] = p->Dict["NELT"];
-  p->NumberOfCells[LSDynaMetaData::SHELL] = p->Dict["NEL4"];
-  p->NumberOfCells[LSDynaMetaData::BEAM] = p->Dict["NEL2"];
-  p->NumberOfCells[LSDynaMetaData::PARTICLE] = p->Dict["NMSPH"];
+	p->NumberOfCells[LSDynaMetaData::RIGID_BODY] = p->Dict["NUMRBE"];
+	p->NumberOfCells[LSDynaMetaData::SOLID] = p->Dict["NEL8"];
+	p->NumberOfCells[LSDynaMetaData::THICK_SHELL] = p->Dict["NELT"];
+	p->NumberOfCells[LSDynaMetaData::SHELL] = p->Dict["NEL4"];
+	p->NumberOfCells[LSDynaMetaData::BEAM] = p->Dict["NEL2"];
+	p->NumberOfCells[LSDynaMetaData::PARTICLE] = p->Dict["NMSPH"];
 
-  p->StateSize += p->Dict["NGLBV"]*p->Fam.GetWordSize();
+	p->StateSize += p->Dict["NGLBV"] * p->Fam.GetWordSize();
 
-  if ( p->Dict["IT"] != 0 )
-    {
-    p->AddPointArray( LS_ARRAYNAME_TEMPERATURE, 1, 1 );
-    p->StateSize += p->NumberOfNodes * p->Fam.GetWordSize();
-    }
-  if ( p->Dict["IU"] != 0 )
-    {
-    p->AddPointArray( LS_ARRAYNAME_DEFLECTION, p->Dimensionality, 1 );
-    p->StateSize += p->NumberOfNodes * p->Dimensionality * p->Fam.GetWordSize();
-    }
-  if ( p->Dict["IV"] != 0 )
-    {
-    p->AddPointArray( LS_ARRAYNAME_VELOCITY, p->Dimensionality, 1 );
-    p->StateSize += p->NumberOfNodes * p->Dimensionality * p->Fam.GetWordSize();
-    }
-  if ( p->Dict["IA"] != 0 )
-    {
-    p->AddPointArray( LS_ARRAYNAME_ACCELERATION, p->Dimensionality, 1 );
-    p->StateSize += p->NumberOfNodes * p->Dimensionality * p->Fam.GetWordSize();
-    }
-  p->Dict["cfdPressure"] = 0;
-  p->Dict["cfdVort"] = 0;
-  p->Dict["cfdXVort"] = 0;
-  p->Dict["cfdYVort"] = 0;
-  p->Dict["cfdZVort"] = 0;
-  p->Dict["cfdRVort"] = 0;
-  p->Dict["cfdEnstrophy"] = 0;
-  p->Dict["cfdHelicity"] = 0;
-  p->Dict["cfdStream"] = 0;
-  p->Dict["cfdEnthalpy"] = 0;
-  p->Dict["cfdDensity"] = 0;
-  p->Dict["cfdTurbKE"] = 0;
-  p->Dict["cfdDiss"] = 0;
-  p->Dict["cfdEddyVisc"] = 0;
-  itmp = p->Dict["NCFDV1"];
-  if ( itmp & 2 )
-    {
-    p->AddPointArray( LS_ARRAYNAME_PRESSURE, 1, 1 );
-    p->StateSize += p->NumberOfNodes * p->Fam.GetWordSize();
-    p->Dict["cfdPressure"] = 1;
-    }
-  if ( (itmp & 28) == 28 )
-    {
-    p->AddPointArray( LS_ARRAYNAME_VORTICITY, 3, 1 );
-    p->StateSize += p->NumberOfNodes * 3 * p->Fam.GetWordSize();
-    p->Dict["cfdVort"] = 1;
-    p->Dict["cfdXVort"] = 1;
-    p->Dict["cfdYVort"] = 1;
-    p->Dict["cfdZVort"] = 1;
-    }
-  else
-    { // OK, we don't have all the vector components... maybe we have some of them?
-    if ( itmp & 4 )
-      {
-      p->AddPointArray( LS_ARRAYNAME_VORTICITY "_X", 1, 1 );
-      p->StateSize += p->NumberOfNodes * p->Fam.GetWordSize();
-      p->Dict["cfdXVort"] = 1;
-      }
-    if ( itmp & 8 )
-      {
-      p->AddPointArray( LS_ARRAYNAME_VORTICITY "_Y", 1, 1 );
-      p->StateSize += p->NumberOfNodes * p->Fam.GetWordSize();
-      p->Dict["cfdYVort"] = 1;
-      }
-    if ( itmp & 16 )
-      {
-      p->AddPointArray( LS_ARRAYNAME_VORTICITY "_Z", 1, 1 );
-      p->StateSize += p->NumberOfNodes * p->Fam.GetWordSize();
-      p->Dict["cfdZVort"] = 1;
-      }
-    }
-  if ( itmp & 32 )
-    {
-    p->AddPointArray( LS_ARRAYNAME_RESULTANTVORTICITY, 1, 1 );
-    p->StateSize += p->NumberOfNodes * p->Fam.GetWordSize();
-    p->Dict["cfdRVort"] = 1;
-  if ( itmp & 64 )
-    {
-    p->AddPointArray( LS_ARRAYNAME_ENSTROPHY, 1, 1 );
-    p->StateSize += p->NumberOfNodes * p->Fam.GetWordSize();
-    p->Dict["cfdEnstrophy"] = 1;
-    }
-  if ( itmp & 128 )
-    {
-    p->AddPointArray( LS_ARRAYNAME_HELICITY, 1, 1 );
-    p->StateSize += p->NumberOfNodes * p->Fam.GetWordSize();
-    p->Dict["cfdHelicity"] = 1;
-    }
-  if ( itmp & 256 )
-    {
-    p->AddPointArray( LS_ARRAYNAME_STREAMFUNCTION, 1, 1 );
-    p->StateSize += p->NumberOfNodes * p->Fam.GetWordSize();
-    p->Dict["cfdStream"] = 1;
-    }
-  if ( itmp & 512 )
-    {
-    p->AddPointArray( LS_ARRAYNAME_ENTHALPY, 1, 1 );
-    p->StateSize += p->NumberOfNodes * p->Fam.GetWordSize();
-    p->Dict["cfdEnthalpy"] = 1;
-    }
-  if ( itmp & 1024 )
-    {
-    p->AddPointArray( LS_ARRAYNAME_DENSITY, 1, 1 );
-    p->StateSize += p->NumberOfNodes * p->Fam.GetWordSize();
-    p->Dict["cfdDensity"] = 1;
-    }
-  if ( itmp & 2048 )
-    {
-    p->AddPointArray( LS_ARRAYNAME_TURBULENTKE, 1, 1 );
-    p->StateSize += p->NumberOfNodes * p->Fam.GetWordSize();
-    p->Dict["cfdTurbKE"] = 1;
-    }
-  if ( itmp & 4096 )
-    {
-    p->AddPointArray( LS_ARRAYNAME_DISSIPATION, 1, 1 );
-    p->StateSize += p->NumberOfNodes * p->Fam.GetWordSize();
-    p->Dict["cfdDiss"] = 1;
-    }
-  if ( itmp & 1040384 )
-    {
-    p->AddPointArray( LS_ARRAYNAME_EDDYVISCOSITY, 1, 1 );
-    p->StateSize += p->NumberOfNodes * p->Fam.GetWordSize();
-    p->Dict["cfdEddyVisc"] = 1;
-    }
-    }
+	if (p->Dict["IT"] != 0)
+	{
+		p->AddPointArray(LS_ARRAYNAME_TEMPERATURE, 1, 1);
+		p->StateSize += p->NumberOfNodes * p->Fam.GetWordSize();
+	}
+	if (p->Dict["IU"] != 0)
+	{
+		p->AddPointArray(LS_ARRAYNAME_DEFLECTION, p->Dimensionality, 1);
+		p->StateSize += p->NumberOfNodes * p->Dimensionality * p->Fam.GetWordSize();
+	}
+	if (p->Dict["IV"] != 0)
+	{
+		p->AddPointArray(LS_ARRAYNAME_VELOCITY, p->Dimensionality, 1);
+		p->StateSize += p->NumberOfNodes * p->Dimensionality * p->Fam.GetWordSize();
+	}
+	if (p->Dict["IA"] != 0)
+	{
+		p->AddPointArray(LS_ARRAYNAME_ACCELERATION, p->Dimensionality, 1);
+		p->StateSize += p->NumberOfNodes * p->Dimensionality * p->Fam.GetWordSize();
+	}
+	p->Dict["cfdPressure"] = 0;
+	p->Dict["cfdVort"] = 0;
+	p->Dict["cfdXVort"] = 0;
+	p->Dict["cfdYVort"] = 0;
+	p->Dict["cfdZVort"] = 0;
+	p->Dict["cfdRVort"] = 0;
+	p->Dict["cfdEnstrophy"] = 0;
+	p->Dict["cfdHelicity"] = 0;
+	p->Dict["cfdStream"] = 0;
+	p->Dict["cfdEnthalpy"] = 0;
+	p->Dict["cfdDensity"] = 0;
+	p->Dict["cfdTurbKE"] = 0;
+	p->Dict["cfdDiss"] = 0;
+	p->Dict["cfdEddyVisc"] = 0;
+	itmp = p->Dict["NCFDV1"];
+	if (itmp & 2)
+	{
+		p->AddPointArray(LS_ARRAYNAME_PRESSURE, 1, 1);
+		p->StateSize += p->NumberOfNodes * p->Fam.GetWordSize();
+		p->Dict["cfdPressure"] = 1;
+	}
+	if ((itmp & 28) == 28)
+	{
+		p->AddPointArray(LS_ARRAYNAME_VORTICITY, 3, 1);
+		p->StateSize += p->NumberOfNodes * 3 * p->Fam.GetWordSize();
+		p->Dict["cfdVort"] = 1;
+		p->Dict["cfdXVort"] = 1;
+		p->Dict["cfdYVort"] = 1;
+		p->Dict["cfdZVort"] = 1;
+	}
+	else
+	{ // OK, we don't have all the vector components... maybe we have some of them?
+		if (itmp & 4)
+		{
+			p->AddPointArray(LS_ARRAYNAME_VORTICITY "_X", 1, 1);
+			p->StateSize += p->NumberOfNodes * p->Fam.GetWordSize();
+			p->Dict["cfdXVort"] = 1;
+		}
+		if (itmp & 8)
+		{
+			p->AddPointArray(LS_ARRAYNAME_VORTICITY "_Y", 1, 1);
+			p->StateSize += p->NumberOfNodes * p->Fam.GetWordSize();
+			p->Dict["cfdYVort"] = 1;
+		}
+		if (itmp & 16)
+		{
+			p->AddPointArray(LS_ARRAYNAME_VORTICITY "_Z", 1, 1);
+			p->StateSize += p->NumberOfNodes * p->Fam.GetWordSize();
+			p->Dict["cfdZVort"] = 1;
+		}
+	}
+	if (itmp & 32)
+	{
+		p->AddPointArray(LS_ARRAYNAME_RESULTANTVORTICITY, 1, 1);
+		p->StateSize += p->NumberOfNodes * p->Fam.GetWordSize();
+		p->Dict["cfdRVort"] = 1;
+		if (itmp & 64)
+		{
+			p->AddPointArray(LS_ARRAYNAME_ENSTROPHY, 1, 1);
+			p->StateSize += p->NumberOfNodes * p->Fam.GetWordSize();
+			p->Dict["cfdEnstrophy"] = 1;
+		}
+		if (itmp & 128)
+		{
+			p->AddPointArray(LS_ARRAYNAME_HELICITY, 1, 1);
+			p->StateSize += p->NumberOfNodes * p->Fam.GetWordSize();
+			p->Dict["cfdHelicity"] = 1;
+		}
+		if (itmp & 256)
+		{
+			p->AddPointArray(LS_ARRAYNAME_STREAMFUNCTION, 1, 1);
+			p->StateSize += p->NumberOfNodes * p->Fam.GetWordSize();
+			p->Dict["cfdStream"] = 1;
+		}
+		if (itmp & 512)
+		{
+			p->AddPointArray(LS_ARRAYNAME_ENTHALPY, 1, 1);
+			p->StateSize += p->NumberOfNodes * p->Fam.GetWordSize();
+			p->Dict["cfdEnthalpy"] = 1;
+		}
+		if (itmp & 1024)
+		{
+			p->AddPointArray(LS_ARRAYNAME_DENSITY, 1, 1);
+			p->StateSize += p->NumberOfNodes * p->Fam.GetWordSize();
+			p->Dict["cfdDensity"] = 1;
+		}
+		if (itmp & 2048)
+		{
+			p->AddPointArray(LS_ARRAYNAME_TURBULENTKE, 1, 1);
+			p->StateSize += p->NumberOfNodes * p->Fam.GetWordSize();
+			p->Dict["cfdTurbKE"] = 1;
+		}
+		if (itmp & 4096)
+		{
+			p->AddPointArray(LS_ARRAYNAME_DISSIPATION, 1, 1);
+			p->StateSize += p->NumberOfNodes * p->Fam.GetWordSize();
+			p->Dict["cfdDiss"] = 1;
+		}
+		if (itmp & 1040384)
+		{
+			p->AddPointArray(LS_ARRAYNAME_EDDYVISCOSITY, 1, 1);
+			p->StateSize += p->NumberOfNodes * p->Fam.GetWordSize();
+			p->Dict["cfdEddyVisc"] = 1;
+		}
+	}
 
-  char sname[]=LS_ARRAYNAME_SPECIES_BLNK;
-  iddtmp = p->Dict["NCFDV2"];
-  for ( itmp=1; itmp<11; ++itmp )
-    {
-    if ( iddtmp & (vtkIdType)(1<<itmp) )
-      {
-      sprintf( sname, LS_ARRAYNAME_SPECIES_FMT, itmp );
-      p->AddPointArray( sname, 1, 1 );
-      p->StateSize += p->NumberOfNodes * p->Fam.GetWordSize();
-      sprintf( sname, "cfdSpec%02d", itmp );
-      p->Dict[ sname ] = 1;
-      }
-    else
-      {
-      sprintf( sname, "cfdSpec%02d", itmp );
-      p->Dict[ sname ] = 0;
-      }
-    }
+	char sname[] = LS_ARRAYNAME_SPECIES_BLNK;
+	iddtmp = p->Dict["NCFDV2"];
+	for (itmp = 1; itmp < 11; ++itmp)
+	{
+		if (iddtmp & (vtkIdType)(1 << itmp))
+		{
+			sprintf(sname, LS_ARRAYNAME_SPECIES_FMT, itmp);
+			p->AddPointArray(sname, 1, 1);
+			p->StateSize += p->NumberOfNodes * p->Fam.GetWordSize();
+			sprintf(sname, "cfdSpec%02d", itmp);
+			p->Dict[sname] = 1;
+		}
+		else
+		{
+			sprintf(sname, "cfdSpec%02d", itmp);
+			p->Dict[sname] = 0;
+		}
+	}
 
-  // Solid element state size   FIXME: 7 + NEIPH should really be NV3D (in case things change)
-  p->StateSize += (7+p->Dict["NEIPH"])*p->NumberOfCells[LSDynaMetaData::SOLID]*p->Fam.GetWordSize();
-  // Thick shell state size
-  p->StateSize += p->Dict["NV3DT"]*p->NumberOfCells[LSDynaMetaData::THICK_SHELL]*p->Fam.GetWordSize();
-  // (Thin) shell state size (we remove rigid body shell element state below)
-  p->StateSize += p->Dict["NV2D"]*p->NumberOfCells[LSDynaMetaData::SHELL]*p->Fam.GetWordSize();
-  // Beam state size
-  p->StateSize += p->Dict["NV1D"]*p->NumberOfCells[LSDynaMetaData::BEAM]*p->Fam.GetWordSize();
+	// Solid element state size   FIXME: 7 + NEIPH should really be NV3D (in case things change)
+	p->StateSize += (7 + p->Dict["NEIPH"])*p->NumberOfCells[LSDynaMetaData::SOLID] * p->Fam.GetWordSize();
+	// Thick shell state size
+	p->StateSize += p->Dict["NV3DT"] * p->NumberOfCells[LSDynaMetaData::THICK_SHELL] * p->Fam.GetWordSize();
+	// (Thin) shell state size (we remove rigid body shell element state below)
+	p->StateSize += p->Dict["NV2D"] * p->NumberOfCells[LSDynaMetaData::SHELL] * p->Fam.GetWordSize();
+	// Beam state size
+	p->StateSize += p->Dict["NV1D"] * p->NumberOfCells[LSDynaMetaData::BEAM] * p->Fam.GetWordSize();
 
-  // ================================================ Static Information Section
-  // This is marked above so we can read NUMRBE in time to do StateSize calculations
-  // ================================================ Material Type Data Section
-  // This is marked above so we can read NUMRBE in time to do StateSize calculations
-  if ( p->Dict["MATTYP"] != 0 )
-    {
-    // If there are rigid body elements, they won't have state data and we must
-    // reduce the state size
-    p->StateSize -= p->Dict["NV2D"] * p->NumberOfCells[ LSDynaMetaData::RIGID_BODY ];
+	// ================================================ Static Information Section
+	// This is marked above so we can read NUMRBE in time to do StateSize calculations
+	// ================================================ Material Type Data Section
+	// This is marked above so we can read NUMRBE in time to do StateSize calculations
+	if (p->Dict["MATTYP"] != 0)
+	{
+		// If there are rigid body elements, they won't have state data and we must
+		// reduce the state size
+		p->StateSize -= p->Dict["NV2D"] * p->NumberOfCells[LSDynaMetaData::RIGID_BODY];
 
-    p->Fam.BufferChunk( LSDynaFamily::Int, p->Dict["NUMMAT"] );
-    for ( itmp = 0; itmp < p->Dict["NUMMAT"]; ++itmp )
-      {
-      p->RigidMaterials.insert( p->Fam.GetNextWordAsInt() );
-      }
-    p->PreStateSize += (2 + p->Dict["NUMMAT"])*p->Fam.GetWordSize();
-    }
+		p->Fam.BufferChunk(LSDynaFamily::Int, p->Dict["NUMMAT"]);
+		for (itmp = 0; itmp < p->Dict["NUMMAT"]; ++itmp)
+		{
+			p->RigidMaterials.insert(p->Fam.GetNextWordAsInt());
+		}
+		p->PreStateSize += (2 + p->Dict["NUMMAT"])*p->Fam.GetWordSize();
+	}
 
-  //process the deletion array
-  //save the position we currently have as it is the offset to jump to
-  //when reading deletion
-  p->ElementDeletionOffset = p->StateSize/p->Fam.GetWordSize();
+	//process the deletion array
+	//save the position we currently have as it is the offset to jump to
+	//when reading deletion
+	p->ElementDeletionOffset = p->StateSize / p->Fam.GetWordSize();
 
-  int mdlopt;
-  int intpts2;
-  mdlopt = p->Dict["MAXINT"];//lxq
-  //mdlopt = 3;
-  if ( mdlopt >= 0 && mdlopt <= 10000)
-    {
-    intpts2 = mdlopt;
-    mdlopt = LS_MDLOPT_NONE;
-    }
-  else if ( mdlopt < -10000 )
-    {
-    intpts2 = -mdlopt -10000;
-    mdlopt = LS_MDLOPT_CELL;
+	int mdlopt;
+	int intpts2;
+	mdlopt = p->Dict["MAXINT"];//lxq
+	//mdlopt = 3;
+	if (mdlopt >= 0 && mdlopt <= 10000)
+	{
+		intpts2 = mdlopt;
+		mdlopt = LS_MDLOPT_NONE;
+	}
+	else if (mdlopt < -10000)
+	{
+		intpts2 = -mdlopt - 10000;
+		mdlopt = LS_MDLOPT_CELL;
 
-    // WARNING: This needs NumberOfCells[LSDynaMetaData::RIGID_BODY] set, which relies on NUMRBE
-    p->StateSize += this->GetNumberOfContinuumCells() * p->Fam.GetWordSize();
-    }
-  else if ( mdlopt > 10000)
-    {
-    intpts2 = mdlopt -10000;
-    mdlopt = LS_MDLOPT_CELL;
+		// WARNING: This needs NumberOfCells[LSDynaMetaData::RIGID_BODY] set, which relies on NUMRBE
+		p->StateSize += this->GetNumberOfContinuumCells() * p->Fam.GetWordSize();
+	}
+	else if (mdlopt > 10000)
+	{
+		intpts2 = mdlopt - 10000;
+		mdlopt = LS_MDLOPT_CELL;
 
-    // WARNING: This needs NumberOfCells[LSDynaMetaData::RIGID_BODY] set, which relies on NUMRBE
-    p->StateSize += this->GetNumberOfContinuumCells() * p->Fam.GetWordSize();
-    }
-  else
-    {
-    intpts2 = -mdlopt;
-    mdlopt = LS_MDLOPT_POINT;
-    //p->AddPointArray( LS_ARRAYNAME_DEATH, 1, 1 );
-    p->StateSize += this->GetNumberOfNodes() * p->Fam.GetWordSize();
-    }
-  p->Dict["MDLOPT"] = mdlopt;
-  p->Dict["_MAXINT_"] = intpts2;
-  if ( p->Dict["NV2D"] > 0 )
-    {
-    if ( p->Dict["NV2D"]-(p->Dict["_MAXINT_"]*(6*p->Dict["IOSHL(1)"]+p->Dict["IOSHL(2)"]+p->Dict["NEIPS"])+8*p->Dict["IOSHL(3)"]+4*p->Dict["IOSHL(4)"]) > 1 )
-      {
-      p->Dict["ISTRN"] = 1;
-      }
-    else
-      {
-      p->Dict["ISTRN"] = 0;
-      }
-    }
-  else if ( p->Dict["NELT"] > 0 )
-    {
-    if ( p->Dict["NV3D"] - p->Dict["_MAXINT_"]*(6*p->Dict["IOSHL(1)"]+p->Dict["IOSHL(2)"]+p->Dict["NEIPS"]) > 1 )
-      {
-      p->Dict["ISTRN"] = 1;
-      }
-    else
-      {
-      p->Dict["ISTRN"] = 0;
-      }
-    }
-  else
-    {
-    p->Dict["ISTRN"] = 0;
-    }
+		// WARNING: This needs NumberOfCells[LSDynaMetaData::RIGID_BODY] set, which relies on NUMRBE
+		p->StateSize += this->GetNumberOfContinuumCells() * p->Fam.GetWordSize();
+	}
+	else
+	{
+		intpts2 = -mdlopt;
+		mdlopt = LS_MDLOPT_POINT;
+		//p->AddPointArray( LS_ARRAYNAME_DEATH, 1, 1 );
+		p->StateSize += this->GetNumberOfNodes() * p->Fam.GetWordSize();
+	}
+	p->Dict["MDLOPT"] = mdlopt;
+	p->Dict["_MAXINT_"] = intpts2;
+	if (p->Dict["NV2D"] > 0)
+	{
+		if (p->Dict["NV2D"] - (p->Dict["_MAXINT_"] * (6 * p->Dict["IOSHL(1)"] + p->Dict["IOSHL(2)"] + p->Dict["NEIPS"]) + 8 * p->Dict["IOSHL(3)"] + 4 * p->Dict["IOSHL(4)"]) > 1)
+		{
+			p->Dict["ISTRN"] = 1;
+		}
+		else
+		{
+			p->Dict["ISTRN"] = 0;
+		}
+	}
+	else if (p->Dict["NELT"] > 0)
+	{
+		if (p->Dict["NV3D"] - p->Dict["_MAXINT_"] * (6 * p->Dict["IOSHL(1)"] + p->Dict["IOSHL(2)"] + p->Dict["NEIPS"]) > 1)
+		{
+			p->Dict["ISTRN"] = 1;
+		}
+		else
+		{
+			p->Dict["ISTRN"] = 0;
+		}
+	}
+	else
+	{
+		p->Dict["ISTRN"] = 0;
+	}
 
-// OK, we are done processing the header (control) section.
-
-
-  p->SPHStateOffset = p->StateSize/p->Fam.GetWordSize();
-  // ============================================ Fluid Material ID Data Section
-  // IALEMAT offset
-  p->Fam.MarkSectionStart( curAdapt, LSDynaFamily::FluidMaterialIdData );
-  p->PreStateSize += p->Dict["IALEMAT"];
-  p->Fam.BufferChunk( LSDynaFamily::Int, p->Dict["IALEMAT"] );
-  for ( itmp = 0; itmp < p->Dict["IALEMAT"]; ++itmp )
-    {
-    p->FluidMaterials.insert( p->Fam.GetNextWordAsInt() );
-    }
-  //p->Fam.SkipToWord( LSDynaFamily::FluidMaterialIdData, curAdapt, p->Dict["IALEMAT"] );
-
-  // =======================  Smooth Particle Hydrodynamics Element Data Section
-  // Only when NMSPH > 0
-  p->Fam.MarkSectionStart( curAdapt, LSDynaFamily::SPHElementData );
-  if ( p->NumberOfCells[LSDynaMetaData::PARTICLE] > 0 )
-    {
-    p->Fam.BufferChunk( LSDynaFamily::Int, 1 );
-    vtkIdType sphAttributes = p->Fam.GetNextWordAsInt();
-    p->Dict["isphfg(1)"] = sphAttributes;
-    if ( sphAttributes >= 9 )
-      {
-      p->Fam.BufferChunk( LSDynaFamily::Int, sphAttributes - 1 ); // should be 9 or 10
-      // Dyna docs call statePerParticle "NUM_SPH_DATA":
-      int statePerParticle = 1; // start at 1 because we always have material ID of particle.
-      for ( itmp = 2; itmp <= sphAttributes; ++itmp )
-        {
-        int numComponents = p->Fam.GetNextWordAsInt();
-        sprintf( ctmp, "isphfg(%d)", itmp );
-        p->Dict[ ctmp ] = numComponents;
-        statePerParticle += numComponents;
-        }
-      p->Dict["NUM_SPH_DATA"] = statePerParticle;
-      p->StateSize += statePerParticle * p->NumberOfCells[LSDynaMetaData::PARTICLE] * p->Fam.GetWordSize();
-      }
-    else
-      {
-      p->FileIsValid = 0;
-      return 0;
-      }
-    p->Fam.SkipToWord( LSDynaFamily::SPHElementData, curAdapt, p->Dict["isphfg(1)"] );
-    p->PreStateSize += p->Dict["isphfg(1)"]*p->Fam.GetWordSize();
-    }
-
-  // ===================================================== Geometry Data Section
-  p->Fam.MarkSectionStart( curAdapt, LSDynaFamily::GeometryData );
-  iddtmp = this->GetNumberOfNodes()*p->Dimensionality*p->Fam.GetWordSize(); // Size of nodes on disk
-  iddtmp += p->NumberOfCells[LSDynaMetaData::SOLID]*9*p->Fam.GetWordSize(); // Size of hexes on disk
-  iddtmp += p->NumberOfCells[LSDynaMetaData::THICK_SHELL]*9*p->Fam.GetWordSize(); // Size of thick shells on disk
-  iddtmp += p->NumberOfCells[LSDynaMetaData::SHELL]*5*p->Fam.GetWordSize(); // Size of quads on disk
-  iddtmp += p->NumberOfCells[LSDynaMetaData::BEAM]*6*p->Fam.GetWordSize(); // Size of beams on disk
-  p->PreStateSize += iddtmp;
-  p->Fam.SkipToWord(LSDynaFamily::GeometryData, curAdapt, iddtmp / p->Fam.GetWordSize()/* + 22*/); // Skip to end of geometry lxq
-  //p->StateSize += 22 * 8;
-
-  // =========== User Material, Node, And Element Identification Numbers Section
-  p->Fam.MarkSectionStart( curAdapt, LSDynaFamily::UserIdData );
-  if ( p->Dict["NARBS"] != 0 )
-    {
-    p->Fam.BufferChunk( LSDynaFamily::Int, 10 );
-    p->PreStateSize += 10*p->Fam.GetWordSize();
-    p->Dict["NSORT"] = p->Fam.GetNextWordAsInt();
-    p->Dict["NSRH"] = p->Fam.GetNextWordAsInt();
-    p->Dict["NSRB"] = p->Fam.GetNextWordAsInt();
-    p->Dict["NSRS"] = p->Fam.GetNextWordAsInt();
-    p->Dict["NSRT"] = p->Fam.GetNextWordAsInt();
-    p->Dict["NSORTD"] = p->Fam.GetNextWordAsInt();
-    p->Dict["NSRHD"] = p->Fam.GetNextWordAsInt();
-    p->Dict["NSRBD"] = p->Fam.GetNextWordAsInt();
-    p->Dict["NSRSD"] = p->Fam.GetNextWordAsInt();
-    p->Dict["NSRTD"] = p->Fam.GetNextWordAsInt();
-    //iddtmp = (this->GetNumberOfNodes() + this->GetNumberOfContinuumCells())*p->Fam.GetWordSize();
-    if ( p->Dict["NSORT"] < 0 )
-      {
-      p->Fam.BufferChunk( LSDynaFamily::Int, 6 );
-      p->PreStateSize += 6*p->Fam.GetWordSize();
-      p->Dict["NSRMA"] = p->Fam.GetNextWordAsInt();
-      p->Dict["NSRMU"] = p->Fam.GetNextWordAsInt();
-      p->Dict["NSRMP"] = p->Fam.GetNextWordAsInt();
-      p->Dict["NSRTM"] = p->Fam.GetNextWordAsInt();
-      p->Dict["NUMRBS"] = p->Fam.GetNextWordAsInt();
-      p->Dict["NMMAT"] = p->Fam.GetNextWordAsInt();
-      iddtmp += 3*p->Dict["NMMAT"]*p->Fam.GetWordSize();
-      }
-    // FIXME!!! Why is NARBS larger than 10+NUMNP+NEL8+NEL2+NEL4+NELT?
-    // Obviously, NARBS is definitive, but what are the extra numbers at the end?
-    //iddtmp += (p->Dict["NARBS"]*p->Fam.GetWordSize() - iddtmp - 10*p->Fam.GetWordSize() - (p->Dict["NSORT"]<0 ? 6*p->Fam.GetWordSize() : 0));
-    //p->PreStateSize += iddtmp;
-    p->PreStateSize += p->Dict["NARBS"] * p->Fam.GetWordSize();
-    // should just skip forward iddtmp bytes here, but no easy way to do that with the fam
-    p->Fam.SkipToWord( LSDynaFamily::UserIdData, curAdapt, p->Dict["NARBS"] );
-    }
-  else
-    {
-    p->Dict["NSORT"] = 0;
-    }
-  // Break from convention and read in actual array values (as opposed to just summary information)
-  // about the material IDs. This is required because the reader must present part names after
-  // RequestInformation is called and that cannot be done without a list of material IDs.
-  this->ReadUserMaterialIds();
-
-  // ======================================= Adapted Element Parent List Section
-  p->Fam.MarkSectionStart( curAdapt, LSDynaFamily::AdaptedParentData );
-  p->Fam.SkipToWord( LSDynaFamily::AdaptedParentData, curAdapt, 2*p->Dict["NADAPT"] );
-  iddtmp = 2*p->Dict["NADAPT"]*p->Fam.GetWordSize();
-  p->PreStateSize += iddtmp;
-
-  // ============== Smooth Particle Hydrodynamics Node And Material List Section
-  p->Fam.MarkSectionStart( curAdapt, LSDynaFamily::SPHNodeData );
-  iddtmp = 2*p->NumberOfCells[LSDynaMetaData::PARTICLE]*p->Fam.GetWordSize();
-  p->PreStateSize += iddtmp;
-  p->Fam.SkipToWord( LSDynaFamily::SPHNodeData, curAdapt, 2*p->NumberOfCells[LSDynaMetaData::PARTICLE] );
-
-  // =========================================== Rigid Road Surface Data Section
-  p->Fam.MarkSectionStart( curAdapt, LSDynaFamily::RigidSurfaceData );
-  if ( p->Dict["NDIM"] > 5 )
-    {
-    p->Fam.BufferChunk( LSDynaFamily::Int, 4 );
-    p->PreStateSize += 4*p->Fam.GetWordSize();
-    p->Dict["NNODE"]  = p->Fam.GetNextWordAsInt();
-    p->Dict["NSEG"]   = p->Fam.GetNextWordAsInt();
-    p->Dict["NSURF"]  = p->Fam.GetNextWordAsInt();
-    p->Dict["MOTION"] = p->Fam.GetNextWordAsInt();
-    iddtmp = 4*p->Dict["NNODE"]*p->Fam.GetWordSize();
-    p->PreStateSize += iddtmp;
-    p->Fam.SkipWords( 4*p->Dict["NNODE"] );
-    p->NumberOfCells[LSDynaMetaData::ROAD_SURFACE] = p->Dict["NSEG"];
-
-    for ( itmp = 0; itmp < p->Dict["NSURF"]; ++itmp )
-      {
-      p->Fam.BufferChunk( LSDynaFamily::Int, 2 );
-      p->Fam.GetNextWordAsInt(); // Skip SURFID
-      iddtmp = p->Fam.GetNextWordAsInt(); // Read SURFNSEG[SURFID]
-      p->RigidSurfaceSegmentSizes.push_back( iddtmp );
-      p->PreStateSize += (2 + 4*iddtmp)*p->Fam.GetWordSize();
-      p->Fam.SkipWords( 4*iddtmp );
-      }
-
-    if ( p->Dict["NSEG"] > 0 )
-      {
-      p->AddCellArray( LSDynaMetaData::ROAD_SURFACE, LS_ARRAYNAME_SEGMENTID, 1, 1 );
-      //FIXME: p->AddRoadPointArray( LSDynaMetaData::ROAD_SURFACE, LS_ARRAYNAME_USERID, 1, 1 );
-      }
-
-    if ( p->Dict["MOTION"] )
-      {
-      p->StateSize += 6*p->Dict["NSURF"]*p->Fam.GetWordSize();
-      }
-    }
-
-  //if ( curAdapt == 0 )
-    {
-    p->Fam.MarkSectionStart( curAdapt, LSDynaFamily::EndOfStaticSection );
-    p->Fam.MarkSectionStart( curAdapt, LSDynaFamily::TimeStepSection );
-    }
-  p->Fam.SetStateSize( p->StateSize / p->Fam.GetWordSize() );
+	// OK, we are done processing the header (control) section.
 
 
-  // ==========================================================================
-  // Now that we've read the header, create a list of the cell arrays for
-  // each output mesh.
+	p->SPHStateOffset = p->StateSize / p->Fam.GetWordSize();
+	// ============================================ Fluid Material ID Data Section
+	// IALEMAT offset
+	p->Fam.MarkSectionStart(curAdapt, LSDynaFamily::FluidMaterialIdData);
+	p->PreStateSize += p->Dict["IALEMAT"];
+	p->Fam.BufferChunk(LSDynaFamily::Int, p->Dict["IALEMAT"]);
+	for (itmp = 0; itmp < p->Dict["IALEMAT"]; ++itmp)
+	{
+		p->FluidMaterials.insert(p->Fam.GetNextWordAsInt());
+	}
+	//p->Fam.SkipToWord( LSDynaFamily::FluidMaterialIdData, curAdapt, p->Dict["IALEMAT"] );
 
-  // Currently, the LS-Dyna reader only gives users a few knobs to control which cell variables are loaded.
-  // It is a difficult problem since many attributes only occur on some element types, there are many
-  // dyna flags that conditionally omit results, and some quantities are repeated over differing numbers
-  // of points for different types of cells.
-  // Given the complexity, we punt by defining some knobs for "types" of data and define related fields.
-  // In a perfect world, finer-grained control would be available.
-  //
-  // As an example: if there are any
-  // - 3-D cells, OR
-  // - non-rigid 2-D cells with IOSHL(1)==1, OR
-  // - beam cells with NV1D > 6, OR
-  // - SPH cells with isphfg(4)==6
-  // then there will be stresses present
+	// =======================  Smooth Particle Hydrodynamics Element Data Section
+	// Only when NMSPH > 0
+	p->Fam.MarkSectionStart(curAdapt, LSDynaFamily::SPHElementData);
+	if (p->NumberOfCells[LSDynaMetaData::PARTICLE] > 0)
+	{
+		p->Fam.BufferChunk(LSDynaFamily::Int, 1);
+		vtkIdType sphAttributes = p->Fam.GetNextWordAsInt();
+		p->Dict["isphfg(1)"] = sphAttributes;
+		if (sphAttributes >= 9)
+		{
+			p->Fam.BufferChunk(LSDynaFamily::Int, sphAttributes - 1); // should be 9 or 10
+			// Dyna docs call statePerParticle "NUM_SPH_DATA":
+			int statePerParticle = 1; // start at 1 because we always have material ID of particle.
+			for (itmp = 2; itmp <= sphAttributes; ++itmp)
+			{
+				int numComponents = p->Fam.GetNextWordAsInt();
+				sprintf(ctmp, "isphfg(%d)", itmp);
+				p->Dict[ctmp] = numComponents;
+				statePerParticle += numComponents;
+			}
+			p->Dict["NUM_SPH_DATA"] = statePerParticle;
+			p->StateSize += statePerParticle * p->NumberOfCells[LSDynaMetaData::PARTICLE] * p->Fam.GetWordSize();
+		}
+		else
+		{
+			p->FileIsValid = 0;
+			return 0;
+		}
+		p->Fam.SkipToWord(LSDynaFamily::SPHElementData, curAdapt, p->Dict["isphfg(1)"]);
+		p->PreStateSize += p->Dict["isphfg(1)"] * p->Fam.GetWordSize();
+	}
 
-  // Every cell always has a material type
-  // FIXME: Is this true? Rigid bodies may be an exception, in which
-  // case we need to check that the number of cells in the other 5 meshes sum to >0
+	// ===================================================== Geometry Data Section
+	p->Fam.MarkSectionStart(curAdapt, LSDynaFamily::GeometryData);
+	iddtmp = this->GetNumberOfNodes()*p->Dimensionality*p->Fam.GetWordSize(); // Size of nodes on disk
+	iddtmp += p->NumberOfCells[LSDynaMetaData::SOLID] * 9 * p->Fam.GetWordSize(); // Size of hexes on disk
+	iddtmp += p->NumberOfCells[LSDynaMetaData::THICK_SHELL] * 9 * p->Fam.GetWordSize(); // Size of thick shells on disk
+	iddtmp += p->NumberOfCells[LSDynaMetaData::SHELL] * 5 * p->Fam.GetWordSize(); // Size of quads on disk
+	iddtmp += p->NumberOfCells[LSDynaMetaData::BEAM] * 6 * p->Fam.GetWordSize(); // Size of beams on disk
+	p->PreStateSize += iddtmp;
+	p->Fam.SkipToWord(LSDynaFamily::GeometryData, curAdapt, iddtmp / p->Fam.GetWordSize()/* + 22*/); // Skip to end of geometry lxq
+	//p->StateSize += 22 * 8;
 
-  if ( p->Dict["NARBS"] )
-    {
-    p->AddPointArray( LS_ARRAYNAME_USERID, 1, 1 );
-    }
+	// =========== User Material, Node, And Element Identification Numbers Section
+	p->Fam.MarkSectionStart(curAdapt, LSDynaFamily::UserIdData);
+	if (p->Dict["NARBS"] != 0)
+	{
+		p->Fam.BufferChunk(LSDynaFamily::Int, 10);
+		p->PreStateSize += 10 * p->Fam.GetWordSize();
+		p->Dict["NSORT"] = p->Fam.GetNextWordAsInt();
+		p->Dict["NSRH"] = p->Fam.GetNextWordAsInt();
+		p->Dict["NSRB"] = p->Fam.GetNextWordAsInt();
+		p->Dict["NSRS"] = p->Fam.GetNextWordAsInt();
+		p->Dict["NSRT"] = p->Fam.GetNextWordAsInt();
+		p->Dict["NSORTD"] = p->Fam.GetNextWordAsInt();
+		p->Dict["NSRHD"] = p->Fam.GetNextWordAsInt();
+		p->Dict["NSRBD"] = p->Fam.GetNextWordAsInt();
+		p->Dict["NSRSD"] = p->Fam.GetNextWordAsInt();
+		p->Dict["NSRTD"] = p->Fam.GetNextWordAsInt();
+		//iddtmp = (this->GetNumberOfNodes() + this->GetNumberOfContinuumCells())*p->Fam.GetWordSize();
+		if (p->Dict["NSORT"] < 0)
+		{
+			p->Fam.BufferChunk(LSDynaFamily::Int, 6);
+			p->PreStateSize += 6 * p->Fam.GetWordSize();
+			p->Dict["NSRMA"] = p->Fam.GetNextWordAsInt();
+			p->Dict["NSRMU"] = p->Fam.GetNextWordAsInt();
+			p->Dict["NSRMP"] = p->Fam.GetNextWordAsInt();
+			p->Dict["NSRTM"] = p->Fam.GetNextWordAsInt();
+			p->Dict["NUMRBS"] = p->Fam.GetNextWordAsInt();
+			p->Dict["NMMAT"] = p->Fam.GetNextWordAsInt();
+			iddtmp += 3 * p->Dict["NMMAT"] * p->Fam.GetWordSize();
+		}
+		// FIXME!!! Why is NARBS larger than 10+NUMNP+NEL8+NEL2+NEL4+NELT?
+		// Obviously, NARBS is definitive, but what are the extra numbers at the end?
+		//iddtmp += (p->Dict["NARBS"]*p->Fam.GetWordSize() - iddtmp - 10*p->Fam.GetWordSize() - (p->Dict["NSORT"]<0 ? 6*p->Fam.GetWordSize() : 0));
+		//p->PreStateSize += iddtmp;
+		p->PreStateSize += p->Dict["NARBS"] * p->Fam.GetWordSize();
+		// should just skip forward iddtmp bytes here, but no easy way to do that with the fam
+		p->Fam.SkipToWord(LSDynaFamily::UserIdData, curAdapt, p->Dict["NARBS"]);
+	}
+	else
+	{
+		p->Dict["NSORT"] = 0;
+	}
+	// Break from convention and read in actual array values (as opposed to just summary information)
+	// about the material IDs. This is required because the reader must present part names after
+	// RequestInformation is called and that cannot be done without a list of material IDs.
+	this->ReadUserMaterialIds();
 
-  if ( p->NumberOfCells[ LSDynaMetaData::PARTICLE ] )
-    {
-    //p->AddCellArray( LSDynaMetaData::PARTICLE, LS_ARRAYNAME_MATERIAL, 1, 1 );
-    //p->AddCellArray( LSDynaMetaData::PARTICLE, LS_ARRAYNAME_DEATH, 1, 1 );
-    if ( p->Dict["isphfg(2)"] == 1 )
-      {
-      p->AddCellArray( LSDynaMetaData::PARTICLE, LS_ARRAYNAME_RADIUSOFINFLUENCE, 1, 1 );
-      }
-    if ( p->Dict["isphfg(3)"] == 1 )
-      {
-      p->AddCellArray( LSDynaMetaData::PARTICLE, LS_ARRAYNAME_PRESSURE, 1, 1 );
-      }
-    if ( p->Dict["isphfg(4)"] == 6 )
-      {
-      p->AddCellArray( LSDynaMetaData::PARTICLE, LS_ARRAYNAME_STRESS, 6, 1 );
-      }
-    if ( p->Dict["isphfg(5)"] == 1 )
-      {
-      p->AddCellArray( LSDynaMetaData::PARTICLE, LS_ARRAYNAME_EPSTRAIN, 1, 1 );
-      }
-    if ( p->Dict["isphfg(6)"] == 1 )
-      {
-      p->AddCellArray( LSDynaMetaData::PARTICLE, LS_ARRAYNAME_DENSITY, 1, 1 );
-      }
-    if ( p->Dict["isphfg(7)"] == 1 )
-      {
-      p->AddCellArray( LSDynaMetaData::PARTICLE, LS_ARRAYNAME_INTERNALENERGY, 1, 1 );
-      }
-    if ( p->Dict["isphfg(8)"] == 1 )
-      {
-      p->AddCellArray( LSDynaMetaData::PARTICLE, LS_ARRAYNAME_NUMNEIGHBORS, 1, 1 );
-      }
-    if ( p->Dict["isphfg(9)"] == 6 )
-      {
-      p->AddCellArray( LSDynaMetaData::PARTICLE, LS_ARRAYNAME_STRAIN, 6, 1 );
-      }
-    if ( p->Dict["isphfg(10)"] == 1 )
-      {
-      p->AddCellArray( LSDynaMetaData::PARTICLE, LS_ARRAYNAME_MASS, 1, 1 );
-      }
-    }
+	// ======================================= Adapted Element Parent List Section
+	p->Fam.MarkSectionStart(curAdapt, LSDynaFamily::AdaptedParentData);
+	p->Fam.SkipToWord(LSDynaFamily::AdaptedParentData, curAdapt, 2 * p->Dict["NADAPT"]);
+	iddtmp = 2 * p->Dict["NADAPT"] * p->Fam.GetWordSize();
+	p->PreStateSize += iddtmp;
 
-  if ( p->NumberOfCells[ LSDynaMetaData::BEAM ] )
-    {
-//    p->AddCellArray( LSDynaMetaData::BEAM, LS_ARRAYNAME_MATERIAL, 1, 1 );
-//    if ( p->Dict["MDLOPT"] == LS_MDLOPT_CELL )
-//      {
-//      p->AddCellArray( LSDynaMetaData::BEAM, LS_ARRAYNAME_DEATH, 1, 1 );
-//      }
+	// ============== Smooth Particle Hydrodynamics Node And Material List Section
+	p->Fam.MarkSectionStart(curAdapt, LSDynaFamily::SPHNodeData);
+	iddtmp = 2 * p->NumberOfCells[LSDynaMetaData::PARTICLE] * p->Fam.GetWordSize();
+	p->PreStateSize += iddtmp;
+	p->Fam.SkipToWord(LSDynaFamily::SPHNodeData, curAdapt, 2 * p->NumberOfCells[LSDynaMetaData::PARTICLE]);
 
-    if ( p->Dict["NARBS"] != 0 )
-      {
-      p->AddCellArray( LSDynaMetaData::BEAM, LS_ARRAYNAME_USERID, 1, 1 );
-      }
-    if ( p->Dict["NV1D"] >= 6 )
-      {
-      p->AddCellArray( LSDynaMetaData::BEAM, LS_ARRAYNAME_AXIALFORCE, 1, 1 );
-      p->AddCellArray( LSDynaMetaData::BEAM, LS_ARRAYNAME_SHEARRESULTANT, 2, 1 );
-      p->AddCellArray( LSDynaMetaData::BEAM, LS_ARRAYNAME_BENDINGRESULTANT, 2, 1 );
-      p->AddCellArray( LSDynaMetaData::BEAM, LS_ARRAYNAME_TORSIONRESULTANT, 1, 1 );
-      }
-    if ( p->Dict["NV1D"] > 6 )
-      {
-      p->AddCellArray( LSDynaMetaData::BEAM, LS_ARRAYNAME_SHEARSTRESS, 2, 1 );
-      p->AddCellArray( LSDynaMetaData::BEAM, LS_ARRAYNAME_AXIALSTRESS, 1, 1 );
-      p->AddCellArray( LSDynaMetaData::BEAM, LS_ARRAYNAME_AXIALSTRAIN, 1, 1 );
-      p->AddCellArray( LSDynaMetaData::BEAM, LS_ARRAYNAME_PLASTICSTRAIN, 1, 1 );
-      }
-    }
+	// =========================================== Rigid Road Surface Data Section
+	p->Fam.MarkSectionStart(curAdapt, LSDynaFamily::RigidSurfaceData);
+	if (p->Dict["NDIM"] > 5)
+	{
+		p->Fam.BufferChunk(LSDynaFamily::Int, 4);
+		p->PreStateSize += 4 * p->Fam.GetWordSize();
+		p->Dict["NNODE"] = p->Fam.GetNextWordAsInt();
+		p->Dict["NSEG"] = p->Fam.GetNextWordAsInt();
+		p->Dict["NSURF"] = p->Fam.GetNextWordAsInt();
+		p->Dict["MOTION"] = p->Fam.GetNextWordAsInt();
+		iddtmp = 4 * p->Dict["NNODE"] * p->Fam.GetWordSize();
+		p->PreStateSize += iddtmp;
+		p->Fam.SkipWords(4 * p->Dict["NNODE"]);
+		p->NumberOfCells[LSDynaMetaData::ROAD_SURFACE] = p->Dict["NSEG"];
 
-  if ( p->NumberOfCells[ LSDynaMetaData::SHELL ] )
-    {
-//    p->AddCellArray( LSDynaMetaData::SHELL, LS_ARRAYNAME_MATERIAL, 1, 1 );
-//    if ( p->Dict["MDLOPT"] == LS_MDLOPT_CELL )
-//      {
-//      p->AddCellArray( LSDynaMetaData::SHELL, LS_ARRAYNAME_DEATH, 1, 1 );
-//      }
-    if ( p->Dict["NARBS"] != 0 )
-      {
-      p->AddCellArray( LSDynaMetaData::SHELL, LS_ARRAYNAME_USERID, 1, 1 );
-      }
-    if ( p->Dict["IOSHL(1)"] )
-      {
-      if ( p->Dict["_MAXINT_"] >= 3 )
-        {
-        p->AddCellArray( LSDynaMetaData::SHELL, LS_ARRAYNAME_STRESS, 6, 1 );
-        p->AddCellArray( LSDynaMetaData::SHELL, LS_ARRAYNAME_STRESS "InnerSurf", 6, 1 );
-        p->AddCellArray( LSDynaMetaData::SHELL, LS_ARRAYNAME_STRESS "OuterSurf", 6, 1 );
-        }
-      for ( itmp = 3; itmp < p->Dict["_MAXINT_"]; ++itmp )
-        {
-        sprintf( ctmp, "%sIntPt%d", LS_ARRAYNAME_STRESS, itmp + 1 );
-        p->AddCellArray( LSDynaMetaData::SHELL, ctmp, 6, 1 );
-        }
-      }
-    if ( p->Dict["IOSHL(2)"] )
-      {
-      if ( p->Dict["_MAXINT_"] >= 3 )
-        {
-        p->AddCellArray( LSDynaMetaData::SHELL, LS_ARRAYNAME_EPSTRAIN, 1, 1 );
-        p->AddCellArray( LSDynaMetaData::SHELL, LS_ARRAYNAME_EPSTRAIN "InnerSurf", 1, 1 );
-        p->AddCellArray( LSDynaMetaData::SHELL, LS_ARRAYNAME_EPSTRAIN "OuterSurf", 1, 1 );
-        }
-      for ( itmp = 3; itmp < p->Dict["_MAXINT_"]; ++itmp )
-        {
-        sprintf( ctmp, "%sIntPt%d", LS_ARRAYNAME_EPSTRAIN, itmp + 1 );
-        p->AddCellArray( LSDynaMetaData::SHELL, ctmp, 1, 1 );
-        }
-      }
-    if ( p->Dict["IOSHL(3)"] )
-      {
-      p->AddCellArray( LSDynaMetaData::SHELL, LS_ARRAYNAME_NORMALRESULTANT, 3, 1 );
-      p->AddCellArray( LSDynaMetaData::SHELL, LS_ARRAYNAME_SHEARRESULTANT, 2, 1 );
-      p->AddCellArray( LSDynaMetaData::SHELL, LS_ARRAYNAME_BENDINGRESULTANT, 3, 1 );
-      }
-    if ( p->Dict["IOSHL(4)"] )
-      {
-      p->AddCellArray( LSDynaMetaData::SHELL, LS_ARRAYNAME_THICKNESS, 1, 1 );
-      p->AddCellArray( LSDynaMetaData::SHELL, LS_ARRAYNAME_ELEMENTMISC, 2, 1 );
-      }
-    if ( p->Dict["NEIPS"] )
-      {
-      int neips = p->Dict["NEIPS"];
-      if ( p->Dict["_MAXINT_"] >= 3 )
-        {
-        p->AddCellArray( LSDynaMetaData::SHELL, LS_ARRAYNAME_INTEGRATIONPOINT, neips, 1 );
-        p->AddCellArray( LSDynaMetaData::SHELL, LS_ARRAYNAME_INTEGRATIONPOINT, neips, 1 );
-        p->AddCellArray( LSDynaMetaData::SHELL, LS_ARRAYNAME_INTEGRATIONPOINT "InnerSurf", neips, 1 );
-        p->AddCellArray( LSDynaMetaData::SHELL, LS_ARRAYNAME_INTEGRATIONPOINT "OuterSurf", neips, 1 );
-        }
-      for ( itmp = 3; itmp < p->Dict["_MAXINT_"]; ++itmp )
-        {
-        sprintf( ctmp, "%sIntPt%d", LS_ARRAYNAME_INTEGRATIONPOINT, itmp + 1 );
-        p->AddCellArray( LSDynaMetaData::SHELL, ctmp, 6, 1 );
-        }
-      }
-    if ( p->Dict["ISTRN"] )
-      {
-        p->AddCellArray( LSDynaMetaData::SHELL, LS_ARRAYNAME_STRAIN "InnerSurf", 6, 1 );
-        p->AddCellArray( LSDynaMetaData::SHELL, LS_ARRAYNAME_STRAIN "OuterSurf", 6, 1 );
-      }
-    if ( ! p->Dict["ISTRN"] || (p->Dict["ISTRN"] && p->Dict["NV2D"] >= 45) )
-      {
-        p->AddCellArray( LSDynaMetaData::SHELL, LS_ARRAYNAME_INTERNALENERGY, 1, 1 );
-      }
-    }
+		for (itmp = 0; itmp < p->Dict["NSURF"]; ++itmp)
+		{
+			p->Fam.BufferChunk(LSDynaFamily::Int, 2);
+			p->Fam.GetNextWordAsInt(); // Skip SURFID
+			iddtmp = p->Fam.GetNextWordAsInt(); // Read SURFNSEG[SURFID]
+			p->RigidSurfaceSegmentSizes.push_back(iddtmp);
+			p->PreStateSize += (2 + 4 * iddtmp)*p->Fam.GetWordSize();
+			p->Fam.SkipWords(4 * iddtmp);
+		}
 
-  if ( p->NumberOfCells[ LSDynaMetaData::THICK_SHELL ] )
-    {
-//    p->AddCellArray( LSDynaMetaData::THICK_SHELL, LS_ARRAYNAME_MATERIAL, 1, 1 );
-//    if ( p->Dict["MDLOPT"] == LS_MDLOPT_CELL )
-//      {
-//      p->AddCellArray( LSDynaMetaData::THICK_SHELL, LS_ARRAYNAME_DEATH, 1, 1 );
-//      }
-    if ( p->Dict["NARBS"] != 0 )
-      {
-      p->AddCellArray( LSDynaMetaData::THICK_SHELL, LS_ARRAYNAME_USERID, 1, 1 );
-      }
-    if ( p->Dict["IOSHL(1)"] )
-      {
-      if ( p->Dict["_MAXINT_"] >= 3 )
-        {
-        p->AddCellArray( LSDynaMetaData::THICK_SHELL, LS_ARRAYNAME_STRESS, 6, 1 );
-        p->AddCellArray( LSDynaMetaData::THICK_SHELL, LS_ARRAYNAME_STRESS "InnerSurf", 6, 1 );
-        p->AddCellArray( LSDynaMetaData::THICK_SHELL, LS_ARRAYNAME_STRESS "OuterSurf", 6, 1 );
-        }
-      for ( itmp = 3; itmp < p->Dict["_MAXINT_"]; ++itmp )
-        {
-        sprintf( ctmp, "%sIntPt%d", LS_ARRAYNAME_STRESS, itmp + 1 );
-        p->AddCellArray( LSDynaMetaData::THICK_SHELL, ctmp, 6, 1 );
-        }
-      }
-    if ( p->Dict["IOSHL(2)"] )
-      {
-      if ( p->Dict["_MAXINT_"] >= 3 )
-        {
-        p->AddCellArray( LSDynaMetaData::THICK_SHELL, LS_ARRAYNAME_EPSTRAIN, 1, 1 );
-        p->AddCellArray( LSDynaMetaData::THICK_SHELL, LS_ARRAYNAME_EPSTRAIN "InnerSurf", 1, 1 );
-        p->AddCellArray( LSDynaMetaData::THICK_SHELL, LS_ARRAYNAME_EPSTRAIN "OuterSurf", 1, 1 );
-        }
-      for ( itmp = 3; itmp < p->Dict["_MAXINT_"]; ++itmp )
-        {
-        sprintf( ctmp, "%sIntPt%d", LS_ARRAYNAME_EPSTRAIN, itmp + 1 );
-        p->AddCellArray( LSDynaMetaData::THICK_SHELL, ctmp, 1, 1 );
-        }
-      }
-    if ( p->Dict["NEIPS"] )
-      {
-      int neips = p->Dict["NEIPS"];
-      if ( p->Dict["_MAXINT_"] >= 3 )
-        {
-        p->AddCellArray( LSDynaMetaData::THICK_SHELL, LS_ARRAYNAME_INTEGRATIONPOINT, neips, 1 );
-        p->AddCellArray( LSDynaMetaData::THICK_SHELL, LS_ARRAYNAME_INTEGRATIONPOINT, neips, 1 );
-        p->AddCellArray( LSDynaMetaData::THICK_SHELL, LS_ARRAYNAME_INTEGRATIONPOINT "InnerSurf", neips, 1 );
-        p->AddCellArray( LSDynaMetaData::THICK_SHELL, LS_ARRAYNAME_INTEGRATIONPOINT "OuterSurf", neips, 1 );
-        }
-      for ( itmp = 3; itmp < p->Dict["_MAXINT_"]; ++itmp )
-        {
-        sprintf( ctmp, "%sIntPt%d", LS_ARRAYNAME_INTEGRATIONPOINT, itmp + 1 );
-        p->AddCellArray( LSDynaMetaData::THICK_SHELL, ctmp, 6, 1 );
-        }
-      }
-    if ( p->Dict["ISTRN"] )
-      {
-        p->AddCellArray( LSDynaMetaData::THICK_SHELL, LS_ARRAYNAME_STRAIN "InnerSurf", 6, 1 );
-        p->AddCellArray( LSDynaMetaData::THICK_SHELL, LS_ARRAYNAME_STRAIN "OuterSurf", 6, 1 );
-      }
-    }
+		if (p->Dict["NSEG"] > 0)
+		{
+			p->AddCellArray(LSDynaMetaData::ROAD_SURFACE, LS_ARRAYNAME_SEGMENTID, 1, 1);
+			//FIXME: p->AddRoadPointArray( LSDynaMetaData::ROAD_SURFACE, LS_ARRAYNAME_USERID, 1, 1 );
+		}
 
-  if ( p->NumberOfCells[ LSDynaMetaData::SOLID ] )
-    {
-//    p->AddCellArray( LSDynaMetaData::SOLID, LS_ARRAYNAME_MATERIAL, 1, 1 );
-//    if ( p->Dict["MDLOPT"] == LS_MDLOPT_CELL )
-//      {
-//      p->AddCellArray( LSDynaMetaData::SOLID, LS_ARRAYNAME_DEATH, 1, 1 );
-//      }
-    if ( p->Dict["NARBS"] != 0 )
-      {
-      p->AddCellArray( LSDynaMetaData::SOLID, LS_ARRAYNAME_USERID, 1, 1 );
-      }
-    p->AddCellArray( LSDynaMetaData::SOLID, LS_ARRAYNAME_STRESS, 6, 1 );
-    p->AddCellArray( LSDynaMetaData::SOLID, LS_ARRAYNAME_EPSTRAIN, 1, 1 );
+		if (p->Dict["MOTION"])
+		{
+			p->StateSize += 6 * p->Dict["NSURF"] * p->Fam.GetWordSize();
+		}
+	}
 
-    int extraValues = p->Dict["NEIPH"];
-    if ( p->Dict["ISTRN"] )
-      {
-      extraValues -= 6; // last six values are strain.
-      }
-    assert(extraValues >= 0);
-    if ( std::abs(static_cast<int>(p->Dict["NUMFLUID"])) > 0 )
-      {
-      // Total number of ALE fluid groups. Fluid density and
-      // volume fractions output as history variables, and a flag
-      // for the dominant group. If negative multi-material
-      // species mass for each group is also output. Order is: rho,
-      // vf1, … vfn, dvf flag, m1, … mn. Density is at position 8
-      // after the location for plastic strain. Any element material
-      // history variables are written before the Ale variables, and
-      // the six element strains components after these if
-      // ISTRN=1.
-      vtkIdType numGroups = std::abs(static_cast<int>(p->Dict["NUMFLUID"]));
-      bool hasMass = (p->Dict["NUMFLUID"] < 0);
-      assert(extraValues >= (1 + numGroups + 1 + (hasMass? numGroups : 0)));
-      p->AddCellArray( LSDynaMetaData::SOLID, LS_ARRAYNAME_DENSITY, 1, 1 );
-      extraValues--;
+	//if ( curAdapt == 0 )
+	{
+		p->Fam.MarkSectionStart(curAdapt, LSDynaFamily::EndOfStaticSection);
+		p->Fam.MarkSectionStart(curAdapt, LSDynaFamily::TimeStepSection);
+	}
+	p->Fam.SetStateSize(p->StateSize / p->Fam.GetWordSize());
 
-      for (vtkIdType g=0; g < numGroups; ++g)
-        {
-        sprintf( ctmp, LS_ARRAYNAME_VOLUME_FRACTION_FMT, static_cast<int>(g+1) );
-        p->AddCellArray( LSDynaMetaData::SOLID, ctmp, 1, 1 );
-        extraValues--;
-        }
 
-      p->AddCellArray( LSDynaMetaData::SOLID, LS_ARRAYNAME_DOMINANT_GROUP, 1, 1 );
-      extraValues--;
+	// ==========================================================================
+	// Now that we've read the header, create a list of the cell arrays for
+	// each output mesh.
 
-      for (vtkIdType g=0; hasMass && (g < numGroups); ++g)
-        {
-        sprintf( ctmp, LS_ARRAYNAME_SPECIES_MASS_FMT, static_cast<int>(g+1) );
-        p->AddCellArray( LSDynaMetaData::SOLID, ctmp, 1, 1 );
-        extraValues--;
-        }
-      }
-    assert(extraValues >= 0);
-    if (extraValues > 0)
-      {
-      // I am not sure if this is correct, but let's assume so, so that what
-      // every we were doing before we added support for ALE continues to work.
-      p->AddCellArray( LSDynaMetaData::SOLID, LS_ARRAYNAME_INTEGRATIONPOINT, extraValues, 1 );
-      }
-    if ( p->Dict["ISTRN"] )
-      {
-      p->AddCellArray( LSDynaMetaData::SOLID, LS_ARRAYNAME_STRAIN, 6, 1 );
-      }
-    }
+	// Currently, the LS-Dyna reader only gives users a few knobs to control which cell variables are loaded.
+	// It is a difficult problem since many attributes only occur on some element types, there are many
+	// dyna flags that conditionally omit results, and some quantities are repeated over differing numbers
+	// of points for different types of cells.
+	// Given the complexity, we punt by defining some knobs for "types" of data and define related fields.
+	// In a perfect world, finer-grained control would be available.
+	//
+	// As an example: if there are any
+	// - 3-D cells, OR
+	// - non-rigid 2-D cells with IOSHL(1)==1, OR
+	// - beam cells with NV1D > 6, OR
+	// - SPH cells with isphfg(4)==6
+	// then there will be stresses present
 
-  // Only try reading the keyword file if we don't have part names.
-  if ( curAdapt == 0 && p->PartNames.size() == 0 )
-    {
-    this->ResetPartInfo();
+	// Every cell always has a material type
+	// FIXME: Is this true? Rigid bodies may be an exception, in which
+	// case we need to check that the number of cells in the other 5 meshes sum to >0
 
-    int result = this->ReadInputDeck();
+	if (p->Dict["NARBS"])
+	{
+		p->AddPointArray(LS_ARRAYNAME_USERID, 1, 1);
+	}
 
-    if (result == 0)
-      {
-      //we failed to read the input deck so we are going to read the first binary file for part names
-      this->ReadPartTitlesFromRootFile();
-      }
-    }
+	if (p->NumberOfCells[LSDynaMetaData::PARTICLE])
+	{
+		//p->AddCellArray( LSDynaMetaData::PARTICLE, LS_ARRAYNAME_MATERIAL, 1, 1 );
+		//p->AddCellArray( LSDynaMetaData::PARTICLE, LS_ARRAYNAME_DEATH, 1, 1 );
+		if (p->Dict["isphfg(2)"] == 1)
+		{
+			p->AddCellArray(LSDynaMetaData::PARTICLE, LS_ARRAYNAME_RADIUSOFINFLUENCE, 1, 1);
+		}
+		if (p->Dict["isphfg(3)"] == 1)
+		{
+			p->AddCellArray(LSDynaMetaData::PARTICLE, LS_ARRAYNAME_PRESSURE, 1, 1);
+		}
+		if (p->Dict["isphfg(4)"] == 6)
+		{
+			p->AddCellArray(LSDynaMetaData::PARTICLE, LS_ARRAYNAME_STRESS, 6, 1);
+		}
+		if (p->Dict["isphfg(5)"] == 1)
+		{
+			p->AddCellArray(LSDynaMetaData::PARTICLE, LS_ARRAYNAME_EPSTRAIN, 1, 1);
+		}
+		if (p->Dict["isphfg(6)"] == 1)
+		{
+			p->AddCellArray(LSDynaMetaData::PARTICLE, LS_ARRAYNAME_DENSITY, 1, 1);
+		}
+		if (p->Dict["isphfg(7)"] == 1)
+		{
+			p->AddCellArray(LSDynaMetaData::PARTICLE, LS_ARRAYNAME_INTERNALENERGY, 1, 1);
+		}
+		if (p->Dict["isphfg(8)"] == 1)
+		{
+			p->AddCellArray(LSDynaMetaData::PARTICLE, LS_ARRAYNAME_NUMNEIGHBORS, 1, 1);
+		}
+		if (p->Dict["isphfg(9)"] == 6)
+		{
+			p->AddCellArray(LSDynaMetaData::PARTICLE, LS_ARRAYNAME_STRAIN, 6, 1);
+		}
+		if (p->Dict["isphfg(10)"] == 1)
+		{
+			p->AddCellArray(LSDynaMetaData::PARTICLE, LS_ARRAYNAME_MASS, 1, 1);
+		}
+	}
 
-  return -1;
+	if (p->NumberOfCells[LSDynaMetaData::BEAM])
+	{
+		//    p->AddCellArray( LSDynaMetaData::BEAM, LS_ARRAYNAME_MATERIAL, 1, 1 );
+		//    if ( p->Dict["MDLOPT"] == LS_MDLOPT_CELL )
+		//      {
+		//      p->AddCellArray( LSDynaMetaData::BEAM, LS_ARRAYNAME_DEATH, 1, 1 );
+		//      }
+
+		if (p->Dict["NARBS"] != 0)
+		{
+			p->AddCellArray(LSDynaMetaData::BEAM, LS_ARRAYNAME_USERID, 1, 1);
+		}
+		if (p->Dict["NV1D"] >= 6)
+		{
+			p->AddCellArray(LSDynaMetaData::BEAM, LS_ARRAYNAME_AXIALFORCE, 1, 1);
+			p->AddCellArray(LSDynaMetaData::BEAM, LS_ARRAYNAME_SHEARRESULTANT, 2, 1);
+			p->AddCellArray(LSDynaMetaData::BEAM, LS_ARRAYNAME_BENDINGRESULTANT, 2, 1);
+			p->AddCellArray(LSDynaMetaData::BEAM, LS_ARRAYNAME_TORSIONRESULTANT, 1, 1);
+		}
+		if (p->Dict["NV1D"] > 6)
+		{
+			p->AddCellArray(LSDynaMetaData::BEAM, LS_ARRAYNAME_SHEARSTRESS, 2, 1);
+			p->AddCellArray(LSDynaMetaData::BEAM, LS_ARRAYNAME_AXIALSTRESS, 1, 1);
+			p->AddCellArray(LSDynaMetaData::BEAM, LS_ARRAYNAME_AXIALSTRAIN, 1, 1);
+			p->AddCellArray(LSDynaMetaData::BEAM, LS_ARRAYNAME_PLASTICSTRAIN, 1, 1);
+		}
+	}
+
+	if (p->NumberOfCells[LSDynaMetaData::SHELL])
+	{
+		//    p->AddCellArray( LSDynaMetaData::SHELL, LS_ARRAYNAME_MATERIAL, 1, 1 );
+		//    if ( p->Dict["MDLOPT"] == LS_MDLOPT_CELL )
+		//      {
+		//      p->AddCellArray( LSDynaMetaData::SHELL, LS_ARRAYNAME_DEATH, 1, 1 );
+		//      }
+		if (p->Dict["NARBS"] != 0)
+		{
+			p->AddCellArray(LSDynaMetaData::SHELL, LS_ARRAYNAME_USERID, 1, 1);
+		}
+		if (p->Dict["IOSHL(1)"])
+		{
+			if (p->Dict["_MAXINT_"] >= 3)
+			{
+				p->AddCellArray(LSDynaMetaData::SHELL, LS_ARRAYNAME_STRESS, 6, 1);
+				p->AddCellArray(LSDynaMetaData::SHELL, LS_ARRAYNAME_STRESS "InnerSurf", 6, 1);
+				p->AddCellArray(LSDynaMetaData::SHELL, LS_ARRAYNAME_STRESS "OuterSurf", 6, 1);
+			}
+			for (itmp = 3; itmp < p->Dict["_MAXINT_"]; ++itmp)
+			{
+				sprintf(ctmp, "%sIntPt%d", LS_ARRAYNAME_STRESS, itmp + 1);
+				p->AddCellArray(LSDynaMetaData::SHELL, ctmp, 6, 1);
+			}
+		}
+		if (p->Dict["IOSHL(2)"])
+		{
+			if (p->Dict["_MAXINT_"] >= 3)
+			{
+				p->AddCellArray(LSDynaMetaData::SHELL, LS_ARRAYNAME_EPSTRAIN, 1, 1);
+				p->AddCellArray(LSDynaMetaData::SHELL, LS_ARRAYNAME_EPSTRAIN "InnerSurf", 1, 1);
+				p->AddCellArray(LSDynaMetaData::SHELL, LS_ARRAYNAME_EPSTRAIN "OuterSurf", 1, 1);
+			}
+			for (itmp = 3; itmp < p->Dict["_MAXINT_"]; ++itmp)
+			{
+				sprintf(ctmp, "%sIntPt%d", LS_ARRAYNAME_EPSTRAIN, itmp + 1);
+				p->AddCellArray(LSDynaMetaData::SHELL, ctmp, 1, 1);
+			}
+		}
+		if (p->Dict["IOSHL(3)"])
+		{
+			p->AddCellArray(LSDynaMetaData::SHELL, LS_ARRAYNAME_NORMALRESULTANT, 3, 1);
+			p->AddCellArray(LSDynaMetaData::SHELL, LS_ARRAYNAME_SHEARRESULTANT, 2, 1);
+			p->AddCellArray(LSDynaMetaData::SHELL, LS_ARRAYNAME_BENDINGRESULTANT, 3, 1);
+		}
+		if (p->Dict["IOSHL(4)"])
+		{
+			p->AddCellArray(LSDynaMetaData::SHELL, LS_ARRAYNAME_THICKNESS, 1, 1);
+			p->AddCellArray(LSDynaMetaData::SHELL, LS_ARRAYNAME_ELEMENTMISC, 2, 1);
+		}
+		if (p->Dict["NEIPS"])
+		{
+			int neips = p->Dict["NEIPS"];
+			if (p->Dict["_MAXINT_"] >= 3)
+			{
+				p->AddCellArray(LSDynaMetaData::SHELL, LS_ARRAYNAME_INTEGRATIONPOINT, neips, 1);
+				p->AddCellArray(LSDynaMetaData::SHELL, LS_ARRAYNAME_INTEGRATIONPOINT, neips, 1);
+				p->AddCellArray(LSDynaMetaData::SHELL, LS_ARRAYNAME_INTEGRATIONPOINT "InnerSurf", neips, 1);
+				p->AddCellArray(LSDynaMetaData::SHELL, LS_ARRAYNAME_INTEGRATIONPOINT "OuterSurf", neips, 1);
+			}
+			for (itmp = 3; itmp < p->Dict["_MAXINT_"]; ++itmp)
+			{
+				sprintf(ctmp, "%sIntPt%d", LS_ARRAYNAME_INTEGRATIONPOINT, itmp + 1);
+				p->AddCellArray(LSDynaMetaData::SHELL, ctmp, 6, 1);
+			}
+		}
+		if (p->Dict["ISTRN"])
+		{
+			p->AddCellArray(LSDynaMetaData::SHELL, LS_ARRAYNAME_STRAIN "InnerSurf", 6, 1);
+			p->AddCellArray(LSDynaMetaData::SHELL, LS_ARRAYNAME_STRAIN "OuterSurf", 6, 1);
+		}
+		if (!p->Dict["ISTRN"] || (p->Dict["ISTRN"] && p->Dict["NV2D"] >= 45))
+		{
+			p->AddCellArray(LSDynaMetaData::SHELL, LS_ARRAYNAME_INTERNALENERGY, 1, 1);
+		}
+	}
+
+	if (p->NumberOfCells[LSDynaMetaData::THICK_SHELL])
+	{
+		//    p->AddCellArray( LSDynaMetaData::THICK_SHELL, LS_ARRAYNAME_MATERIAL, 1, 1 );
+		//    if ( p->Dict["MDLOPT"] == LS_MDLOPT_CELL )
+		//      {
+		//      p->AddCellArray( LSDynaMetaData::THICK_SHELL, LS_ARRAYNAME_DEATH, 1, 1 );
+		//      }
+		if (p->Dict["NARBS"] != 0)
+		{
+			p->AddCellArray(LSDynaMetaData::THICK_SHELL, LS_ARRAYNAME_USERID, 1, 1);
+		}
+		if (p->Dict["IOSHL(1)"])
+		{
+			if (p->Dict["_MAXINT_"] >= 3)
+			{
+				p->AddCellArray(LSDynaMetaData::THICK_SHELL, LS_ARRAYNAME_STRESS, 6, 1);
+				p->AddCellArray(LSDynaMetaData::THICK_SHELL, LS_ARRAYNAME_STRESS "InnerSurf", 6, 1);
+				p->AddCellArray(LSDynaMetaData::THICK_SHELL, LS_ARRAYNAME_STRESS "OuterSurf", 6, 1);
+			}
+			for (itmp = 3; itmp < p->Dict["_MAXINT_"]; ++itmp)
+			{
+				sprintf(ctmp, "%sIntPt%d", LS_ARRAYNAME_STRESS, itmp + 1);
+				p->AddCellArray(LSDynaMetaData::THICK_SHELL, ctmp, 6, 1);
+			}
+		}
+		if (p->Dict["IOSHL(2)"])
+		{
+			if (p->Dict["_MAXINT_"] >= 3)
+			{
+				p->AddCellArray(LSDynaMetaData::THICK_SHELL, LS_ARRAYNAME_EPSTRAIN, 1, 1);
+				p->AddCellArray(LSDynaMetaData::THICK_SHELL, LS_ARRAYNAME_EPSTRAIN "InnerSurf", 1, 1);
+				p->AddCellArray(LSDynaMetaData::THICK_SHELL, LS_ARRAYNAME_EPSTRAIN "OuterSurf", 1, 1);
+			}
+			for (itmp = 3; itmp < p->Dict["_MAXINT_"]; ++itmp)
+			{
+				sprintf(ctmp, "%sIntPt%d", LS_ARRAYNAME_EPSTRAIN, itmp + 1);
+				p->AddCellArray(LSDynaMetaData::THICK_SHELL, ctmp, 1, 1);
+			}
+		}
+		if (p->Dict["NEIPS"])
+		{
+			int neips = p->Dict["NEIPS"];
+			if (p->Dict["_MAXINT_"] >= 3)
+			{
+				p->AddCellArray(LSDynaMetaData::THICK_SHELL, LS_ARRAYNAME_INTEGRATIONPOINT, neips, 1);
+				p->AddCellArray(LSDynaMetaData::THICK_SHELL, LS_ARRAYNAME_INTEGRATIONPOINT, neips, 1);
+				p->AddCellArray(LSDynaMetaData::THICK_SHELL, LS_ARRAYNAME_INTEGRATIONPOINT "InnerSurf", neips, 1);
+				p->AddCellArray(LSDynaMetaData::THICK_SHELL, LS_ARRAYNAME_INTEGRATIONPOINT "OuterSurf", neips, 1);
+			}
+			for (itmp = 3; itmp < p->Dict["_MAXINT_"]; ++itmp)
+			{
+				sprintf(ctmp, "%sIntPt%d", LS_ARRAYNAME_INTEGRATIONPOINT, itmp + 1);
+				p->AddCellArray(LSDynaMetaData::THICK_SHELL, ctmp, 6, 1);
+			}
+		}
+		if (p->Dict["ISTRN"])
+		{
+			p->AddCellArray(LSDynaMetaData::THICK_SHELL, LS_ARRAYNAME_STRAIN "InnerSurf", 6, 1);
+			p->AddCellArray(LSDynaMetaData::THICK_SHELL, LS_ARRAYNAME_STRAIN "OuterSurf", 6, 1);
+		}
+	}
+
+	if (p->NumberOfCells[LSDynaMetaData::SOLID])
+	{
+		//    p->AddCellArray( LSDynaMetaData::SOLID, LS_ARRAYNAME_MATERIAL, 1, 1 );
+		//    if ( p->Dict["MDLOPT"] == LS_MDLOPT_CELL )
+		//      {
+		//      p->AddCellArray( LSDynaMetaData::SOLID, LS_ARRAYNAME_DEATH, 1, 1 );
+		//      }
+		if (p->Dict["NARBS"] != 0)
+		{
+			p->AddCellArray(LSDynaMetaData::SOLID, LS_ARRAYNAME_USERID, 1, 1);
+		}
+		p->AddCellArray(LSDynaMetaData::SOLID, LS_ARRAYNAME_STRESS, 6, 1);
+		p->AddCellArray(LSDynaMetaData::SOLID, LS_ARRAYNAME_EPSTRAIN, 1, 1);
+
+		int extraValues = p->Dict["NEIPH"];
+		if (p->Dict["ISTRN"])
+		{
+			extraValues -= 6; // last six values are strain.
+		}
+		assert(extraValues >= 0);
+		if (std::abs(static_cast<int>(p->Dict["NUMFLUID"])) > 0)
+		{
+			// Total number of ALE fluid groups. Fluid density and
+			// volume fractions output as history variables, and a flag
+			// for the dominant group. If negative multi-material
+			// species mass for each group is also output. Order is: rho,
+			// vf1, … vfn, dvf flag, m1, … mn. Density is at position 8
+			// after the location for plastic strain. Any element material
+			// history variables are written before the Ale variables, and
+			// the six element strains components after these if
+			// ISTRN=1.
+			vtkIdType numGroups = std::abs(static_cast<int>(p->Dict["NUMFLUID"]));
+			bool hasMass = (p->Dict["NUMFLUID"] < 0);
+			assert(extraValues >= (1 + numGroups + 1 + (hasMass ? numGroups : 0)));
+			p->AddCellArray(LSDynaMetaData::SOLID, LS_ARRAYNAME_DENSITY, 1, 1);
+			extraValues--;
+
+			for (vtkIdType g = 0; g < numGroups; ++g)
+			{
+				sprintf(ctmp, LS_ARRAYNAME_VOLUME_FRACTION_FMT, static_cast<int>(g + 1));
+				p->AddCellArray(LSDynaMetaData::SOLID, ctmp, 1, 1);
+				extraValues--;
+			}
+
+			p->AddCellArray(LSDynaMetaData::SOLID, LS_ARRAYNAME_DOMINANT_GROUP, 1, 1);
+			extraValues--;
+
+			for (vtkIdType g = 0; hasMass && (g < numGroups); ++g)
+			{
+				sprintf(ctmp, LS_ARRAYNAME_SPECIES_MASS_FMT, static_cast<int>(g + 1));
+				p->AddCellArray(LSDynaMetaData::SOLID, ctmp, 1, 1);
+				extraValues--;
+			}
+		}
+		assert(extraValues >= 0);
+		if (extraValues > 0)
+		{
+			// I am not sure if this is correct, but let's assume so, so that what
+			// every we were doing before we added support for ALE continues to work.
+			p->AddCellArray(LSDynaMetaData::SOLID, LS_ARRAYNAME_INTEGRATIONPOINT, extraValues, 1);
+		}
+		if (p->Dict["ISTRN"])
+		{
+			p->AddCellArray(LSDynaMetaData::SOLID, LS_ARRAYNAME_STRAIN, 6, 1);
+		}
+	}
+
+	// Only try reading the keyword file if we don't have part names.
+	if (curAdapt == 0 && p->PartNames.size() == 0)
+	{
+		this->ResetPartInfo();
+
+		int result = this->ReadInputDeck();
+
+		if (result == 0)
+		{
+			//we failed to read the input deck so we are going to read the first binary file for part names
+			this->ReadPartTitlesFromRootFile();
+		}
+	}
+
+	return -1;
 }
 
 int vtkLSDynaReader::ScanDatabaseTimeSteps()
