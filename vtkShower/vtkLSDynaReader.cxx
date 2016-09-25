@@ -53,6 +53,7 @@
 #include <algorithm>
 #include <map>
 #include <cassert>
+#include <sstream>
 
 #include "vtkCellType.h"
 #include "vtkDataObject.h"
@@ -128,6 +129,10 @@ vtkStandardNewMacro(vtkLSDynaReader);
 #define LS_ARRAYNAME_DOMINANT_GROUP     "DominantGroup"
 #define LS_ARRAYNAME_SPECIES_MASS_FMT   "SpeciesMass%02d"
 
+//extraData
+#define LS_ARRAYNAME_EM_FEMSTER_SOLID_CENTROID  "EMSolidCentroid"
+#define LS_ARRAYNAME_EM_FEMSTER_SOLID_INTEG_PTS  "EMsolidInteg.Pts"
+
 // Possible material  options
 #define LS_MDLOPT_NONE 0
 #define LS_MDLOPT_POINT 1
@@ -136,6 +141,62 @@ vtkStandardNewMacro(vtkLSDynaReader);
 #ifdef VTK_LSDYNA_DBG_MULTIBLOCK
 static void vtkDebugMultiBlockStructure( vtkIndent indent, vtkMultiGroupDataSet* mbds );
 #endif // VTK_LSDYNA_DBG_MULTIBLOCK
+
+enum {
+	FEM_Q1Q0_INS_CFD = 0,
+	CESE_CFD_NODE,
+	CESE_CFD_ELEMENT,
+	CESE_CFD_ELEMENT_TS,
+	RADFLOW_FULL,
+	RADFLOW_NODE,
+	EM_FEMSTER_SOLID_INTEG_PTS,
+	EM_FEMSTER_TSHELL_INTEG_PTS,
+	EM_FEMSTER_SHELL_INTEG_PTS,
+	EM_FEMSTER_SOLID_CENTROID,
+	EM_FEMSTER_TSHELL_CENTROID,
+	EM_FEMSTER_SHELL_CENTROID,
+	EM_FEMSTER_AIR,
+	RECT_AIR_EM_NODE,
+	EM_FEMSTER_BEM,
+	PFEM_IF,
+	PFEM_IF_SURFACE,
+	STOCHASTIC_PARTICLES,
+	CESE,
+	CESE_SURFACE,
+	EM,
+	EM_SURFACE
+};
+
+#define D3PL_FIRST_SCALAR_ID 0
+#define D3PL_FIRST_VECTOR_ID 1000
+#define D3PL_FIRST_TENSOR_ID 2000
+#define D3PL_END_IDS 3000
+
+int GetComponentOfExtraVariable(int Id)
+{
+	if (Id >= D3PL_FIRST_SCALAR_ID && Id < D3PL_FIRST_VECTOR_ID)
+	{
+		return 1;
+	}
+	else if (Id < D3PL_FIRST_TENSOR_ID)
+	{
+		return 3;
+	}
+	else if (Id < D3PL_END_IDS)
+	{
+		return 6;
+	}
+	return 1;
+}
+
+std::string int2string(int i)
+{
+	std::stringstream ss;
+	ss << i;
+	std::string strComp;
+	ss >> strComp;
+	return strComp;
+}
 
 namespace
 {
@@ -1686,24 +1747,33 @@ int vtkLSDynaReader::ReadHeaderInformation(int curAdapt)
 		}
 	}
 
-	char sname[] = LS_ARRAYNAME_SPECIES_BLNK;
-	iddtmp = p->Dict["NCFDV2"];
-	for (itmp = 1; itmp < 11; ++itmp)
+	p->isEXTRADATA = false;
+	if (itmp != 67108864)
 	{
-		if (iddtmp & (vtkIdType)(1 << itmp))
+		char sname[] = LS_ARRAYNAME_SPECIES_BLNK;
+		iddtmp = p->Dict["NCFDV2"];
+		for (itmp = 1; itmp < 11; ++itmp)
 		{
-			sprintf(sname, LS_ARRAYNAME_SPECIES_FMT, itmp);
-			p->AddPointArray(sname, 1, 1);
-			p->StateSize += p->NumberOfNodes * p->Fam.GetWordSize();
-			sprintf(sname, "cfdSpec%02d", itmp);
-			p->Dict[sname] = 1;
-		}
-		else
-		{
-			sprintf(sname, "cfdSpec%02d", itmp);
-			p->Dict[sname] = 0;
+			if (iddtmp & (vtkIdType)(1 << itmp))
+			{
+				sprintf(sname, LS_ARRAYNAME_SPECIES_FMT, itmp);
+				p->AddPointArray(sname, 1, 1);
+				p->StateSize += p->NumberOfNodes * p->Fam.GetWordSize();
+				sprintf(sname, "cfdSpec%02d", itmp);
+				p->Dict[sname] = 1;
+			}
+			else
+			{
+				sprintf(sname, "cfdSpec%02d", itmp);
+				p->Dict[sname] = 0;
+			}
 		}
 	}
+	else
+	{
+		p->isEXTRADATA = true;
+	}
+	
 
 	// Solid element state size   FIXME: 7 + NEIPH should really be NV3D (in case things change)
 	p->StateSize += (7 + p->Dict["NEIPH"])*p->NumberOfCells[LSDynaMetaData::SOLID] * p->Fam.GetWordSize();
@@ -1853,8 +1923,7 @@ int vtkLSDynaReader::ReadHeaderInformation(int curAdapt)
 	iddtmp += p->NumberOfCells[LSDynaMetaData::SHELL] * 5 * p->Fam.GetWordSize(); // Size of quads on disk
 	iddtmp += p->NumberOfCells[LSDynaMetaData::BEAM] * 6 * p->Fam.GetWordSize(); // Size of beams on disk
 	p->PreStateSize += iddtmp;
-	p->Fam.SkipToWord(LSDynaFamily::GeometryData, curAdapt, iddtmp / p->Fam.GetWordSize()/* + 22*/); // Skip to end of geometry lxq
-	//p->StateSize += 22 * 8;
+	p->Fam.SkipToWord(LSDynaFamily::GeometryData, curAdapt, iddtmp / p->Fam.GetWordSize()); // Skip to end of geometry
 
 	// =========== User Material, Node, And Element Identification Numbers Section
 	p->Fam.MarkSectionStart(curAdapt, LSDynaFamily::UserIdData);
@@ -1956,6 +2025,66 @@ int vtkLSDynaReader::ReadHeaderInformation(int curAdapt)
 		p->Fam.MarkSectionStart(curAdapt, LSDynaFamily::EndOfStaticSection);
 		p->Fam.MarkSectionStart(curAdapt, LSDynaFamily::TimeStepSection);
 	}
+
+	// ====================读取额外的数据，新加的===========================
+	if (p->isEXTRADATA)
+	{
+		p->extraDatas.clear();
+		for (int extraIndex = 0; extraIndex < p->Dict["NCFDV2"]; extraIndex++)
+		{
+			p->Fam.BufferChunk(LSDynaFamily::Int, 1);
+			int extraType = p->Fam.GetNextWordAsInt();
+
+			extraData ed;
+			ed.type = extraType;
+
+			if (extraType == EM_FEMSTER_SOLID_INTEG_PTS)
+			{
+				int num;
+				p->Fam.BufferChunk(LSDynaFamily::Int, 5);
+				int componentsNum = p->Fam.GetNextWordAsInt() * p->Fam.GetWordSize();
+				ed.componentsNum = componentsNum;
+				num = p->Fam.GetNextWordAsInt();
+				num = p->Fam.GetNextWordAsInt();
+				num = p->Fam.GetNextWordAsInt();
+				num = p->Fam.GetNextWordAsInt();
+				p->Fam.BufferChunk(LSDynaFamily::Int, num);
+				
+				for (int j = 0; j < num; j++)
+				{
+					int extraVID = p->Fam.GetNextWordAsInt();
+					ed.dataId.push_back(extraVID);
+					int comp = GetComponentOfExtraVariable(extraVID);
+					p->StateSize += comp * componentsNum;
+					
+					p->AddCellArray(LSDynaMetaData::SOLID, std::string(LS_ARRAYNAME_EM_FEMSTER_SOLID_INTEG_PTS) + int2string(extraVID), comp, 1);
+				}
+			}
+			else if (EM_FEMSTER_SOLID_CENTROID == extraType)
+			{
+				int num;
+				p->Fam.BufferChunk(LSDynaFamily::Int, 4);
+				int componentsNum = p->Fam.GetNextWordAsInt() * p->Fam.GetWordSize();
+				ed.componentsNum = componentsNum;
+				num = p->Fam.GetNextWordAsInt();
+				num = p->Fam.GetNextWordAsInt();
+				num = p->Fam.GetNextWordAsInt();
+				p->Fam.BufferChunk(LSDynaFamily::Int, num);
+				for (int j = 0; j < num; j++)
+				{
+					int extraVID = p->Fam.GetNextWordAsInt();
+					ed.dataId.push_back(extraVID);
+					int comp = GetComponentOfExtraVariable(extraVID);
+					p->StateSize += comp * componentsNum;
+
+					p->AddCellArray(LSDynaMetaData::SOLID, std::string(LS_ARRAYNAME_EM_FEMSTER_SOLID_CENTROID) + int2string(extraVID), comp, 1);
+				}
+			}
+
+			p->extraDatas.push_back(ed);
+		}
+	}
+
 	p->Fam.SetStateSize(p->StateSize / p->Fam.GetWordSize());
 
 
@@ -2790,6 +2919,37 @@ int vtkLSDynaReader::ReadNodeStateInfo( vtkIdType step )
   return 0;
 }
 
+int vtkLSDynaReader::ReadExtraState(vtkIdType vtkNotUsed(step))
+{
+
+#define VTK_LS_CELLARRAY(cond,celltype,arrayname,numComps)\
+	if (cond && this->GetCellArrayStatus(celltype, arrayname)) \
+	{ \
+		this->Parts->AddProperty(celltype, arrayname, startPos, numComps); \
+	} \
+	startPos += numComps;
+
+	int startPos = 7;
+	int totalComp = 0;
+	for (int i = 0; i < P->extraDatas.size(); i++)
+	{
+		if (P->extraDatas[i].type == EM_FEMSTER_SOLID_INTEG_PTS)
+		{
+			std::vector<int>& ids = P->extraDatas[i].dataId;
+			for (int j = 0; j < ids.size(); j++)
+			{
+				int comp = GetComponentOfExtraVariable(ids[j]);
+				VTK_LS_CELLARRAY(1, LSDynaMetaData::SOLID, (std::string(LS_ARRAYNAME_EM_FEMSTER_SOLID_INTEG_PTS) + int2string(ids[j])).c_str(), comp);
+				totalComp += comp;
+			}
+		}
+	}
+	this->ReadCellProperties(LSDynaMetaData::SOLID, totalComp);
+
+#undef VTK_LS_CELLARRAY
+	return 0;
+	//VTK_LS_CELLARRAY(p->Dict["isphfg(2)"], LSDynaMetaData::PARTICLE, "InfluenceRadius", 1);
+}
 //-----------------------------------------------------------------------------
 int vtkLSDynaReader::ReadCellStateInfo( vtkIdType vtkNotUsed(step) )
 {
@@ -3048,6 +3208,8 @@ int vtkLSDynaReader::ReadSPHState( vtkIdType vtkNotUsed(step) )
 #undef VTK_LS_SPHARRAY
   return 0;
 }
+
+
 
 int vtkLSDynaReader::ReadUserMaterialIds()
 {
@@ -3582,6 +3744,13 @@ int vtkLSDynaReader::RequestData(
 			vtkErrorMacro("Problem reading smooth particle hydrodynamics state.");
 			return 1;
 		}
+	}
+
+	// 读取额外数据
+	if (this->ReadExtraState(p->CurrentState))
+	{
+		vtkErrorMacro("读取额外数据出错 for time step " << p->CurrentState);
+		return 1;
 	}
 
 	this->UpdateProgress(0.8);

@@ -34,6 +34,13 @@
 #include <set>
 #include <vector>
 
+struct extraData
+{
+	int type;
+	int componentsNum;
+	std::vector<int> dataId;
+};
+
 class LSDynaMetaData
 {
 public:
@@ -124,6 +131,11 @@ public:
 
   //Number of words into the state that the SPH state data starts at
   vtkIdType SPHStateOffset;
+
+  bool isEXTRADATA;
+  std::vector<extraData> extraDatas;
 };
+
+
 
 #endif // __LSDynaMetaData_h

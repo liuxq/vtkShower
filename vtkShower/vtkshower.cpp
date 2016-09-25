@@ -38,6 +38,7 @@
 #include "vtkPointData.h"
 #include "linewidget.h"
 #include "vtkFloatArray.h"
+#include "vtkDoubleArray.h"
 
 
 #include <QFileDialog>
@@ -596,7 +597,7 @@ void vtkShower::OnMenuOpenLSDFile()
 
 	rdr = vtkLSDynaReader::New();
 	//rdr->SetDatabaseDirectory(dirName.toLocal8Bit());
-	//rdr->SetDatabaseDirectory("D:/result_demo64");
+	//rdr->SetDatabaseDirectory("D:/result_demo32");
 	rdr->SetDatabaseDirectory("D:/res");
 	rdr->Update();
 
@@ -737,7 +738,17 @@ void vtkShower::visPipeline(void)
 							if (rangeMax < range[1]) rangeMax = range[1];
 						}
 					}
-				
+					else if (vda->GetDataType() == VTK_DOUBLE)
+					{
+						vtkDoubleArray* da = vtkDoubleArray::SafeDownCast(vda);
+						if (da)
+						{
+							double range[2];
+							da->GetRange(range);
+							if (rangeMin > range[0]) rangeMin = range[0];
+							if (rangeMax < range[1]) rangeMax = range[1];
+						}
+					}
 				}
 
 				unMapper = vtkDataSetMapper::New();
@@ -781,6 +792,17 @@ void vtkShower::visPipeline(void)
 							if (rangeMax < range[1]) rangeMax = range[1];
 						}
 					}	
+					else if (vda->GetDataType() == VTK_DOUBLE)
+					{
+						vtkDoubleArray* da = vtkDoubleArray::SafeDownCast(vda);
+						if (da)
+						{
+							double range[2];
+							da->GetRange(range);
+							if (rangeMin > range[0]) rangeMin = range[0];
+							if (rangeMax < range[1]) rangeMax = range[1];
+						}
+					}
 				}
 
 				unMapper = vtkDataSetMapper::New();
@@ -890,6 +912,14 @@ void vtkShower::onButtonLine()
 								m_lines.push_back(fa->GetValue(m_style->pointId));
 							}
 						}
+						else if (vda->GetDataType() == VTK_DOUBLE)
+						{
+							vtkDoubleArray* da = vtkDoubleArray::SafeDownCast(vda);
+							if (da)
+							{
+								m_lines.push_back(da->GetValue(m_style->pointId));
+							}
+						}
 					}
 				}
 
@@ -923,6 +953,14 @@ void vtkShower::onButtonLine()
 							if (fa)
 							{
 								m_lines.push_back(fa->GetValue(m_style->cellId));
+							}
+						}
+						else if (vda->GetDataType() == VTK_DOUBLE)
+						{
+							vtkDoubleArray* da = vtkDoubleArray::SafeDownCast(vda);
+							if (da)
+							{
+								m_lines.push_back(da->GetValue(m_style->pointId));
 							}
 						}
 					}

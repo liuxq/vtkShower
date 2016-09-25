@@ -522,6 +522,7 @@ protected:
   virtual int ReadCellStateInfo( vtkIdType );
   virtual int ReadDeletion();
   virtual int ReadSPHState( vtkIdType );
+  virtual int ReadExtraState(vtkIdType);
 
   //Description:
   // Resets the Part information to the default state
