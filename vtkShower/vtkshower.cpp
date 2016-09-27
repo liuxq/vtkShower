@@ -598,7 +598,7 @@ void vtkShower::OnMenuOpenLSDFile()
 	rdr = vtkLSDynaReader::New();
 	//rdr->SetDatabaseDirectory(dirName.toLocal8Bit());
 	//rdr->SetDatabaseDirectory("D:/result_demo32");
-	rdr->SetDatabaseDirectory("D:/res");
+	rdr->SetDatabaseDirectory("C:/EM");
 	rdr->Update();
 
 	ofstream lxq("lxq.txt");

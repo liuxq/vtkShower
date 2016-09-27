@@ -132,6 +132,7 @@ vtkStandardNewMacro(vtkLSDynaReader);
 //extraData
 #define LS_ARRAYNAME_EM_FEMSTER_SOLID_CENTROID  "EMSolidCentroid"
 #define LS_ARRAYNAME_EM_FEMSTER_SOLID_INTEG_PTS  "EMsolidInteg.Pts"
+#define LS_ARRAYNAME_EM_FEMSTER_BEM				"EMBEM"
 
 // Possible material  options
 #define LS_MDLOPT_NONE 0
@@ -2078,6 +2079,29 @@ int vtkLSDynaReader::ReadHeaderInformation(int curAdapt)
 					p->StateSize += comp * componentsNum;
 
 					p->AddCellArray(LSDynaMetaData::SOLID, std::string(LS_ARRAYNAME_EM_FEMSTER_SOLID_CENTROID) + int2string(extraVID), comp, 1);
+				}
+			}
+			else if (EM_FEMSTER_BEM == extraType)
+			{
+				int num;
+				p->Fam.BufferChunk(LSDynaFamily::Int, 6);
+				int componentsNum = p->Fam.GetNextWordAsInt() * p->Fam.GetWordSize();
+				int numnp = p->Fam.GetNextWordAsInt();
+				int numfaces = p->Fam.GetNextWordAsInt();
+				p->Fam.GetNextWordAsInt();
+				int flag = p->Fam.GetNextWordAsInt();
+				p->Fam.BufferChunk(LSDynaFamily::Int, numnp * 4 + numfaces* 5);
+				p->Fam.BufferChunk(LSDynaFamily::Int, 1);
+				int vNum = p->Fam.GetNextWordAsInt();
+				p->Fam.BufferChunk(LSDynaFamily::Int, vNum);
+				for (int j = 0; j < vNum; j++)
+				{
+					int extraVID = p->Fam.GetNextWordAsInt();
+					ed.dataId.push_back(extraVID);
+					int comp = GetComponentOfExtraVariable(extraVID);
+					p->StateSize += comp * componentsNum;
+
+					p->AddCellArray(LSDynaMetaData::SOLID, std::string(LS_ARRAYNAME_EM_FEMSTER_BEM) + int2string(extraVID), comp, 1);
 				}
 			}
 
