@@ -3034,7 +3034,36 @@ int vtkLSDynaReader::ReadCellStateInfo( vtkIdType vtkNotUsed(step) )
     {
     VTK_LS_CELLARRAY(1, LSDynaMetaData::SOLID, LS_ARRAYNAME_STRAIN, 6);
     }
-  this->ReadCellProperties(LSDynaMetaData::SOLID, p->Dict["NV3D"]);
+
+  int totalComp = 0;
+  for (int i = 0; i < P->extraDatas.size(); i++)
+  {
+	  if (P->extraDatas[i].type == EM_FEMSTER_SOLID_INTEG_PTS)
+	  {
+		  std::vector<int>& ids = P->extraDatas[i].dataId;
+		  for (int j = 0; j < ids.size(); j++)
+		  {
+			  int comp = GetComponentOfExtraVariable(ids[j]);
+			  VTK_LS_CELLARRAY(1, LSDynaMetaData::SOLID, (std::string(LS_ARRAYNAME_EM_FEMSTER_SOLID_INTEG_PTS) + int2string(ids[j])).c_str(), comp);
+			  totalComp += comp;
+		  }
+	  }
+	  if (P->extraDatas[i].type == EM_FEMSTER_SOLID_CENTROID)
+	  {
+		  std::vector<int>& ids = P->extraDatas[i].dataId;
+		  for (int j = 0; j < ids.size(); j++)
+		  {
+			  int comp = GetComponentOfExtraVariable(ids[j]);
+			  VTK_LS_CELLARRAY(1, LSDynaMetaData::SOLID, (std::string(LS_ARRAYNAME_EM_FEMSTER_SOLID_CENTROID) + int2string(ids[j])).c_str(), comp);
+			  totalComp += comp;
+		  }
+	  }
+  }
+  //this->ReadCellProperties(LSDynaMetaData::SOLID, totalComp);
+
+  this->ReadCellProperties(LSDynaMetaData::SOLID, p->Dict["NV3D"] + totalComp);
+
+
 
   // Thick Shell element data==================================================
   startPos=0;
@@ -3770,12 +3799,12 @@ int vtkLSDynaReader::RequestData(
 		}
 	}
 
-	// 读取额外数据
-	if (this->ReadExtraState(p->CurrentState))
-	{
-		vtkErrorMacro("读取额外数据出错 for time step " << p->CurrentState);
-		return 1;
-	}
+	//// 读取额外数据
+	//if (this->ReadExtraState(p->CurrentState))
+	//{
+	//	vtkErrorMacro("读取额外数据出错 for time step " << p->CurrentState);
+	//	return 1;
+	//}
 
 	this->UpdateProgress(0.8);
 	//add all the parts as child blocks to the output

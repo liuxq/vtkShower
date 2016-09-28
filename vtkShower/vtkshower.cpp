@@ -702,7 +702,7 @@ void vtkShower::visPipeline(void)
 
 	for (int k = 0; k < mbds->GetNumberOfBlocks(); ++k)
 	{
-		if (!m_partsCbs[k]->isChecked())
+		if (!m_partsCbs[k]->isChecked() || k >= m_partsCbs.size())
 			continue;
 
 		int type = mbds->GetBlock(k)->GetDataObjectType();
@@ -960,7 +960,7 @@ void vtkShower::onButtonLine()
 							vtkDoubleArray* da = vtkDoubleArray::SafeDownCast(vda);
 							if (da)
 							{
-								m_lines.push_back(da->GetValue(m_style->pointId));
+								m_lines.push_back(da->GetValue(m_style->cellId));
 							}
 						}
 					}
