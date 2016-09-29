@@ -2086,14 +2086,17 @@ int vtkLSDynaReader::ReadHeaderInformation(int curAdapt)
 				int num;
 				p->Fam.BufferChunk(LSDynaFamily::Int, 6);
 				int componentsNum = p->Fam.GetNextWordAsInt() * p->Fam.GetWordSize();
+				ed.componentsNum = componentsNum;
 				int numnp = p->Fam.GetNextWordAsInt();
 				int numfaces = p->Fam.GetNextWordAsInt();
 				p->Fam.GetNextWordAsInt();
+				int NumPart = p->Fam.GetNextWordAsInt();
 				int flag = p->Fam.GetNextWordAsInt();
 				p->Fam.BufferChunk(LSDynaFamily::Int, numnp * 4 + numfaces* 5);
 				p->Fam.BufferChunk(LSDynaFamily::Int, 1);
 				int vNum = p->Fam.GetNextWordAsInt();
 				p->Fam.BufferChunk(LSDynaFamily::Int, vNum);
+				p->StateSize += numnp * 3 * p->Fam.GetWordSize();//坐标
 				for (int j = 0; j < vNum; j++)
 				{
 					int extraVID = p->Fam.GetNextWordAsInt();
@@ -3055,6 +3058,16 @@ int vtkLSDynaReader::ReadCellStateInfo( vtkIdType vtkNotUsed(step) )
 		  {
 			  int comp = GetComponentOfExtraVariable(ids[j]);
 			  VTK_LS_CELLARRAY(1, LSDynaMetaData::SOLID, (std::string(LS_ARRAYNAME_EM_FEMSTER_SOLID_CENTROID) + int2string(ids[j])).c_str(), comp);
+			  totalComp += comp;
+		  }
+	  }
+	  if (P->extraDatas[i].type == EM_FEMSTER_BEM)
+	  {
+		  std::vector<int>& ids = P->extraDatas[i].dataId;
+		  for (int j = 0; j < ids.size(); j++)
+		  {
+			  int comp = GetComponentOfExtraVariable(ids[j]);
+			  VTK_LS_CELLARRAY(1, LSDynaMetaData::SOLID, (std::string(LS_ARRAYNAME_EM_FEMSTER_BEM) + int2string(ids[j])).c_str(), comp);
 			  totalComp += comp;
 		  }
 	  }
