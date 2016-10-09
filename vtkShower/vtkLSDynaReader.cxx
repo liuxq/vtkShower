@@ -2104,7 +2104,7 @@ int vtkLSDynaReader::ReadHeaderInformation(int curAdapt)
 					int comp = GetComponentOfExtraVariable(extraVID);
 					p->StateSize += comp * componentsNum;
 
-					p->AddCellArray(LSDynaMetaData::SOLID, std::string(LS_ARRAYNAME_EM_FEMSTER_BEM) + int2string(extraVID), comp, 1);
+					//p->AddCellArray(LSDynaMetaData::SOLID, std::string(LS_ARRAYNAME_EM_FEMSTER_BEM) + int2string(extraVID), comp, 1);
 				}
 			}
 
@@ -3061,16 +3061,16 @@ int vtkLSDynaReader::ReadCellStateInfo( vtkIdType vtkNotUsed(step) )
 			  totalComp += comp;
 		  }
 	  }
-	  if (P->extraDatas[i].type == EM_FEMSTER_BEM)
+	  /*if (P->extraDatas[i].type == EM_FEMSTER_BEM)
 	  {
-		  std::vector<int>& ids = P->extraDatas[i].dataId;
-		  for (int j = 0; j < ids.size(); j++)
-		  {
-			  int comp = GetComponentOfExtraVariable(ids[j]);
-			  VTK_LS_CELLARRAY(1, LSDynaMetaData::SOLID, (std::string(LS_ARRAYNAME_EM_FEMSTER_BEM) + int2string(ids[j])).c_str(), comp);
-			  totalComp += comp;
-		  }
+	  std::vector<int>& ids = P->extraDatas[i].dataId;
+	  for (int j = 0; j < ids.size(); j++)
+	  {
+	  int comp = GetComponentOfExtraVariable(ids[j]);
+	  VTK_LS_CELLARRAY(1, LSDynaMetaData::SOLID, (std::string(LS_ARRAYNAME_EM_FEMSTER_BEM) + int2string(ids[j])).c_str(), comp);
+	  totalComp += comp;
 	  }
+	  }*/
   }
   //this->ReadCellProperties(LSDynaMetaData::SOLID, totalComp);
 
@@ -3407,7 +3407,7 @@ int vtkLSDynaReader::ReadPartTitlesFromRootFile()
       p->PartNames[i] = name;
       }
     }
-  p->Fam.SkipToWord(LSDynaFamily::ControlSection,currentAdaptLevel,currentFileLoc);
+  p->Fam.SkipToWord(LSDynaFamily::ControlSection, currentAdaptLevel, currentFileLoc / p->Fam.GetWordSize());
   return 0;
 }
 

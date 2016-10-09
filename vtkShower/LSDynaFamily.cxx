@@ -323,7 +323,7 @@ int LSDynaFamily::SkipToWord(SectionType sType, vtkIdType sId, vtkIdType wordNum
 		this->FNum = mark.FileNumber;
 		this->FAdapt = this->FileAdaptLevels[this->FNum];
 	}
-	vtkLSDynaOff_t offset = mark.Offset * this->WordSize;
+	vtkLSDynaOff_t offset = mark.Offset *this->WordSize;
 	// FIXME: Handle case where wordNumber + mark.Offset > (7=factor)*512*512
 	if (VTK_LSDYNA_SEEKTELL(this->FD, offset, SEEK_SET) != offset)
 	{
