@@ -120,7 +120,7 @@ m_rangeMin(-1), m_rangeMax(1), m_TypeMode(2)
 	LsdPlaytimer = new QTimer(this);
 	connect(LsdPlaytimer, SIGNAL(timeout()), this, SLOT(OnTimerOut()));
 
-	OnMenuOpenLSDFile();
+	//OnMenuOpenLSDFile();
 }
 
 void vtkShower::SetAxis()
@@ -586,9 +586,9 @@ void vtkShower::resizeEvent(QResizeEvent * event) {
 
 void vtkShower::OnMenuOpenLSDFile()
 {
-	/*QDir dir;
+	QDir dir;
 	QString dirName = QFileDialog::getExistingDirectory(this, QString::fromLocal8Bit("打开Lsdyna文件库"), dir.absolutePath());
-	if (dirName.isEmpty() == true) return;*/
+	if (dirName.isEmpty() == true) return;
 
 	m_TypeMode = 0;
 
@@ -596,14 +596,14 @@ void vtkShower::OnMenuOpenLSDFile()
 	RemoveLsdActors();
 
 	rdr = vtkLSDynaReader::New();
-	//rdr->SetDatabaseDirectory(dirName.toLocal8Bit());
-	//rdr->SetDatabaseDirectory("D:/res");
-	rdr->SetDatabaseDirectory("C:/EM");
+	rdr->SetDatabaseDirectory(dirName.toLocal8Bit());
+	//rdr->SetDatabaseDirectory("D:/result_demo32");
+	//rdr->SetDatabaseDirectory("C:/EM");
 	rdr->Update();
 
-	ofstream lxq("lxq.txt");
+	/*ofstream lxq("lxq.txt");
 	vtkIndent vi;
-	rdr->PrintSelf(lxq, vi);
+	rdr->PrintSelf(lxq, vi);*/
 
 	for (int i = 0; i < m_partsCbs.size(); i++)
 	{

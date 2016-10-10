@@ -329,7 +329,7 @@ int LSDynaFamily::SkipToWord(SectionType sType, vtkIdType sId, vtkIdType wordNum
 	{
 		return errno;
 	}
-	this->FWord = mark.Offset;
+	this->FWord = offset;// mark.Offset;
 	return 0;
 }
 

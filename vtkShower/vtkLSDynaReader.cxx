@@ -3359,7 +3359,7 @@ int vtkLSDynaReader::ReadPartTitlesFromRootFile()
     }
 
  //when called this method is at the right spot to read the part names
-  vtkIdType currentFileLoc = p->Fam.GetCurrentFWord();
+  vtkIdType currentFileLoc = p->Fam.GetCurrentFWord() / p->Fam.GetWordSize();
   vtkIdType currentAdaptLevel = p->Fam.GetCurrentAdaptLevel();
 
   p->Fam.BufferChunk( LSDynaFamily::Float, 1 );
@@ -3407,7 +3407,7 @@ int vtkLSDynaReader::ReadPartTitlesFromRootFile()
       p->PartNames[i] = name;
       }
     }
-  p->Fam.SkipToWord(LSDynaFamily::ControlSection, currentAdaptLevel, currentFileLoc / p->Fam.GetWordSize());
+  p->Fam.SkipToWord(LSDynaFamily::ControlSection, currentAdaptLevel, currentFileLoc );
   return 0;
 }
 
